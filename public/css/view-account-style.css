@@ -1,0 +1,43 @@
+.statusActive {
+    background-color: #4ea72e;
+}
+.statusInactive {
+    background-color: #c30010;
+}
+.statusActive,
+.statusInactive {
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    width: 80px;
+    height: 20px;
+    text-align: center;
+    align-self: center;
+}
+.accountDetail > div {
+    margin-bottom: 10px;
+}
+.backBtn {
+    background-color: #275317;
+    color: white;
+    font-size: 16px;
+    width: 80px;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    align-content: center;
+}
+/* .addVehicleBtn {
+    background-color: #275317;
+    height: 25px;
+    padding: 0 10px 0 10px;
+    --bs-btn-color: #275317;
+    --bs-btn-active-color: #275317;
+    --bs-btn-active-bg: #275317;
+    --bs-btn-active-border-color:  #275317;
+    --bs-btn-bg: #275317;
+}
+.addVehicleBtn:hover {
+    background-color: #275317;
+    opacity: 0.8;
+} */

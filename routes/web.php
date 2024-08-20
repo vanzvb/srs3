@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\SrsRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -19,6 +21,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::group(['middleware' => 'maintenance'], function () {
+});
+
 Auth::routes();
+
+Route::get('/sticker/new', [SrsRequestController::class, 'create']);
+
+Route::get('/sticker/request/status', function () {
+    return view('srs.request.status');
+})->name('request.status');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
