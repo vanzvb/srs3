@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\SrsRequestController;
+use App\Http\Controllers\SrsRequestRenewalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -26,7 +28,11 @@ Route::group(['middleware' => 'maintenance'], function () {
 
 Auth::routes();
 
+
 Route::get('/sticker/new', [SrsRequestController::class, 'create']);
+
+Route::get('/sticker/renewal', [SrsRequestRenewalController::class, 'index']);
+Route::post('/sticker/request/renewal', [SrsRequestRenewalController::class, 'renewalCheck']);
 
 Route::get('/sticker/request/status', function () {
     return view('srs.request.status');
