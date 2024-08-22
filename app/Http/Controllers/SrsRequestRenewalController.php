@@ -21,7 +21,7 @@ use App\Traits\WithCaptcha;
 
 class SrsRequestRenewalController extends Controller
 {
-    // use WithCaptcha;
+    use WithCaptcha;
 
     private function getNextId($category, $subCategory)
     {
@@ -205,87 +205,87 @@ class SrsRequestRenewalController extends Controller
             return back()->withErrors(['error' => 'Error L103']);
         }
 
-        $request->validate([
-            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
-                $response = $this->validateCaptcha($value);
+        // $request->validate([
+        //     'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+        //         $response = $this->validateCaptcha($value);
 
-                if (!$response) {
-                    $fail('We have detected unusual activity. Please try again.');
-                }
-            }],
-            'hoa'       => 'nullable|integer|exists:srs_hoas,id',
-            'vref'      => 'required|array',
-            'v_or'      => 'required|array',
-            'v_or.*'    => 'file|mimes:jpg,png,jpeg|max:5120',
-            'or.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
-            'cr.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
-            'new_plate_no.*' => 'string|nullable|max:100',
-            // 'hoa_endorsement' => 'file|mimes:jpg,png,jpeg,pdf',
-            'lease_contract' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'tct' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'business_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'deed_of_assignment' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'proof_of_ownership' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'proof_of_residency' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'bffhai_biz_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'valid_id_other_requirement' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'other_documents_2' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'other_documents_3' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'nbi_police_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'general_information_sheet' => 'file|mimes:jpg,png,jpeg|max:5120',
-        ], [
-            'g-recaptcha-response.required' => 'Please complete the reCAPTCHA',
-            'vref.required' => 'Vehicle for renewal is required',
-            'v_or.required' => 'Vehicle for renewal OR is required',
-            'v_or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
-            'v_or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
-            'or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
-            'or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
-            'cr.*.mimes' => 'Vehicle for renewal CR must be an image file (jpg, png, jpeg)',
-            'cr.*.max' => 'Vehicle for renewal CR must not exceed 5MB',
-            'lease_contract.mimes' => 'Lease Contract must be an image file (jpg, png, jpeg)',
-            'lease_contract.max' => 'Lease Contract must not exceed 5MB',
-            'tct.mimes' => 'TCT must be an image file (jpg, png, jpeg)',
-            'tct.max' => 'TCT must not exceed 5MB',
-            'business_clearance.mimes' => 'Business Clearance must be an image file (jpg, png, jpeg)',
-            'business_clearance.max' => 'Business Clearance must not exceed 5MB',
-            'deed_of_assignment.mimes' => 'Deed of Assignment must be an image file (jpg, png, jpeg)',
-            'deed_of_assignment.max' => 'Deed of Assignment must not exceed 5MB',
-            'proof_of_ownership.mimes' => 'Proof of Ownership must be an image file (jpg, png, jpeg)',
-            'proof_of_ownership.max' => 'Proof of Ownership must not exceed 5MB',
-            'proof_of_residency.mimes' => 'Proof of Residency must be an image file (jpg, png, jpeg)',
-            'proof_of_residency.max' => 'Proof of Residency must not exceed 5MB',
-            'bffhai_biz_clearance.mimes' => 'BFFHAI Business Clearance must be an image file (jpg, png, jpeg)',
-            'bffhai_biz_clearance.max' => 'BFFHAI Business Clearance must not exceed 5MB',
-            'valid_id_other_requirement.mimes' => 'Valid ID or Other Requirement must be an image file (jpg, png, jpeg)',
-            'valid_id_other_requirement.max' => 'Valid ID or Other Requirement must not exceed 5MB',
-            'other_documents_2.mimes' => 'Other Documents 2 must be an image file (jpg, png, jpeg)',
-            'other_documents_2.max' => 'Other Documents 2 must not exceed 5MB',
-            'other_documents_3.mimes' => 'Other Documents 3 must be an image file (jpg, png, jpeg)',
-            'other_documents_3.max' => 'Other Documents 3 must not exceed 5MB',
-            'nbi_police_clearance.mimes' => 'NBI/Police Clearance must be an image file (jpg, png, jpeg)',
-            'nbi_police_clearance.max' => 'NBI/Police Clearance must not exceed 5MB',
-            'general_information_sheet.mimes' => 'General Information Sheet must be an image file (jpg, png, jpeg)',
-            'general_information_sheet.max' => 'General Information Sheet must not exceed 5MB',
-        ], [
-            'vref' => 'Renewal Vehicle',
-            'or' => 'OR',
-            'new_plate_no.*' => 'New Plate No.',
-            'v_or' => 'Vehicle OR',
-            'cr' => 'CR',
-            'lease_contract' => 'Lease Contract',
-            'tct' => 'TCT',
-            'business_clearance' => 'Business Clearance',
-            'deed_of_assignment' => 'Deed of Assignment',
-            'proof_of_ownership' => 'Proof of Ownership',
-            'proof_of_residency' => 'Proof of Residency',
-            'bffhai_biz_clearance' => 'BFFHAI Business Clearance',
-            'valid_id_other_requirement' => 'Valid ID or Other Requirement',
-            'other_documents_2' => 'Other Documents 2',
-            'other_documents_3' => 'Other Documents 3',
-            'nbi_police_clearance' => 'NBI/Police Clearance',
-            'general_information_sheet' => 'General Information Sheet',
-        ]);
+        //         if (!$response) {
+        //             $fail('We have detected unusual activity. Please try again.');
+        //         }
+        //     }],
+        //     'hoa'       => 'nullable|integer|exists:srs_hoas,id',
+        //     'vref'      => 'required|array',
+        //     'v_or'      => 'required|array',
+        //     'v_or.*'    => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'or.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'cr.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'new_plate_no.*' => 'string|nullable|max:100',
+        //     // 'hoa_endorsement' => 'file|mimes:jpg,png,jpeg,pdf',
+        //     'lease_contract' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'tct' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'business_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'deed_of_assignment' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'proof_of_ownership' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'proof_of_residency' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'bffhai_biz_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'valid_id_other_requirement' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'other_documents_2' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'other_documents_3' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'nbi_police_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
+        //     'general_information_sheet' => 'file|mimes:jpg,png,jpeg|max:5120',
+        // ], [
+        //     'g-recaptcha-response.required' => 'Please complete the reCAPTCHA',
+        //     'vref.required' => 'Vehicle for renewal is required',
+        //     'v_or.required' => 'Vehicle for renewal OR is required',
+        //     'v_or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
+        //     'v_or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
+        //     'or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
+        //     'or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
+        //     'cr.*.mimes' => 'Vehicle for renewal CR must be an image file (jpg, png, jpeg)',
+        //     'cr.*.max' => 'Vehicle for renewal CR must not exceed 5MB',
+        //     'lease_contract.mimes' => 'Lease Contract must be an image file (jpg, png, jpeg)',
+        //     'lease_contract.max' => 'Lease Contract must not exceed 5MB',
+        //     'tct.mimes' => 'TCT must be an image file (jpg, png, jpeg)',
+        //     'tct.max' => 'TCT must not exceed 5MB',
+        //     'business_clearance.mimes' => 'Business Clearance must be an image file (jpg, png, jpeg)',
+        //     'business_clearance.max' => 'Business Clearance must not exceed 5MB',
+        //     'deed_of_assignment.mimes' => 'Deed of Assignment must be an image file (jpg, png, jpeg)',
+        //     'deed_of_assignment.max' => 'Deed of Assignment must not exceed 5MB',
+        //     'proof_of_ownership.mimes' => 'Proof of Ownership must be an image file (jpg, png, jpeg)',
+        //     'proof_of_ownership.max' => 'Proof of Ownership must not exceed 5MB',
+        //     'proof_of_residency.mimes' => 'Proof of Residency must be an image file (jpg, png, jpeg)',
+        //     'proof_of_residency.max' => 'Proof of Residency must not exceed 5MB',
+        //     'bffhai_biz_clearance.mimes' => 'BFFHAI Business Clearance must be an image file (jpg, png, jpeg)',
+        //     'bffhai_biz_clearance.max' => 'BFFHAI Business Clearance must not exceed 5MB',
+        //     'valid_id_other_requirement.mimes' => 'Valid ID or Other Requirement must be an image file (jpg, png, jpeg)',
+        //     'valid_id_other_requirement.max' => 'Valid ID or Other Requirement must not exceed 5MB',
+        //     'other_documents_2.mimes' => 'Other Documents 2 must be an image file (jpg, png, jpeg)',
+        //     'other_documents_2.max' => 'Other Documents 2 must not exceed 5MB',
+        //     'other_documents_3.mimes' => 'Other Documents 3 must be an image file (jpg, png, jpeg)',
+        //     'other_documents_3.max' => 'Other Documents 3 must not exceed 5MB',
+        //     'nbi_police_clearance.mimes' => 'NBI/Police Clearance must be an image file (jpg, png, jpeg)',
+        //     'nbi_police_clearance.max' => 'NBI/Police Clearance must not exceed 5MB',
+        //     'general_information_sheet.mimes' => 'General Information Sheet must be an image file (jpg, png, jpeg)',
+        //     'general_information_sheet.max' => 'General Information Sheet must not exceed 5MB',
+        // ], [
+        //     'vref' => 'Renewal Vehicle',
+        //     'or' => 'OR',
+        //     'new_plate_no.*' => 'New Plate No.',
+        //     'v_or' => 'Vehicle OR',
+        //     'cr' => 'CR',
+        //     'lease_contract' => 'Lease Contract',
+        //     'tct' => 'TCT',
+        //     'business_clearance' => 'Business Clearance',
+        //     'deed_of_assignment' => 'Deed of Assignment',
+        //     'proof_of_ownership' => 'Proof of Ownership',
+        //     'proof_of_residency' => 'Proof of Residency',
+        //     'bffhai_biz_clearance' => 'BFFHAI Business Clearance',
+        //     'valid_id_other_requirement' => 'Valid ID or Other Requirement',
+        //     'other_documents_2' => 'Other Documents 2',
+        //     'other_documents_3' => 'Other Documents 3',
+        //     'nbi_police_clearance' => 'NBI/Police Clearance',
+        //     'general_information_sheet' => 'General Information Sheet',
+        // ]);
 
         $crm = CrmMain::with(['vehicles'])
                         ->where('crm_id', $crmId)
