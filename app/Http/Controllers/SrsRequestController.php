@@ -112,7 +112,7 @@ class SrsRequestController extends Controller
 
     public function list()
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
         // $requests = SrsRequest::where('status', 0)
         //                         ->orWhere('status', 1)
         //                         ->whereDoesntHave('statuses', function ($query) {
@@ -123,7 +123,7 @@ class SrsRequestController extends Controller
         // $requests = SrsRequest::with('statuses')
         //     ->orderBy('created_at')
         //     ->get();
-
+        // dd('test');
 
         return view('srs.admin.requests');
     }
@@ -150,28 +150,28 @@ class SrsRequestController extends Controller
 
         // return view('dashboard', compact('customersCount', 'invoicesCount', 'openSrsCount', 'closedSrsCount'));
         // Check if a record exists for the current day in dashboard_table
-        $dashboard = DB::table('dashboard_table')
-            ->whereDate('date', '=', now()->toDateString())
-            ->first();
+        // $dashboard = DB::table('dashboard_table')
+        //     ->whereDate('date', '=', now()->toDateString())
+        //     ->first();
 
         // If no record exists for the current day, retrieve the record for yesterday's date
-        if (!$dashboard) {
-            $dashboard = DB::table('dashboard_table')
-                ->whereDate('date', '=', now()->subDay()->toDateString())
-                ->first();
-        }
+        // if (!$dashboard) {
+        //     $dashboard = DB::table('dashboard_table')
+        //         ->whereDate('date', '=', now()->subDay()->toDateString())
+        //         ->first();
+        // }
 
         // If still no record found, you may handle it as needed, maybe set default values
-        if (!$dashboard) {
-            $dashboard = (object) [
-                'customer_count' => 0,
-                'invoices_count' => 0,
-                'open_srs_count' => 0,
-                'closed_srs_count' => 0
-            ];
-        }
+        // if (!$dashboard) {
+        //     $dashboard = (object) [
+        //         'customer_count' => 0,
+        //         'invoices_count' => 0,
+        //         'open_srs_count' => 0,
+        //         'closed_srs_count' => 0
+        //     ];
+        // }
 
-        return view('dashboard', ['dashboard' => $dashboard]);
+        return view('dashboard');
     }
 
     public function dashboardCron() {
@@ -1212,7 +1212,7 @@ class SrsRequestController extends Controller
 
     public function getRequests(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         if (!$request->ajax()) {
             abort(404);

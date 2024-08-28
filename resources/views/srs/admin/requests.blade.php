@@ -1271,7 +1271,7 @@ $(document).ready(function () {
 					</strong>
 				</div>`);
 		$.ajax({
-			url: '{{ route("appointment.reset") }}',
+			{{-- url: '{{ route("appointment.reset") }}', --}}
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',
@@ -1344,7 +1344,7 @@ $(document).ready(function () {
 					</strong>
 				</div>`);
 		$.ajax({
-			url: '{{ route("appointment.resend") }}',
+			{{-- url: '{{ route("appointment.resend") }}', --}}
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',

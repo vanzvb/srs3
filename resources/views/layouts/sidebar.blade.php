@@ -40,8 +40,8 @@
                 </li>
                 @endif
 
-                   @if (Auth::user()->can('access', \App\Models\SrsCalendarBlocker::class) || Auth::user()->can('access', \App\Models\SrsPrice::class) || Auth::user()->email == 'neilalegre@bffhai.com' || Auth::user()->email == 'miguel.lacupanto@bffhai.com' || Auth::user()->email == 'floyd.tabuzo@bffhai.com'
-                   || auth()->user()->can('access_sticker_price'))
+                   {{-- @if (Auth::user()->can('access', \App\Models\SrsCalendarBlocker::class) || Auth::user()->can('access', \App\Models\SrsPrice::class) || Auth::user()->email == 'neilalegre@bffhai.com' || Auth::user()->email == 'miguel.lacupanto@bffhai.com' || Auth::user()->email == 'floyd.tabuzo@bffhai.com'
+                   || auth()->user()->can('access_sticker_price')) --}}
                     <div>
                         <li class="nav-link">
                             <a href="#" class="btn-toggle" data-bs-toggle="collapse" data-bs-target="#spc-collapse">
@@ -80,7 +80,7 @@
                     </div>
 
                     
-                @endif
+                {{-- @endif --}}
 
                 {{-- @if(Auth::user()->email == "itqa@atomitsoln.com" || Auth::user()->email == "srsadmin@atomitsoln.com" || Auth::user()->email == "lito.tampis@atomitsoln.com" || Auth::user()->email = "tirso.sulanguit@bffhai.com" || Auth::user()->email = "miguel.lacupanto@bffhai.com" || Auth::user()->email = "lawenko.max@bffhai.com" || Auth::user()->email = "jhun.paculan@bffhai.com" || Auth::user()->email = "chazt.tanyag@bffhai.com" || Auth::user()->email = "mara.mara@bffhai.com" ) --}}
 
@@ -239,14 +239,14 @@
 
                  --}}
 
-                @can('access', \App\Models\SrsRequest::class)
+                {{-- @can('access', \App\Models\SrsRequest::class) --}}
                     <li class="nav-link">
                         <a href="{{ route('requests') }}">
                             <i class='bx bx-clipboard icon'></i>
                             <span class="text nav-text">SRS Inbox</span>
                         </a>
                     </li>
-                @endcan
+                {{-- @endcan --}}
 
                 @can('access', \App\Models\CrmMain::class)
                     <li class="nav-link">
@@ -489,14 +489,14 @@
 
         <div class="bottom-content">
             <li class="">
-                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                {{-- <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class='bx bx-log-out icon'></i>
                     <span class="text nav-text">Logout</span>
                 </a>
 
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
-                </form>
+                </form> --}}
 
             </li>
 

@@ -12,7 +12,7 @@
                 <h5 class="card-title">CUSTOMERS</h5>
                 <hr>
                 {{-- <h4>{{ $customersCount }}</h4> --}}
-                <h4>{{ $dashboard->customer_count ?? 0 }}</h4>
+                {{-- <h4>{{ $dashboard->customer_count ?? 0 }}</h4> --}}
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
                 <h5 class="card-title">INVOICE CREATED</h5>
                 <hr>
                 {{-- <h4>{{ $invoicesCount }}</h4> --}}
-                <h4>{{ $dashboard->invoices_count ?? 0 }}</h4>
+                {{-- <h4>{{ $dashboard->invoices_count ?? 0 }}</h4> --}}
             </div>
         </div>
     </div>
@@ -34,7 +34,7 @@
                 <h5 class="card-title">OPEN SRS</h5>
                 <hr>
                 {{-- <h4>{{ $openSrsCount }}</h4> --}}
-                <h4>{{ $dashboard->open_srs_count ?? 0 }}</h4>
+                {{-- <h4>{{ $dashboard->open_srs_count ?? 0 }}</h4> --}}
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
                 <h5 class="card-title">CLOSED SRS</h5>
                 <hr>
                 {{-- <h4>{{ $closedSrsCount }}</h4> --}}
-                <h4>{{ $dashboard->closed_srs_count ?? 0 }}</h4>
+                {{-- <h4>{{ $dashboard->closed_srs_count ?? 0 }}</h4> --}}
             </div>
         </div>
     </div>
