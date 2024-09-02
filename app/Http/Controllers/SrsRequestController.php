@@ -536,8 +536,8 @@ class SrsRequestController extends Controller
 
     public function getRequest(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
-
+        // $this->authorize('access', SrsRequest::class);
+        // dd($request);
         $request->validate([
             'type' => 'required|integer|boolean'
         ]);
@@ -1213,7 +1213,7 @@ class SrsRequestController extends Controller
     public function getRequests(Request $request)
     {
         // $this->authorize('access', SrsRequest::class);
-
+        
         if (!$request->ajax()) {
             abort(404);
         }

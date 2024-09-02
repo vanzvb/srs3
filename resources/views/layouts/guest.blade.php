@@ -14,7 +14,10 @@
 <body oncontextmenu="return false;">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container py-md-2 px-md-5">
-        <a class="navbar-brand" href="#">Sticker Application</a>
+        <a href="#">
+            <img src="{{ asset('images/bflogo.png') }}" height="70" width="70" alt="Logo">
+        </a>
+        <a class="navbar-brand ms-3" href="#">Sticker Application</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

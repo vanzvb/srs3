@@ -100,13 +100,13 @@
 					</button>
 					<ul class="dropdown-menu inbox_menu">
 
-						@can('accessOpen', App\Models\SrsRequest::class)
+						{{-- @can('accessOpen', App\Models\SrsRequest::class) --}}
 							<li id="srs_select_inbox">
 								<a class="dropdown-item" href="#">
 									<i class='bx bxs-inbox icon'></i> SRS Inbox
 								</a>
 							</li>
-						@endcan
+						{{-- @endcan --}}
 
 						<li id="srs_select_for_approval">
 							<a class="dropdown-item" href="#">
@@ -114,22 +114,22 @@
 							</a>
 						</li>
 
-						@can('accessClosed', App\Models\SrsRequest::class)
+						{{-- @can('accessClosed', App\Models\SrsRequest::class) --}}
 							<li id="srs_select_closed"><a class="dropdown-item" href="#"><i class='bx bx-check-square icon'></i> Closed</a></li>
-						@endcan
+						{{-- @endcan --}}
 
-						@can('accessRejected', App\Models\SrsRequest::class)
+						{{-- @can('accessRejected', App\Models\SrsRequest::class) --}}
 							<li id="srs_select_rejected">
 								<a class="dropdown-item" href="#">
 									<i class='bx bx-task-x icon'></i>
 									Rejected
 								</a>
 							</li>
-						@endcan
+						{{-- @endcan --}}
 
-						@can('accessArchive', App\Models\SrsRequest::class)
+						{{-- @can('accessArchive', App\Models\SrsRequest::class) --}}
 							<li id="srs_select_archive"><a class="dropdown-item" href="#"><i class='bx bx-archive-out icon'></i> Archive</a></li>
-						@endcan
+						{{-- @endcan --}}
 
 					</ul>
 				</div>
@@ -767,25 +767,25 @@ $(document).ready(function () {
 		showRequest(srsNo);
 	}
 
-    // getRequests = () => {
-    //     $.ajax({
-    //         url: '{{ route("getRequests") }}',
-    //         success: function(data) {
-    //             var html = '';
-    //             $.each(data, function (index, item) {
-    //                 html += `<tr>
-    //                             <td><a href="/srs/request/${item.request_id}" target="_blank">${item.request_id }</a></td>
-    //                             <td>${item.first_name} ${item.last_name}</td>
-    //                             <td>${item.created_at}</td>
-    //                             <td>${getStatus(item.status)}</td>
-    //                         </tr>`;
-    //             });
-    //             $('#requests_table tbody').html(html);
-    //         }
-    //     });
-    // }
+    getRequests = () => {
+        $.ajax({
+            url: '{{ route("getRequests") }}',
+            success: function(data) {
+                var html = '';
+                $.each(data, function (index, item) {
+                    html += `<tr>
+                                <td><a href="/srs/request/${item.request_id}" target="_blank">${item.request_id }</a></td>
+                                <td>${item.first_name} ${item.last_name}</td>
+                                <td>${item.created_at}</td>
+                                <td>${getStatus(item.status)}</td>
+                            </tr>`;
+                });
+                $('#requests_table tbody').html(html);
+            }
+        });
+    }
 
-    //getRequests();
+    // getRequests();
 
     // $(document).on('click', '.approve_btn', function (e) {
     //     e.preventDefault();

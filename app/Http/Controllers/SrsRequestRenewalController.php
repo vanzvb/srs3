@@ -136,14 +136,19 @@ class SrsRequestRenewalController extends Controller
                                             ->where('status', 0)
                                             ->firstOrFail();
 
-        $requirements = SrsRequirement::with(['subCategories' => function ($query) {
-                            $query->select('spc_subcat.id');
-                        }])
-                        ->whereHas('subCategories', function ($query) use ($crm) {
-                            $query->where('spc_subcat.id', $crm->sub_category_id);
-                        })
-                        ->select('id', 'name', 'description', 'required')
-                        ->get();
+        // $requirements = SrsRequirement::with(['subCategories' => function ($query) {
+        //                     $query->select('spc_subcat.id');
+        //                 }])
+        //                 ->whereHas('subCategories', function ($query) use ($crm) {
+        //                     $query->where('spc_subcat.id', $crm->sub_category_id);
+        //                 })
+        //                 ->select('id', 'name', 'description', 'required')
+        //                 ->get();
+
+        $requirements = SrsRequirement::where('id', 10)
+                ->select('id', 'name', 'description', 'required')
+                ->get();
+
 
         $hoas = '';
         $crmHoaId = '';
@@ -165,7 +170,8 @@ class SrsRequestRenewalController extends Controller
         
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
-        return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));        
+        // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));     
     }
 
     public function processRenewal(Request $request)
