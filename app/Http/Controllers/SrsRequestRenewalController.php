@@ -8,6 +8,7 @@ use App\Models\CrmVehicle;
 use App\Models\SrsRequest;
 use Illuminate\Support\Str;
 use App\Mail\RequestRenewal;
+use App\Models\SrsCategories;
 use Illuminate\Http\Request;
 use App\Models\SrsRequirement;
 use App\Models\SrsRenewalRequest;
@@ -136,6 +137,8 @@ class SrsRequestRenewalController extends Controller
                                             ->where('status', 0)
                                             ->firstOrFail();
 
+        $srsCategories = SrsCategories::all();
+
         // $requirements = SrsRequirement::with(['subCategories' => function ($query) {
         //                     $query->select('spc_subcat.id');
         //                 }])
@@ -171,11 +174,13 @@ class SrsRequestRenewalController extends Controller
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));     
+        // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));   
+        return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
     public function processRenewal(Request $request)
     {
+        dd($request);
         // $request->validate([
         //     'vref' => 'required|array',
         //     'v_or' => 'required|array',
@@ -508,4 +513,15 @@ class SrsRequestRenewalController extends Controller
 
         return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
     }
+
+    public function saveProgress(Request $request)
+    {
+        dd('Here Submit');
+        foreach ($request->except('_token') as $key => $value) {
+            session([$key => $value]); // Store each input value in the session
+        }
+    
+        return back(); // Redirect back to the form
+    }
+
 }
