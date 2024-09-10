@@ -36,6 +36,8 @@ Route::group(['middleware' => 'maintenance'], function () {
 
 // index for new
 Route::get('/sticker/new', [SrsRequestController::class, 'create']);
+// Submit new application
+Route::post('/sticker/request', [SrsRequestController::class, 'store'])->name('request.store');
 
 // index for renewal
 Route::get('/sticker/renewal', [SrsRequestRenewalController::class, 'index']);
