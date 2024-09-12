@@ -121,3 +121,19 @@ Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'
 // Route::get('/appointments', [SrsAppointmentController::class, 'index'])->name('appointments');
 // Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
+
+Route::group(['middleware' => ['auth', 'isOnline']], function() {
+    // Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
+
+    // Approvers
+    // Route::prefix('/hoa-approvers')->group(function() {
+    //     Route::get('/', [HoaApproverController::class, 'index'])->name('hoa-approvers.index');
+    //     Route::get('/list', [HoaApproverController::class, 'list'])->name('hoa-approvers.list');
+    //     Route::get('/{request_id}/{type?}/{year?}', [HoaApproverController::class, 'show'])->name('hoa-approvers.show');
+    //     Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
+
+    //     Route::post('sticker/request/hoa_approval', [HoaApproverController::class, 'hoaApproved'])->name('hoa-approvers.approval');
+
+    //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
+    // });
+});

@@ -1,3 +1,4 @@
+// This is when you click the dropdown "Account Type" and picked 'Company' a textbox will show
 document.getElementById('account_type').addEventListener('change', function() {
     var companyNameContainer = document.getElementById('company-name-container');
     
@@ -7,27 +8,22 @@ document.getElementById('account_type').addEventListener('change', function() {
         companyNameContainer.style.display = 'none';
     }
 });
-
 // Trigger the change event to handle the default selected value
 document.getElementById('account_type').dispatchEvent(new Event('change'));
 
 
-// 
-
-// document.getElementById('renewal_request_form').addEventListener('submit', function(e) {
-//     e.preventDefault();  // Prevent the default form submission
-
-//     if (e.submitter.id === 'request_submit_btn') {
-//         // Handle 'Submit Renewal' button logic
-//         console.log('Submit Renewal button clicked');
-//         // You can submit the form using JS if needed
-//         this.submit();  // Submit the form as normal
-//     } else if (e.submitter.id === 'save_btn') {
-//         // Handle 'Save' button logic (e.g., dismiss modal, save draft)
-//         console.log('Save button clicked');
-//         // Perform any specific action for the 'Save' button
-//         // You might not want to submit the form here
-//         // Dismiss modal automatically because of `data-bs-dismiss="modal"`
-//     }
-// });
-
+// For Removing Button
+document.querySelectorAll('.btn-remove').forEach(button => {
+    button.addEventListener('click', function() {
+        const vehicleId = this.getAttribute('data-id');
+        const row = document.getElementById('vehicle-row-' + vehicleId);
+        
+        // Show a confirmation alert
+        if (confirm('Are you sure you want to remove this vehicle from the list?')) {
+            if (row) {
+                row.remove(); // Remove the row from the DOM
+            }
+        }
+        // If the user clicks 'No', the row won't be removed
+    });
+});
