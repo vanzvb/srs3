@@ -3,7 +3,9 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
 use App\Http\Controllers\SrsRequestController;
+use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -41,8 +43,13 @@ Route::post('/sticker/request', [SrsRequestController::class, 'store'])->name('r
 
 // index for renewal
 Route::get('/sticker/renewal', [SrsRequestRenewalController::class, 'index']);
+// index for renewal SRS 3.0
+Route::get('/sticker/renewalv3', [Srs3SrsRequestRenewalController::class, 'index']);
+
 // when submit is hit on renewal
 Route::post('/sticker/request/renewal', [SrsRequestRenewalController::class, 'renewalCheck']);
+// // when submit is hit on renewal 3.0
+Route::post('/sticker/request/renewalv3', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
 // for generating sub category onchange (in new)
 Route::get('/sticker/request/requirements', [SrsRequestController::class, 'getRequirements'])->name('getRequirements');
@@ -101,13 +108,16 @@ Route::post('/srs/a/password/email', [ForgotPasswordController::class, 'sendRese
 Route::get('/srs/a/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/srs/a/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
+// SRS Inbox
 Route::get('/requests', [SrsRequestController::class, 'list'])->name('requests');
 Route::get('/requests/report', [SrsRequestController::class, 'report'])->name('requests.report');
 Route::post('/requests/approve', [SrsRequestController::class, 'approve'])->name('requests.approve');
 Route::delete('/request/{srsRequest}', [SrsRequestController::class, 'adminDestroy'])->name('request.delete');
 
+// yajra get tables for inbox
 Route::get('/srs/i/requests/', [SrsRequestController::class, 'getRequests'])->name('getRequests');
 Route::post('/srs/i/requests/', [SrsRequestController::class, 'getRequest'])->name('getRequest');
+Route::get('/srs/request/{srsRequest}', [SrsRequestController::class, 'show']);
 // Route::get('/srs/i/appointments/', [SrsAppointmentController::class, 'getAppointments'])->name('getAppointments');
 
 Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');

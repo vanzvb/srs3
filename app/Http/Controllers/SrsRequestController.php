@@ -509,7 +509,7 @@ class SrsRequestController extends Controller
 
     public function show(SrsRequest $srsRequest)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $srsRequest->load(['vehicles', 'files', 'files.requirement']);
         $srsRequest->loadCount(['statuses' => function ($q) {
@@ -537,10 +537,10 @@ class SrsRequestController extends Controller
     public function getRequest(Request $request)
     {
         // $this->authorize('access', SrsRequest::class);
-        // dd($request);
-        $request->validate([
-            'type' => 'required|integer|boolean'
-        ]);
+        // dd('Hi');
+        // $request->validate([
+        //     'type' => 'required|integer|boolean'
+        // ]);
        
         
         if (!$request->type) {
@@ -1214,9 +1214,10 @@ class SrsRequestController extends Controller
     {
         // $this->authorize('access', SrsRequest::class);
         
-        if (!$request->ajax()) {
-            abort(404);
-        }
+        // if (!$request->ajax()) {
+        //     abort(404);
+        // }
+        // dd($request);
 
         $tableName = 'srs_requests';
         

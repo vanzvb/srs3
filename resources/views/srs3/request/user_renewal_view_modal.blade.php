@@ -134,6 +134,16 @@
                 <h5>Vehicle Owner Information</h5>
                 <div class="row">
                     <div class="col-md-4 p-2">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="sameAsAccount_{{ $loop->index }}">
+                            <label class="form-check-label" for="sameAsAccount_{{ $loop->index }}">
+                                Same as Account
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 p-2">
                         <label for="first_name_{{ $loop->index }}"
                             class="form-label"><b>First Name</b></label>
 
