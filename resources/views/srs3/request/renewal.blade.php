@@ -162,20 +162,21 @@
     <span class="closeVideoModal">&times;</span>
     {{-- <img class="modal-content" id="video01"> --}}
     <video id="video01" style="height: 90%; width: 90%; display: none" controls>
-        <source src="/videos/SRS RENEWAL SUBMISSION.mp4" class="video-modal-content" type="video/mp4">
+        {{-- <source src="/videos/SRS RENEWAL SUBMISSION.mp4" class="video-modal-content" type="video/mp4"> --}}
     </video>
 
     <video id="video02" style="height: 90%; width: 90%; display: none;" controls>
-        <source src="/videos/SRS RENEWAL EMAIL VEHICLE.mp4" class="video-modal-content" type="video/mp4">
+        {{-- <source src="/videos/SRS RENEWAL EMAIL VEHICLE.mp4" class="video-modal-content" type="video/mp4"> --}}
     </video>
 
     <video id="video03" style="height: 90%; width: 90%; display: none;" controls>
-        <source src="/videos/SRS RENEWAL APPOINTMENT.mp4" class="video-modal-content" type="video/mp4">
+        {{-- <source src="/videos/SRS RENEWAL APPOINTMENT.mp4" class="video-modal-content" type="video/mp4"> --}}
     </video>
 
 </div>
 @endsection
 
 @section('links_js')
-<script src="{{ asset('js/11srr2423.js') }}"></script>
+{{-- <script src="{{ asset('js/11srr2423.js') }}"></script> --}}
+<script src="{{ asset('js/11srr2423_v3.js') }}"></script>
 @endsection

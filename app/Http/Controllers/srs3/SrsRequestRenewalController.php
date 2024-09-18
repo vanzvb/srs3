@@ -76,9 +76,12 @@ class SrsRequestRenewalController extends Controller
             return response()->json(['errors' => ['email_not_found' => 'Invalid email address, please contact BFFHAI CLUBHOUSE']], 400);
         }
 
+        // category_id 2 = Resident
         if ($crm->category_id == 2) {
             return response()->json(['errors' => ['invalid_category' => 'Renewal is only available to Residents']], 400);
         }
+
+        // sub_category_id 45, 46, 47 = Commercial Tricycle BFTODA (TRIBF)/Tricycle DASATA (TRID)/Tricycle LTSODA (TRIL)
 
         if ($crm->sub_category_id == 45 || $crm->sub_category_id == 46 || $crm->sub_category_id == 47) {
             return response()->json(['errors' => ['invalid_sub_category' => 'Renewal is not available for this account']], 400);
@@ -89,7 +92,7 @@ class SrsRequestRenewalController extends Controller
         $crmId = Crypt::encrypt($crm->crm_id);
         $email = Crypt::encrypt($request->email);
         $refToken = Crypt::encrypt($token);
-        $url = URL::temporarySignedRoute('request.user-renewal', now()->addDays(3), ['key' => $crmId, 'ref' => $email, 'tkn' => $refToken]);
+        $url = URL::temporarySignedRoute('request.v3.user-renewal', now()->addDays(3), ['key' => $crmId, 'ref' => $email, 'tkn' => $refToken]);
 
         $renewalRequest = new SrsRenewalRequest();
         $renewalRequest->crm_main_id = $crm->crm_id;
@@ -104,7 +107,7 @@ class SrsRequestRenewalController extends Controller
         // 	Mail::to($request->email)->send(new RequestRenewal($request->email, $url));
         // }
         
-        dispatch(new \App\Jobs\SendRequestRenewalJob($request->email, $url));
+        dispatch(new \App\Jobs\srs3\SendRequestRenewalJob($request->email, $url));
 
         return response()->json(['status' => 1]);
     }

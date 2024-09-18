@@ -36,20 +36,30 @@ Route::group(['middleware' => 'maintenance'], function () {
 
 // Auth::routes();
 
+
+Route::get('/sticker/renewal', [SrsRequestRenewalController::class, 'index']);
+// when submit is hit on renewal
+Route::post('/sticker/request/renewal', [SrsRequestRenewalController::class, 'renewalCheck']);
+
+// route for email link generation
+Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
+
+Route::prefix('v3')->group(function () {
+    // index for renewal
+    Route::get('/sticker/renewal', [Srs3SrsRequestRenewalController::class, 'index']);
+    // when submit is hit on renewal
+    Route::post('/sticker/request/renewal', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
+
+    Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
+});
+
 // index for new
 Route::get('/sticker/new', [SrsRequestController::class, 'create']);
 // Submit new application
 Route::post('/sticker/request', [SrsRequestController::class, 'store'])->name('request.store');
 
-// index for renewal
-Route::get('/sticker/renewal', [SrsRequestRenewalController::class, 'index']);
-// index for renewal SRS 3.0
-Route::get('/sticker/renewalv3', [Srs3SrsRequestRenewalController::class, 'index']);
-
-// when submit is hit on renewal
-Route::post('/sticker/request/renewal', [SrsRequestRenewalController::class, 'renewalCheck']);
-// // when submit is hit on renewal 3.0
-Route::post('/sticker/request/renewalv3', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
+// when submit is hit on renewal 3.0
+// Route::post('/sticker/request/renewalv3', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
 // for generating sub category onchange (in new)
 Route::get('/sticker/request/requirements', [SrsRequestController::class, 'getRequirements'])->name('getRequirements');
@@ -62,7 +72,7 @@ Route::get('/sticker/request/hoas/nr', [SrsRequestController::class, 'getNRHoas'
 
 Route::get('sticker/request/hoa_approval', [SrsRequestController::class, 'hoaApproval'])->name('request.hoa.approval');
 
-Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
+// Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
 // when "Submit Renewal" is clicked
 Route::post('/sr-renewal', [SrsRequestRenewalController::class, 'processRenewal'])->name('request.user-renewal.process');
 

@@ -173,8 +173,8 @@ class SrsRequestRenewalController extends Controller
         
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
-        // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));   
+        return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
+        // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));   
         // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
