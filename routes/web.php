@@ -73,6 +73,7 @@ Route::get('/sticker/request/hoas/nr', [SrsRequestController::class, 'getNRHoas'
 Route::get('sticker/request/hoa_approval', [SrsRequestController::class, 'hoaApproval'])->name('request.hoa.approval');
 
 // Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
+
 // when "Submit Renewal" is clicked
 Route::post('/sr-renewal', [SrsRequestRenewalController::class, 'processRenewal'])->name('request.user-renewal.process');
 

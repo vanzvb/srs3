@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Traits\WithCaptcha;
 use App\Http\Controllers\Controller;
+use App\Models\SrsSubCategories;
 
 class SrsRequestRenewalController extends Controller
 {
@@ -143,6 +144,8 @@ class SrsRequestRenewalController extends Controller
 
         $srsCategories = SrsCategories::all();
 
+        $srsSubCategories = SrsSubCategories::all();
+
         // $requirements = SrsRequirement::with(['subCategories' => function ($query) {
         //                     $query->select('spc_subcat.id');
         //                 }])
@@ -178,7 +181,7 @@ class SrsRequestRenewalController extends Controller
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));   
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories'));   
         // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
