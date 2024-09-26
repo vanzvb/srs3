@@ -688,15 +688,15 @@ class SrsRequestController extends Controller
         $resendApptBtn = ''; 
         $isOpen = (!$srsRequest->trashed() && $srsRequest->status != 4 && $srsRequest->status != 5);
         $resendHoaNotifBtn = '';
-
-        if (auth()->user()->can('approve', SrsRequest::class)) {
+// VB
+        // if (auth()->user()->can('approve', SrsRequest::class)) {
             $requestAction = '<div class="mx-auto">
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="approve_btn" class="btn btn-sm btn-primary mx-2 px-3">APPROVE SRS</a>
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="reject_btn" class="btn btn-sm btn-danger mx-2 px-3">REJECT SRS</a>
                                 </div>';
-        } else {
-            $requestAction = false;
-        }
+        // } else {
+            // $requestAction = false;
+        // }
 
         if ($srsRequest->status == 3 && $statuses->firstWhere('name', 'Closed')->requests->isEmpty() && $srsRequest->invoice && $srsRequest->customer) {
             $paymentAction = '<button type="button" data-value="' . $srsRequest->request_id . '" id="invoice_payment_btn" class="btn btn-sm btn-primary px-3" '.($srsRequest->trashed() ? 'disabled' : '').'>Close Ticket</button>';

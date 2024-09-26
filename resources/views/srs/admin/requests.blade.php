@@ -180,7 +180,7 @@
         </table>
     </div>
 </div>
-
+{{-- DEBUG HERE APPROVAL (VB) --}}
 <section class="content mb-5" style="margin-top: 50px; box-shadow: rgb(216, 216, 216) 0px 5px 15px 0px; background: rgb(255, 255, 255) !important; display: none;" id="section_request_details">
 	<div class="row p-4">
 		<div class="col-md-12 col-sm-12 col-12 row" id="div_details_portion">
@@ -283,7 +283,8 @@
 				</div>	
 			</div>
 			<div class="row mt-md-2" style="text-align: left;">
-				<fieldset @if(auth()->user()->cannot('addAdminRemarks', App\Models\SrsRequest::class)) disabled @endif>
+				{{-- VB --}}
+				{{-- <fieldset @if(auth()->user()->cannot('addAdminRemarks', App\Models\SrsRequest::class)) disabled @endif> --}}
 					<label class="text-muted" style="font-size: 14px;">ADMIN REMARKS</label>
 					<div class="col-md-12">
 						<textarea name="" class="form-control text-muted rounded-0 disabled" id="admin_notes" maxlength="300"></textarea>
@@ -291,7 +292,7 @@
 							<span id="current">0</span> / 300
 						</div>
 					</div>
-				</fieldset>
+				{{-- </fieldset> --}}
 			</div>
 			<div class="row justify-content-center">
 				<div id="save_info_msg" class="col-md-6">
@@ -393,6 +394,7 @@
 					</div> --}}
 				</div>
 			</div>
+			{{-- Loading of approving request --}}
 			<div id="request_load" style="display: none;">
 				<div class="col-12 text-center mt-4">
 					<img src="{{ asset('css/loading.gif') }}" height="20" width="20">
@@ -645,7 +647,7 @@ $(document).ready(function () {
 			// archive_year = $('#archive_year_select').val();
 			archive_year = archiveYear;
 		}
-
+// VB
 		$.ajax({
 			url: '{{ route("getRequest") }}',
 			type: 'POST',

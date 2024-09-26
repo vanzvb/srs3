@@ -144,7 +144,7 @@ Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
 
 Route::group(['middleware' => ['auth', 'isOnline']], function() {
-    // Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
+    Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
 
     // Approvers
     // Route::prefix('/hoa-approvers')->group(function() {
