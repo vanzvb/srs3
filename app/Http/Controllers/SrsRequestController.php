@@ -240,7 +240,7 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        dd($request);
+        // dd($request);
         $data = $request->validated();
 
         if ($data['category'] == 1) {
@@ -883,7 +883,7 @@ class SrsRequestController extends Controller
 
     public function approve(Request $request)
     {
-        $this->authorize('approve', SrsRequest::class);
+        // $this->authorize('approve', SrsRequest::class);
 
         // $srsRequest = SrsRequest::where('request_id', $request->req_id)
         //                         ->whereDoesntHave('statuses', function ($query) {

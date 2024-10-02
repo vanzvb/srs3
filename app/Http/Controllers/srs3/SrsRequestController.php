@@ -14,6 +14,7 @@ use App\Models\CrmInvoice;
 use App\Models\CrmMain;
 use App\Models\CrmRedtag;
 use App\Models\CrmVehicle;
+use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\LogSrsHist;
 use App\Models\SPCCategory;
 use App\Models\SPCSubCat;
@@ -231,8 +232,8 @@ class SrsRequestController extends Controller
 
     public function create()
     {
-        // dd('version3');
-        $categories = SPCCategory::where('status', 1)->get();
+        // $categories = SPCCategory::where('status', 1)->get();
+        $categories = CRMXICategory::select('id', 'name')->get();
         // $hoas = SrsHoa::orderBy('name')->get();
         $cities = DB::table('crmx_bl_city')->where('status', 1)->get();
 
