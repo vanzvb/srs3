@@ -269,16 +269,14 @@
                                 </div> --}}
                             </div>
                             {{-- test --}}
-                            <div class="container mt-4">
+                            {{-- <div class="container mt-4">
                                 <h5>New Vehicle</h5>
 
-                                <!-- Button to trigger the modal -->
                                 <button id="openModalBtn" class="btn btn-primary mb-3" data-bs-toggle="modal"
                                     data-bs-target="#addVehicleModal">
                                     Add New Vehicle
                                 </button>
 
-                                <!-- Vehicle Table -->
                                 <table class="table table-bordered table-hover mt-2">
                                     <thead>
                                         <tr>
@@ -291,13 +289,12 @@
                                         </tr>
                                     </thead>
                                     <tbody id="vehicleTableBody">
-                                        <!-- Dynamic content will be added here -->
+
                                     </tbody>
                                 </table>
-                            </div>
+                            </div> --}}
 
-                            <!-- Add Vehicle Modal -->
-                            <div class="modal fade" id="addVehicleModal" tabindex="-1"
+                            {{-- <div class="modal fade" id="addVehicleModal" tabindex="-1"
                                 aria-labelledby="addVehicleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-xl">
                                     <div class="modal-content">
@@ -362,7 +359,6 @@
                                                 <div class="col-md-4">
                                                     <label for="first_name" class="form-label"><b>First Name</b></label>
 
-                                                    <!-- Visible text input -->
                                                     <input type="text" class="form-control" id="first_name"
                                                         name="first_name" placeholder="Enter First Name" value="">
 
@@ -370,7 +366,6 @@
                                                 <div class="col-md-4">
                                                     <label for="middle_name" class="form-label"><b>Middle Name</b></label>
 
-                                                    <!-- Visible text input -->
                                                     <input type="text" class="form-control" id="middle_name"
                                                         name="middle_name" placeholder="Enter Middle Name"
                                                         value="">
@@ -380,7 +375,6 @@
                                                 <div class="col-md-4">
                                                     <label for="last_name" class="form-label"><b>Last Name</b></label>
 
-                                                    <!-- Visible text input for last name -->
                                                     <input type="text" class="form-control" id="last_name"
                                                         name="last_name" placeholder="Enter Last Name" value="">
                                                 </div>
@@ -390,28 +384,24 @@
                                                 <div class="col-md-1">
                                                     <label for="block" class="form-label"><b>Block</b></label>
                                             
-                                                    <!-- Visible text input for block, restricted to numbers only -->
                                                     <input type="number" class="form-control" id="block" name="block[]" placeholder="..." inputmode="numeric" min="1">
                                                 </div>
                                             
                                                 <div class="col-md-1">
                                                     <label for="lot" class="form-label"><b>Lot</b></label>
                                             
-                                                    <!-- Visible text input for lot, restricted to numbers only -->
                                                     <input type="number" class="form-control" id="lot" name="lot[]" placeholder="..." inputmode="numeric" min="1">
                                                 </div>
                                             
                                                 <div class="col-md-1">
                                                     <label for="house_no" class="form-label" style="white-space: nowrap;"><b>House No.</b></label>
                                             
-                                                    <!-- Visible text input for house number, restricted to numbers only -->
                                                     <input type="number" class="form-control" id="house_no" name="house_no[]" placeholder="..." inputmode="numeric" min="1">
                                                 </div>
                                             
                                                 <div class="col-md-5">
                                                     <label for="street" class="form-label"><b>Street</b></label>
                                             
-                                                    <!-- Visible text input for street -->
                                                     <input type="text" class="form-control" id="street" name="street[]" placeholder="...">
                                                 </div>
                                             
@@ -420,7 +410,6 @@
                                                         <b>Building / Apartment / Condo</b>
                                                     </label>
                                             
-                                                    <!-- Visible text input for building / apartment / condo -->
                                                     <input type="text" class="form-control" id="building_apartment_condo" name="building_apartment_condo[]" placeholder="...">
                                                 </div>
                                             </div>
@@ -428,12 +417,12 @@
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <label for="city" class="form-label" style="white-space: nowrap;"><b>City</b></label>
-                                                    <!-- Visible text input for city -->
+
                                                     <input type="text" class="form-control" id="city" name="city[]" placeholder="...">
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label for="zip_code" class="form-label" style="white-space: nowrap;"><b>Zip Code</b></label>
-                                                    <!-- Visible text input for zip code -->
+
                                                     <input type="text" class="form-control" id="zip_code" name="zip_code[]" placeholder="...">
                                                 </div>
                                             </div>
@@ -504,7 +493,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             {{-- test --}}
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-5">

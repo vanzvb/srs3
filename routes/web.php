@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
+use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
 use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
@@ -51,6 +52,9 @@ Route::prefix('v3')->group(function () {
     Route::post('/sticker/request/renewal', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
     Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
+
+    // index for new
+    Route::get('/sticker/new', [Srs3RequestController::class, 'create']);
 });
 
 // index for new
@@ -62,7 +66,7 @@ Route::post('/sticker/request', [SrsRequestController::class, 'store'])->name('r
 // Route::post('/sticker/request/renewalv3', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
 // for generating sub category onchange (in new)
-Route::get('/sticker/request/requirements', [SrsRequestController::class, 'getRequirements'])->name('getRequirements');
+Route::get('/sticker/request/requirements', [Srs3RequestController::class, 'getRequirements'])->name('getRequirements');
 // for generating sub category onload (in new)
 Route::get('/sticker/request/sub_categories', [SrsRequestController::class, 'getSubCategories'])->name('getSubCategories');
 // for generating hoa onload (in new)
