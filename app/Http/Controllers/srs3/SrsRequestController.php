@@ -23,9 +23,7 @@ use App\Models\SrsApptTimeslot;
 use App\Models\SrsCategory;
 use App\Models\SrsHoa;
 use App\Models\SrsNrHoa;
-use App\Models\SrsRequest;
 use App\Models\SrsRequestsArchive;
-use App\Models\SrsRequestStatus;
 use App\Models\SrsRequirement;
 use App\Models\SrsRequirementFile;
 use App\Models\SrsSubCategory;
@@ -49,6 +47,14 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use PDF;
 use Yajra\DataTables\Facades\DataTables;
+
+// Removed
+// use App\Models\SrsRequest;
+// use App\Models\SrsRequestStatus;
+
+// SRS 3 New Models
+use App\Models\SRS3_Model\SrsRequest;
+use App\Models\SRS3_Model\SrsRequestStatus;
 
 class SrsRequestController extends Controller
 {
@@ -114,6 +120,7 @@ class SrsRequestController extends Controller
 
     public function list()
     {
+
         // $this->authorize('access', SrsRequest::class);
         // $requests = SrsRequest::where('status', 0)
         //                         ->orWhere('status', 1)
@@ -127,7 +134,7 @@ class SrsRequestController extends Controller
         //     ->get();
         // dd('test');
 
-        return view('srs.admin.requests');
+        return view('srs3.admin.requests');
     }
 
     public function report()
@@ -525,15 +532,15 @@ class SrsRequestController extends Controller
 
     public function showRequest($id)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
         
-        $validator = Validator::make(['id' => $id], [
-            'id' => 'required|string|exists:srs_requests,request_id'
-        ]);
+        // $validator = Validator::make(['id' => $id], [
+        //     'id' => 'required|string|exists:srs_requests,request_id'
+        // ]);
         
-        if ($validator->fails()) {
-            return back();
-        }
+        // if ($validator->fails()) {
+        //     return back();
+        // }
     
         return redirect()->route('requests')->with('srsNo', $id);
     }
@@ -559,7 +566,9 @@ class SrsRequestController extends Controller
 
             $srsQuery = SrsRequestsArchive::fromTable($tableName);
         } else {
+            // VB
             $srsQuery = SrsRequest::query();
+            // $srsQuery = Srs3Request::query();
         }
 
         $srsRequest = $srsQuery->with(['vehicles', 'appointment', 'appointment.timeslot', 'files.requirement' => function ($q) {
@@ -620,7 +629,9 @@ class SrsRequestController extends Controller
 
         $statuses = SrsRequestStatus::with(['requests' => function ($q) use ($srsRequest) {
             $q->withTrashed()
-                ->where('srs_requests.request_id', $srsRequest->request_id);
+            // VB
+                // ->where('srs_requests.request_id', $srsRequest->request_id);
+                ->where('srs3_requests.request_id', $srsRequest->request_id);
         }])->get();
 
         $routes = [
@@ -821,6 +832,11 @@ class SrsRequestController extends Controller
 
         $subCatName = $srsRequest->subCategory ? $srsRequest->subCategory->name : 'Not Found (Might be outdated)';
 
+        // SRS 3
+         $srs3Category = $srsRequest->category3->name ?? null;
+         $srs3SubCategory = $srsRequest->subCategory3->name ?? null;
+         $srs3Service =  $srs3Category . ' / ' . $srs3SubCategory;
+
         $data = [
             'id' => $srsRequest->request_id,
             'cid' => $cid,
@@ -835,8 +851,10 @@ class SrsRequestController extends Controller
             'creationDate' => $srsRequest->created_at->format('F d, Y h:i A'),
             'status' => $srsRequest->trashed() ? 'Rejected' : $this->getStatus($srsRequest->status, $adminApproved),
             'service' => $srsRequest->category->name . ' / ' . $subCatName,
+            'new_service' => $srs3Service,
             // 'hoa' => $srsRequest->hoa->name ?? 'Not Applicable',
             'hoa' => $hoa,
+            'new_hoa_id' =>  $srsRequest->hoa3->name ?? 'Not Applicable',
             'routes' => $routes,
             'vehicles' => $vehicles,
             'files' => $files,
@@ -886,7 +904,7 @@ class SrsRequestController extends Controller
 
     public function approve(Request $request)
     {
-        $this->authorize('approve', SrsRequest::class);
+        // $this->authorize('approve', SrsRequest::class);
 
         // $srsRequest = SrsRequest::where('request_id', $request->req_id)
         //                         ->whereDoesntHave('statuses', function ($query) {
@@ -971,7 +989,7 @@ class SrsRequestController extends Controller
 
     public function adminDestroy(Request $request, $reqId)
     {   
-        $this->authorize('approve', SrsRequest::class);
+        // $this->authorize('approve', SrsRequest::class);
 
         if (!$request->ajax()) {
             return back();
@@ -1086,7 +1104,7 @@ class SrsRequestController extends Controller
     
     public function resendHoaNotification(Request $request)
     {
-        $this->authorize('resendHoaNotif', SrsRequest::class);
+        // $this->authorize('resendHoaNotif', SrsRequest::class);
 
         $data = $request->validate([
             'request_id' => 'required|string|exists:srs_requests,request_id'
@@ -1159,7 +1177,7 @@ class SrsRequestController extends Controller
 
     public function showFile($id, $date, $name, $hoa, $category)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
         $dateTime = Carbon::parse($date);
 
         $path = storage_path('app/bffhai/' . $dateTime->format('Y') . '/' . $hoa . '/' . $this->getCategoryName($category) . '/' . $dateTime->format('m') . '/' . $name . '/' . $id);
@@ -1216,24 +1234,28 @@ class SrsRequestController extends Controller
 
     public function getRequests(Request $request)
     {
+        
         // $this->authorize('access', SrsRequest::class);
         
         // if (!$request->ajax()) {
         //     abort(404);
         // }
-        // dd($request);
+        // dd($request->year);
 
-        $tableName = 'srs_requests';
+        $tableName = 'srs3_requests';
         
+        // if type = 0 then 'Archive'
         if ($request->type == 4) {
             // $request->validate(['year' => 'integer|date_format:Y']);
-
+            
             if ($request->year == 1) {
+                // VB Error Archive Here
 
                 $archiveTables = DB::table('information_schema.tables')->where('table_name', 'like', 'srs_requests_archive_%')->select('table_name')->get();
                 $srsQuery = (object) [];
                 // $a = DB::raw("(select `request_id`, `first_name`, `last_name`, `status`, `created_at`, `admin_approved` from `srs_requests_archive_2021` where (LOWER(`srs_requests_archive_2021`.`request_id`) LIKE ? or (CONCAT(srs_requests_archive_2021.first_name,' ',srs_requests_archive_2021.last_name)  like ?) or (DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?)) and `srs_requests_archive_2021`.`deleted_at` is null) union (select `request_id`, `first_name`, `last_name`, `status`, `created_at`, `admin_approved` from `srs_requests_archive_2022` where `srs_requests_archive_2022`.`deleted_at` is null) union (select `request_id`, `first_name`, `last_name`, `status`, `created_at`, `admin_approved` from `srs_requests_archive_2023` where `srs_requests_archive_2023`.`deleted_at` is null) order by `created_at` asc limit 15 offset 0");
                 // dd($a);
+                // dd($archiveTables);
                 foreach ($archiveTables as $index => $archiveTable) {
                     
                     // $q = SrsRequestsArchive::fromTable($archiveTable->table_name)->with('stats')->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved');
@@ -1263,7 +1285,7 @@ class SrsRequestController extends Controller
                 }
 
                 $requests = $srsQuery;
-
+                
                 $datatable = DataTables::of($requests)                    
                                 // ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
                                 //     $sql = "CONCAT(".$tableName.".first_name,' ',".$tableName.".last_name)  like ?";
@@ -1365,6 +1387,7 @@ class SrsRequestController extends Controller
             
             // $srsQuery = SrsRequestsArchive::query()->table('srs_requests_archive_2022');
         } else {
+            // VB
             $srsQuery = SrsRequest::query();
 
         $requests = $srsQuery->with('stats')

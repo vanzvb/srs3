@@ -1,20 +1,35 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\SRS3_Model;
 
+use App\Models\CrmInvoice;
+use App\Models\CrmMain;
+use App\Models\CrmVehicle;
+use App\Models\CRMXI3_Model\CRMXICategory;
+use App\Models\CRMXI3_Model\CRMXIHoa;
+use App\Models\CRMXI3_Model\CRMXISubcat;
+use App\Models\SPCCategory;
+use App\Models\SPCSubCat;
+use App\Models\SRS3_Model\SrsRequestStatus;
+use App\Models\SrsAppointment;
+use App\Models\SrsApptResend;
+use App\Models\SrsApptReset;
+use App\Models\SrsHoa;
+use App\Models\SrsNrHoa;
+use App\Models\SrsRequirementFile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\SPCSubCat;
-use App\Models\SPCCategory;
+
 
 class SrsRequest extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    // protected $table = 'srs3_requests';
+    protected $table = 'srs3_requests';
     protected $primaryKey = 'request_id';
     protected $keyType = 'string';
+   
     public $incrementing = false;
 
     protected $fillable = [
@@ -127,5 +142,22 @@ class SrsRequest extends Model
     public function fullName()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    // SRS 3
+
+    public function hoa3()
+    {
+        return $this->belongsTo(CRMXIHoa::class, 'srs3_hoa_id');
+    }
+
+    public function category3()
+    {
+        return $this->belongsTo(CRMXICategory::class, 'category_id');
+    }
+
+    public function subCategory3()
+    {
+        return $this->belongsTo(CRMXISubcat::class, 'srs3_sub_category_id');
     }
 }

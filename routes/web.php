@@ -53,8 +53,19 @@ Route::prefix('v3')->group(function () {
 
     Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
 
-    // index for new
+    // index for new sticker application
     Route::get('/sticker/new', [Srs3RequestController::class, 'create']);
+
+    // SRS Inbox
+    Route::get('/requests', [Srs3RequestController::class, 'list'])->name('requests.v3');
+    // Route::get('/requests/report', [Srs3RequestController::class, 'report'])->name('requests.report');
+    // Route::post('/requests/approve', [Srs3RequestController::class, 'approve'])->name('requests.approve');
+    // Route::delete('/request/{srsRequest}', [Srs3RequestController::class, 'adminDestroy'])->name('request.delete');
+
+    // yajra get tables for inbox
+    Route::get('/srs/i/requests/', [Srs3RequestController::class, 'getRequests'])->name('getRequests.v3');
+    Route::post('/srs/i/requests/', [Srs3RequestController::class, 'getRequest'])->name('getRequest.v3');
+    Route::get('/srs/request/{srsRequest}', [Srs3RequestController::class, 'show'])->name('srsRequest.v3.show');
 });
 
 // index for new
@@ -148,7 +159,7 @@ Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
 
 Route::group(['middleware' => ['auth', 'isOnline']], function() {
-    Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
+    // Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
 
     // Approvers
     // Route::prefix('/hoa-approvers')->group(function() {

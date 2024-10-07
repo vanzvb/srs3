@@ -270,10 +270,26 @@
 			</div>
 			<div class="row" style="text-align: left;">
 				<div class="col-md-3 col-sm-4 col-xs-5">
+					<label>New Service :</label>
+				</div>
+				<div class="col-md-9 col-sm-8 col-xs-7">
+					<p><span id="details_service3"></span></p>
+				</div>
+			</div>
+			<div class="row" style="text-align: left;">
+				<div class="col-md-3 col-sm-4 col-xs-5">
 					<label>HOA :</label>
 				</div>
 				<div class="col-md-9 col-sm-8 col-xs-7">
 					<p><span id="details_hoa"></span></p>
+				</div>
+			</div>
+			<div class="row" style="text-align: left;">
+				<div class="col-md-3 col-sm-4 col-xs-5">
+					<label>NEW HOA :</label>
+				</div>
+				<div class="col-md-9 col-sm-8 col-xs-7">
+					<p><span id="details_hoa3"></span></p>
 				</div>
 			</div>
 			<div class="row mt-md-3" style="text-align: left;">
@@ -590,7 +606,7 @@ $(document).ready(function () {
 			],
 			destroy: true,
 			ajax: {
-				url: "{{ route('getRequests') }}",
+				url: "{{ route('getRequests.v3') }}",
 				data: {
 					type: type,					
 					year: year
@@ -647,7 +663,7 @@ $(document).ready(function () {
 		}
 
 		$.ajax({
-			url: '{{ route("getRequest") }}',
+			url: '{{ route("getRequest.v3") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',
@@ -699,6 +715,9 @@ $(document).ready(function () {
 				$('#details_status').text(data.srs.status);
 				$('#details_service').text(data.srs.service);
 				$('#details_hoa').text(data.srs.hoa);
+				// New Fields SRS3 
+				$('#details_service3').text(data.srs.new_service);
+				$('#details_hoa3').text(data.srs.new_hoa_id);
 				var html = '';
 				$.each(data.srs.routes, function (index, value) {
 					html += value;
@@ -769,12 +788,12 @@ $(document).ready(function () {
 
     getRequests = () => {
         $.ajax({
-            url: '{{ route("getRequests") }}',
+            url: '{{ route("getRequests.v3") }}',
             success: function(data) {
                 var html = '';
                 $.each(data, function (index, item) {
                     html += `<tr>
-                                <td><a href="/srs/request/${item.request_id}" target="_blank">${item.request_id }</a></td>
+                                <td><a href="/v3/srs/request/${item.request_id}" target="_blank">${item.request_id }</a></td>
                                 <td>${item.first_name} ${item.last_name}</td>
                                 <td>${item.created_at}</td>
                                 <td>${getStatus(item.status)}</td>
