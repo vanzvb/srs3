@@ -178,5 +178,5 @@
 
 @section('links_js')
 {{-- <script src="{{ asset('js/11srr2423.js') }}"></script> --}}
-<script src="{{ asset('js/11srr2423_v3.js') }}"></script>
+<script src="{{ asset('js/srs3/11srr2423_v3.js') }}"></script>
 @endsection

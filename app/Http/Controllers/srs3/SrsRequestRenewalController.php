@@ -34,7 +34,7 @@ class SrsRequestRenewalController extends Controller
     {
         $today = now();
         $series = $today->format('y') . $category . $subCategory . '-' . $today->format('d') . $today->format('m') . '-';
-        
+
         $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
 
         if ($lastRequest) {
@@ -58,15 +58,44 @@ class SrsRequestRenewalController extends Controller
     }
 
     public function renewalCheck(Request $request)
-    {   
+    {
+
+
         $request->validate([
-            'email' => 'required|email'
+            'email' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                        // It's a valid email format
+                        $crm = CRMXIMain::where('email', $value)->first();
+                        if (!$crm) {
+                            $fail('The ' . $attribute . ' does not exist in our records as an email.');
+                        }
+                        // Set a flag that the input is an email
+                        $request->merge(['is_email' => true]);
+                    } else {
+                        // It's not an email, so check if it's an account_id
+                        $crm = CRMXIMain::where('account_id', $value)->first();
+                        if (!$crm) {
+                            $fail('The account ID does not exist in our records.');
+                        }
+                        // Set a flag that the input is an account ID
+                        $request->merge(['is_email' => false]);
+                    }
+                },
+            ],
         ]);
 
-        // $crm = CrmMain::where('email', $request->email)->first();
+        // Now, you can check the flag after validation
+        if ($request->is_email) {
+            $crm = CRMXIMain::where('email', $request->email)->first();
+        } else {
+            // if the input is account id, we will alter the request->email and change it to email instead of account id
+            $crm = CRMXIMain::where('account_id', $request->email)->first();
+            $request->merge(['email' => $crm->email]);
+        }
 
-        $crm = CRMXIMain::where('email', $request->email)->first();
-        
         // for logs
         if (!$crm) {
             $ip = $request->ip();
@@ -94,7 +123,7 @@ class SrsRequestRenewalController extends Controller
         }
 
         $token = uniqid();
-        
+
         $crmId = Crypt::encrypt($crm->crm_id);
         $email = Crypt::encrypt($request->email);
         $refToken = Crypt::encrypt($token);
@@ -112,7 +141,7 @@ class SrsRequestRenewalController extends Controller
         // } else {
         // 	Mail::to($request->email)->send(new RequestRenewal($request->email, $url));
         // }
-        
+
         dispatch(new \App\Jobs\srs3\SendRequestRenewalJob($request->email, $url));
 
         return response()->json(['status' => 1]);
@@ -120,7 +149,7 @@ class SrsRequestRenewalController extends Controller
 
     public function userRenewal(Request $request)
     {
-        
+
         if (!$request->hasValidSignature()) {
             abort(404, 'Link is already expired');
         }
@@ -140,9 +169,9 @@ class SrsRequestRenewalController extends Controller
         // CRMXI
 
         $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory'])
-                ->where('crm_id', $crmId)
-                ->where('email', $email)
-                ->firstOrFail();
+            ->where('crm_id', $crmId)
+            ->where('email', $email)
+            ->firstOrFail();
 
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
@@ -158,10 +187,10 @@ class SrsRequestRenewalController extends Controller
 
         // no changes in 3.0
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-                                            ->where('email', $crm->email)
-                                            ->where('token', $token)
-                                            ->where('status', 0)
-                                            ->firstOrFail();
+            ->where('email', $crm->email)
+            ->where('token', $token)
+            ->where('status', 0)
+            ->firstOrFail();
 
         $srsCategories = SrsCategories::all();
         $srsSubCategories = SrsSubCategories::all();
@@ -177,15 +206,15 @@ class SrsRequestRenewalController extends Controller
 
         // Valid ID or Other Requirements no changes in 3.0
         $requirements = SrsRequirement::where('id', 10)
-                ->select('id', 'name', 'description', 'required')
-                ->get();
+            ->select('id', 'name', 'description', 'required')
+            ->get();
 
-        
+
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
-        
+
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
         // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories', 'crmxiCategories', 'crmxiSubCategories'));   
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas')); 
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas'));
         // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
@@ -213,7 +242,7 @@ class SrsRequestRenewalController extends Controller
                 $reqCrmId = Crypt::decrypt($prevUrlParam['key']);
                 $reqEmail = Crypt::decrypt($prevUrlParam['ref']);
                 $reqToken = Crypt::decrypt($prevUrlParam['tkn']);
-            } catch(DecryptException $e) {
+            } catch (DecryptException $e) {
                 return back()->withErrors(['error' => 'Error']);
             }
         } else {
@@ -310,15 +339,15 @@ class SrsRequestRenewalController extends Controller
         // ]);
 
         $crm = CrmMain::with(['vehicles'])
-                        ->where('crm_id', $crmId)
-                        ->where('email', $crmEmail)
-                        ->firstOrFail();
+            ->where('crm_id', $crmId)
+            ->where('email', $crmEmail)
+            ->firstOrFail();
 
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-                                            ->where('email', $crm->email)
-                                            ->where('token', $reqToken)
-                                            ->where('status', 0)
-                                            ->firstOrFail();
+            ->where('email', $crm->email)
+            ->where('token', $reqToken)
+            ->where('status', 0)
+            ->firstOrFail();
 
         // $hoa = SrsHoa::where('name', $crm->hoa)->first();
 
@@ -330,12 +359,12 @@ class SrsRequestRenewalController extends Controller
         $srsRequest->sub_category_id = $crm->sub_category_id;
         $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
         $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
-        $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->middlename))));
-        $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->blk_lot))));
-        $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->street))));
-        $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->building_name)))) : NULL;
-        $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->subdivision_village)))) : NULL;
-        $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/',' ', $crm->city)))) : NULL;
+        $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
+        $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
+        $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
+        $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
+        $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
+        $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
         // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
         $srsRequest->hoa_id = $request->hoa;
         $srsRequest->contact_no = $crm->main_contact;
@@ -347,18 +376,18 @@ class SrsRequestRenewalController extends Controller
         $srsRequest->load(['category' => function ($query) {
             $query->select('id', 'name');
         }, 'hoa']);
-        
-        $path = 'bffhai/'.$srsRequest->created_at->format('Y').'/'.($srsRequest->hoa_id ?: '0').'/'.strtolower($srsRequest->category->name).'/'.$srsRequest->created_at->format('m').'/'.stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+
+        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
         $renewVehicles = $crm->vehicles->whereIn('id', $request->vref);
         $vehicles = [];
-        
-        foreach($renewVehicles as $renewVehicle) {
+
+        foreach ($renewVehicles as $renewVehicle) {
             $vehicle = new CrmVehicle();
             $vehicle->srs_request_id = $srsRequest->request_id;
             $vehicle->req_type = 1;
-            $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $renewVehicle->plate_no))));
+            $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no))));
             $vehicle->brand = strip_tags($renewVehicle->brand);
             $vehicle->series = strip_tags($renewVehicle->series);
             $vehicle->year_model = strip_tags($renewVehicle->year_model);
@@ -376,7 +405,7 @@ class SrsRequestRenewalController extends Controller
             }
 
             if (isset($request->new_plate_no_chk[$renewVehicle->id])) {
-                $vehicle->plate_no_remarks = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $request->new_plate_no[$renewVehicle->id]))));
+                $vehicle->plate_no_remarks = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $request->new_plate_no[$renewVehicle->id]))));
             }
 
             if (isset($request->new_color_chk[$renewVehicle->id])) {
@@ -391,12 +420,12 @@ class SrsRequestRenewalController extends Controller
             foreach ($request['plate_no'] as $item1) {
                 $vehicle = new CrmVehicle();
                 $vehicle->srs_request_id = $srsRequest->request_id;
-        
+
                 $existingVehicle = $crm->vehicles->where('plate_no', $item1)->first();
 
                 if ($existingVehicle) {
                     $vehicle->req_type = 1;
-                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $existingVehicle->plate_no))));
+                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $existingVehicle->plate_no))));
                     $vehicle->brand = strip_tags($existingVehicle->brand);
                     $vehicle->series = strip_tags($existingVehicle->series);
                     $vehicle->year_model = strip_tags($existingVehicle->year_model);
@@ -409,7 +438,7 @@ class SrsRequestRenewalController extends Controller
                     $vehicle->cr_path = $existingVehicle->cr_path;
                 } else {
                     $vehicle->req_type = 0;
-                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $item1))));
+                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
                     $vehicle->brand = strip_tags($request->brand[$newVehicleCounter]);
                     $vehicle->series = strip_tags($request->series[$newVehicleCounter]);
                     $vehicle->year_model = strip_tags($request->year_model[$newVehicleCounter]);
@@ -419,7 +448,6 @@ class SrsRequestRenewalController extends Controller
                     $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
                     $vehicle->cr = $srsRequestController->storeFile($path, $request->cr[$newVehicleCounter]);
                     $vehicle->cr_path = $vehicle->cr . '/' . $filePath;
-
                 }
 
                 $newVehicleCounter++;
@@ -472,7 +500,7 @@ class SrsRequestRenewalController extends Controller
         if ($request->has('other_documents_3')) {
             $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['other_documents_3']), 13, $filePath);
         }
-        
+
         if ($request->has('nbi_police_clearance')) {
             $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['nbi_police_clearance']), 14, $filePath);
         }
@@ -480,7 +508,7 @@ class SrsRequestRenewalController extends Controller
         if ($request->has('general_information_sheet')) {
             $files[] = $this->storeRequirementFile($this->storeFile($path, $request['general_information_sheet']), 15, $filePath);
         }
-        
+
         $srn = Crypt::encrypt($srsRequest->request_id);
 
         $srsRequest->save();
@@ -489,12 +517,12 @@ class SrsRequestRenewalController extends Controller
         $crm->save();
 
         if ($vehicles) {
-             $srsRequest->vehicles()->saveMany($vehicles);
+            $srsRequest->vehicles()->saveMany($vehicles);
         }
 
         if ($files) {
             $srsRequest->files()->saveMany($files);
-       }
+        }
 
         $renewalRequest->status = 1;
         $renewalRequest->save();
@@ -514,7 +542,7 @@ class SrsRequestRenewalController extends Controller
 
                 dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
             }
-            
+
             if ($srsRequest->hoa->emailAdd3) {
                 $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
 
@@ -531,7 +559,7 @@ class SrsRequestRenewalController extends Controller
         foreach ($request->except('_token') as $key => $value) {
             session([$key => $value]); // Store each input value in the session
         }
-    
+
         return back(); // Redirect back to the form
     }
 }
