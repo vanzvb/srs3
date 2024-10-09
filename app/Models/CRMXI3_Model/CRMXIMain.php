@@ -35,4 +35,21 @@ class CRMXIMain extends Model
     {
         return $this->belongsTo(SrsUser::class, 'created_by');
     }
+
+    // Requirements for SRS 3.0
+
+    public function CRMXIvehicles()
+    {
+        return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'customer_id')->where('assoc_crm', 1);
+    }
+
+    public function CRMXIcategory()
+    {
+        return $this->belongsTo(CRMXICategory::class, 'category_id');
+    }
+
+    public function CRMXIsubCategory()
+    {
+        return $this->belongsTo(CRMXISubcat::class, 'sub_category_id');
+    }
 }

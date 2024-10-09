@@ -20,6 +20,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Traits\WithCaptcha;
 use App\Http\Controllers\Controller;
+use App\Models\CRMXI3_Model\CRMXICategory;
+use App\Models\CRMXI3_Model\CRMXIHoa;
+use App\Models\CRMXI3_Model\CRMXIMain;
+use App\Models\CRMXI3_Model\CRMXISubcat;
 use App\Models\SrsSubCategories;
 
 class SrsRequestRenewalController extends Controller
@@ -59,8 +63,9 @@ class SrsRequestRenewalController extends Controller
             'email' => 'required|email'
         ]);
 
-        $crm = CrmMain::where('email', $request->email)->first();
+        // $crm = CrmMain::where('email', $request->email)->first();
 
+        $crm = CRMXIMain::where('email', $request->email)->first();
         
         // for logs
         if (!$crm) {
@@ -115,6 +120,7 @@ class SrsRequestRenewalController extends Controller
 
     public function userRenewal(Request $request)
     {
+        
         if (!$request->hasValidSignature()) {
             abort(404, 'Link is already expired');
         }
@@ -130,12 +136,27 @@ class SrsRequestRenewalController extends Controller
         } catch (DecryptException $e) {
             abort(404);
         }
-        
-        $crm = CrmMain::with(['vehicles', 'category', 'subCategory'])
-                        ->where('crm_id', $crmId)
-                        ->where('email', $email)
-                        ->firstOrFail();
 
+        // CRMXI
+
+        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory'])
+                ->where('crm_id', $crmId)
+                ->where('email', $email)
+                ->firstOrFail();
+
+        $crmxiCategories = CRMXICategory::all();
+        $crmxiSubCategories = CRMXISubcat::all();
+        $crmxiHoas = CRMXIHoa::all();
+
+
+        // TEST
+        // $crm = CrmMain::with(['vehicles', 'category', 'subCategory'])
+        //                 ->where('crm_id', $crmId)
+        //                 ->where('email', $email)
+        //                 ->firstOrFail();
+
+
+        // no changes in 3.0
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
                                             ->where('email', $crm->email)
                                             ->where('token', $token)
@@ -143,7 +164,6 @@ class SrsRequestRenewalController extends Controller
                                             ->firstOrFail();
 
         $srsCategories = SrsCategories::all();
-
         $srsSubCategories = SrsSubCategories::all();
 
         // $requirements = SrsRequirement::with(['subCategories' => function ($query) {
@@ -155,33 +175,17 @@ class SrsRequestRenewalController extends Controller
         //                 ->select('id', 'name', 'description', 'required')
         //                 ->get();
 
+        // Valid ID or Other Requirements no changes in 3.0
         $requirements = SrsRequirement::where('id', 10)
                 ->select('id', 'name', 'description', 'required')
                 ->get();
 
-
-        $hoas = '';
-        $crmHoaId = '';
-
-        if ($crm->category_id == 1) {
-            
-            if ($crm->sub_category_id == 7) {
-                $hoas = SrsHoa::where('type', 2)->select('id', 'name', 'type')->orderBy('name')->get();
-            } else {
-                $hoas = SrsHoa::where('name', '!=', 'TEST ATOMIT HOA')->whereIn('type', [0, 3])->select('id', 'name', 'type')->orderBy('name')->get();
-            }
-        }
-
-        if ($crm->hoa) {
-            $crmHoa = SrsHoa::where('name', $crm->hoa)->select('id')->first();
-            $crmHoaId = $crmHoa->id;
-        }
-
         
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
-
+        
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories'));   
+        // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories', 'crmxiCategories', 'crmxiSubCategories'));   
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas')); 
         // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 

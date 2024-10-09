@@ -1,11 +1,15 @@
 // This is when you click the dropdown "Account Type" and picked 'Company' a textbox will show
 document.getElementById('account_type').addEventListener('change', function() {
     var companyNameContainer = document.getElementById('company-name-container');
+    var companyRepContainer = document.getElementById('company-representative-container');
     
-    if (this.value === 'company') {
+    
+    if (this.value === '1') {
         companyNameContainer.style.display = 'block';
+        companyRepContainer.style.display = 'block';
     } else {
         companyNameContainer.style.display = 'none';
+        companyRepContainer.style.display = 'none';
     }
 });
 // Trigger the change event to handle the default selected value

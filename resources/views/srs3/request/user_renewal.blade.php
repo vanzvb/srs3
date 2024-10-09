@@ -123,15 +123,13 @@
                                             <div class="col-md-12">
                                                 <label for="account_type" class="form-label"><b>Account Type</b></label>
                                                 <select class="form-select" name="account_type" id="account_type">
-                                                    <option value="individual" style="color: grey;"
-                                                        {{ !$crmHoaId == 'individual' ? 'selected' : '' }}>Individual
-                                                    </option>
-                                                    <option value="company" {{ $crmHoaId == 'company' ? 'selected' : '' }}>
-                                                        Company</option>
+                                                    <option value="0" style="color: grey;">Individual</option>
+                                                    <option value="1">Company</option>
                                                 </select>
                                             </div>
                                         </div>
 
+                                        {{-- Equivalent to firstname in CRMXI --}}
                                         <div class="row p-2 g-0" id="company-name-container" style="display: none;">
                                             <div class="col-md-12">
                                                 <label for="companyName" class="form-label"><b>Company Name</b></label>
@@ -139,22 +137,31 @@
                                                     name="companyName" placeholder="Enter company name">
                                             </div>
                                         </div>
-                                        {{-- Individual / Company --}}
+                                        {{-- Equivalent to name in CRMXI --}}
+                                        <div class="row p-2 g-0" id="company-representative-container" style="display: none;">
+                                            <div class="col-md-12">
+                                                <label for="representativeName" class="form-label"><b>Company Representative</b></label>
+                                                <input type="text" class="form-control" id="representativeName" name="representativeName" placeholder="Enter representative's name">
+                                            </div>
+                                        </div>
+                                        
                                         <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="hoa" class="form-label"><b>HOA</b></label>
                                                 <select class="form-select" name="hoa" id="hoa">
                                                     <option value="" style="color: grey;"
-                                                        {{ !$crmHoaId ? 'selected' : '' }}>Please select HOA</option>
-                                                    @foreach ($hoas as $hoa)
-                                                        <option value="{{ $hoa->id }}"
-                                                            {{ $hoa->id == $crmHoaId ? 'selected' : '' }}>
-                                                            {{ $hoa->name }}</option>
+                                                        {{ !$crm->hoas->id ? 'selected' : '' }}>Please select HOA</option>
+                                                    @foreach ($crmxiHoas as $crmxiHoa)
+                                                        <option value="{{ $crmxiHoa->id }}"
+                                                            {{ $crmxiHoa->id == $crm->hoas->id ? 'selected' : '' }}>
+                                                            {{ $crmxiHoa->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="row p-2 g-0">
+                                        {{-- model hoas --}}
+                                        {{-- hoa list crmxiHoas --}}
+                                        {{-- <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="hoa" class="form-label"><b>Category</b></label>
                                                 <select class="form-select" name="category" id="category" disabled>
@@ -168,11 +175,10 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <!-- Hidden input to include the value in the form submission -->
                                                 <input type="hidden" name="category" value="{{ $crm->category->id }}">
                                             </div>
-                                        </div>
-                                        <div class="row p-2 g-0">
+                                        </div> --}}
+                                        {{-- <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="hoa" class="form-label"><b>Sub Category</b></label>
                                                 <select class="form-select" name="subcat" id="subcat">
@@ -183,6 +189,40 @@
                                                     <option value="{{ $srsCategory->id }}"
                                                         {{ $srsSubCategory->id == $crm->subCategory->id ? 'selected' : '' }}>
                                                         {{ $srsSubCategory->name }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div> --}}
+
+                                        <div class="row p-2 g-0">
+                                            <div class="col-md-12">
+                                                <label for="hoa" class="form-label"><b>Category</b></label>
+                                                <select class="form-select" name="category" id="category" disabled>
+                                                    <option value="" style="color: grey;"
+                                                        {{ !$crm->CRMXIcategory->id ? 'selected' : '' }}>Please select Category
+                                                    </option>
+                                                    @foreach ($crmxiCategories as $crmxiCategory)
+                                                        <option value="{{ $crmxiCategory->id }}"
+                                                            {{ $crmxiCategory->id == $crm->CRMXIcategory->id ? 'selected' : '' }}>
+                                                            {{ $crmxiCategory->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="category" value="{{ $crm->CRMXIcategory->id }}">
+                                            </div>
+                                        </div>
+                                        <div class="row p-2 g-0">
+                                            <div class="col-md-12">
+                                                <label for="hoa" class="form-label"><b>Sub Category</b></label>
+                                                <select class="form-select" name="subcat" id="subcat">
+                                                    <option value="" style="color: grey;"
+                                                        {{ !$crm->CRMXIsubCategory->id ? 'selected' : '' }}>Please select Sub Category
+                                                    </option>
+                                                    @foreach ($crmxiSubCategories as $crmxiSubCategory)
+                                                    <option value="{{ $crmxiSubCategory->id }}"
+                                                        {{ $crmxiSubCategory->id == $crm->CRMXIsubCategory->id ? 'selected' : '' }}>
+                                                        {{ $crmxiSubCategory->name }}
                                                     </option>
                                                     @endforeach
                                                 </select>
@@ -216,7 +256,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($crm->vehicles as $vehicle)
+                                                @foreach ($crm->CRMXIvehicles as $vehicle)
                                                     <tr id="vehicle-row-{{ $vehicle->id }}">
                                                         <td>{{ $vehicle->plate_no }}</td>
                                                         <td>{{ $vehicle->brand . ', ' . $vehicle->series }}</td>
@@ -245,7 +285,7 @@
                                 </div>
                             </div>
                             {{-- Modal for View/Update Details --}}
-                            @foreach ($crm->vehicles as $vehicle)
+                            @foreach ($crm->CRMXIvehicles as $vehicle)
                                 @include('srs3.request.user_renewal_view_modal', ['vehicle' => $vehicle])
                             @endforeach
                             {{-- Modals --}}
@@ -537,5 +577,5 @@
         {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
         <script src="{{ asset('js/12srur0123.js') }}"></script>
         <script src="{{ asset('js/srs3renewal1.js') }}"></script>
-        <script src="{{ asset('js/srs3addvehicle.js') }}"></script>
+        {{-- <script src="{{ asset('js/srs3addvehicle.js') }}"></script> --}}
     @endsection
