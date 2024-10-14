@@ -85,7 +85,18 @@ Route::get('/sticker/request/hoas', [SrsRequestController::class, 'getHoas'])->n
 // for ? 
 Route::get('/sticker/request/hoas/nr', [SrsRequestController::class, 'getNRHoas']);
 
+// for HOA (after sender sent a new request)
 Route::get('sticker/request/hoa_approval', [SrsRequestController::class, 'hoaApproval'])->name('request.hoa.approval');
+Route::post('sticker/request/hoa_approval', [SrsRequestController::class, 'hoaApproved'])->name('requests.hoa.approved');
+Route::delete('srs/request/{srsRequest}', [SrsRequestController::class, 'destroy'])->name('request.destroy');
+
+// For Inbox (link Account)
+Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
+Route::post('/srs/account', [SrsRequestController::class, 'storeCrm'])->name('crm.store');
+Route::post('/srs/account/search', [SrsRequestController::class, 'searchCRM'])->name('srs.search_account');
+
+// For Inbox (link account button)
+Route::post('/srs/request/cid', [SrsRequestController::class, 'updateCid'])->name('request.edit_accID');
 
 // Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
 

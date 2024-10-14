@@ -299,8 +299,11 @@ class SrsRequestController extends Controller
         $srsRequest->city = $data['city'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['city'])))) : NULL;
         
         if (isset($data['hoa'])) {
+            // category_id  = 1 = Resident (srs_categories)
             if ($srsRequest->category_id == 1) {
                 $srsRequest->hoa_id = $data['hoa'];
+            // category_id  = 1 = Non-Resident (srs_categories)  
+            // nr = non res hoa id
             } else if ($srsRequest->category_id == 2) {
                 $srsRequest->nr_hoa_id = $data['hoa'];
             }
@@ -367,6 +370,7 @@ class SrsRequestController extends Controller
                 $vehicle->type = strip_tags($data['v_type'][$count]);
             }
 
+            // Remove VBSRS3
             if (isset($data['or'])) {
                 if (isset($data['or'][$count])) {
                     $vehicle->req1 = $this->storeFile($path, $data['or'][$count]);
@@ -376,6 +380,7 @@ class SrsRequestController extends Controller
                 }
             }
 
+            // Remove VBSRS3
             if (isset($data['cr'])) {
                 if (isset($data['cr'][$count])) {
                     $vehicle->cr = $this->storeFile($path, $data['cr'][$count]);
@@ -467,7 +472,9 @@ class SrsRequestController extends Controller
         dispatch(new \App\Jobs\SendRequestorNotificationJob($srsRequest, $srsRequest->email));
 
         $srsRequest->load('hoa');
-
+        // dd($srsRequest);
+        // dd($srsRequest->hoa);
+        // Loads Actinve HOA
         if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
             // $hoaEmails = [
             //     $srsRequest->hoa->emailAdd1
@@ -923,16 +930,25 @@ class SrsRequestController extends Controller
 
     public function hoaApproved(Request $request)
     {
-        $urls = [
-            'https://bffhai.znergee.com/sticker/request/hoa_approval',
-            'https://bffhai2.znergee.com/sticker/request/hoa_approval'
-        ];
+       
+        // $urls = [
+        //     'https://bffhai.znergee.com/sticker/request/hoa_approval',
+        //     'https://bffhai2.znergee.com/sticker/request/hoa_approval'
+        // ];
 
+        // Local Testing
+        $urls = [
+            'http://127.0.0.1:8000/sticker/request/hoa_approval',
+            ' http://127.0.0.1:8000/sticker/request/hoa_approval'
+        ];
+       
+        
         $currentUrl = explode('?', url()->previous())[0];
+        // dd($currentUrl);
         if (!in_array($currentUrl, $urls)) {
             abort(403);
         }
-
+        
         $parsedUrl = parse_url(url()->previous());
         parse_str($parsedUrl['query'], $prevUrlParam);
         $actionBy = '';
@@ -1551,7 +1567,7 @@ class SrsRequestController extends Controller
         }
 
         $request->merge(['srn' => $srn]);
-
+        // dd($request->srn);
         $data = $request->validate([
             'expires' => 'required',
             'key' => 'required|string',
@@ -1675,11 +1691,11 @@ class SrsRequestController extends Controller
 
     public function updateCid(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
             'req_id' => 'required|exists:srs_requests,request_id',
-            'acc' => 'required|string|exists:crm_mains,crm_id',
+            'acc' => 'required|string|exists:crm_mains,crm_id'  ,
         ]);
 
         // $srsRequest = SrsRequest::findOrFail($data['req_id']);
@@ -1689,6 +1705,9 @@ class SrsRequestController extends Controller
                                 ->findOrFail($data['req_id']);
 
         $srsRequest->customer_id = $data['acc'];
+
+        // dd($srsRequest);
+        // dd('Stop');
         if ($srsRequest->save()) {
             // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
             // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
@@ -1758,8 +1777,8 @@ class SrsRequestController extends Controller
 
     public function storeCrm(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
-
+        // $this->authorize('access', SrsRequest::class);
+        
         $data = $request->validate([
             'req_id' => 'required|exists:srs_requests,request_id'
         ]);
@@ -1845,7 +1864,7 @@ class SrsRequestController extends Controller
 
     public function searchCRM(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
             'fname' => 'required|string',
