@@ -48,10 +48,14 @@ Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->
 Route::prefix('v3')->group(function () {
     // index for renewal
     Route::get('/sticker/renewal', [Srs3SrsRequestRenewalController::class, 'index']);
-    // when submit is hit on renewal
+    // when submit is hit on renewal (this is to make a new renewal request)
     Route::post('/sticker/request/renewal', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
+    // For Generating an Email Link sent to renewal requestor
     Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
+
+    // when "Submit Renewal" is clicked
+    Route::post('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'processRenewal'])->name('request.v3.user-renewal.process');
 
     // index for new sticker application
     Route::get('/sticker/new', [Srs3RequestController::class, 'create']);

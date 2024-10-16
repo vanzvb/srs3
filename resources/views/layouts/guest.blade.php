@@ -10,6 +10,7 @@
     </title>
 
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body oncontextmenu="return false;">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">

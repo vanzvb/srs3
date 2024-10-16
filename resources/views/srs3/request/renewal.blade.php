@@ -79,7 +79,7 @@
             </div>
             <div id="request_renewal_msg" class="row justify-content-center">
             </div>
-            <div class="container justify-content-center align-items-center">
+            {{-- <div class="container justify-content-center align-items-center">
                 <div class="p-md-4 mt-1 mb-3">
                     <form id="sticker_renewal_form">
                         <div class="row justify-content-center align-items-center mt-3 g-0">
@@ -97,18 +97,59 @@
                         </div>
                     </form>
                 </div>
+            </div> --}}
+
+            <div class="p-md-4 mt-1 mb-3">
+                <form id="sticker_renewal_form">
+                    <div class="d-flex justify-content-center align-items-center gap-3">
+                        
+                        <!-- Dropdown for Email or Account ID -->
+                        <div>
+                            <label for="identifier_type" class="form-label">Select Identifier</label>
+                            <select class="form-select form-select-sm" id="identifier_type" name="identifier_type" required>
+                                <option value="email" selected>Email</option>
+                                <option value="account_id">Account ID</option>
+                            </select>
+                        </div>
+
+                        <!-- Input Field -->
+                        <div>
+                            <label for="identifier" class="form-label">Enter Here</label>
+                            <input type="text" class="form-control form-control-sm" id="identifier" name="identifier" placeholder value="{{ old('identifier') }}" required>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div>
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <hr>
+                                    <h4><b>BFFHAI SRS RENEWAL</b></h4>
+                    <h4>FOR HOA MEMBERS ONLY</h4>
+                    <p><b>User Guide</b></p>
+                    <br>
+                    <br>
             </div>
+            
+            
+            
+
+            
 
             <br>
 
             <div class="row mb-5 p-3 p-md-0">
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
-                    <h4><b>BFFHAI SRS RENEWAL</b></h4>
+                    {{-- <h4><b>BFFHAI SRS RENEWAL</b></h4>
                     <h4>FOR HOA MEMBERS ONLY</h4>
                     <p><b>User Guide</b></p>
                     <br>
-                    <br>
+                    <br> --}}
 
                     <div class="row">
                         <div class="col-md-6">

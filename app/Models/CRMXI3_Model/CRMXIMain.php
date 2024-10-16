@@ -40,7 +40,15 @@ class CRMXIMain extends Model
 
     public function CRMXIvehicles()
     {
-        return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'customer_id')->where('assoc_crm', 1);
+        if ($this->customer_id == null) {
+            // if new use this
+            return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'account_id')->where('assoc_crm', 1);
+        } else {
+            // if old use this
+            // 3.0 update, new accounts does not use customer_id (they are now using acccount_id)
+            return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'customer_id')->where('assoc_crm', 1);
+        }
+        
     }
 
     public function CRMXIcategory()
@@ -52,4 +60,10 @@ class CRMXIMain extends Model
     {
         return $this->belongsTo(CRMXISubcat::class, 'sub_category_id');
     }
+
+    public function CRMXIaddress()
+    {
+        return $this->hasMany(CRMXIaddress::class, 'account_id', 'account_id');
+    }
+
 }

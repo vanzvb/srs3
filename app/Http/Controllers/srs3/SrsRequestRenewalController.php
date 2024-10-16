@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Traits\WithCaptcha;
 use App\Http\Controllers\Controller;
+use App\Models\CRMXI3_Model\CRMXIAddress;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXIHoa;
 use App\Models\CRMXI3_Model\CRMXIMain;
@@ -167,8 +168,9 @@ class SrsRequestRenewalController extends Controller
         }
 
         // CRMXI
+        
 
-        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory'])
+        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory','CRMXIaddress'])
             ->where('crm_id', $crmId)
             ->where('email', $email)
             ->firstOrFail();
@@ -176,8 +178,9 @@ class SrsRequestRenewalController extends Controller
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
         $crmxiHoas = CRMXIHoa::all();
+       
 
-
+        // dd($crm);
         // TEST
         // $crm = CrmMain::with(['vehicles', 'category', 'subCategory'])
         //                 ->where('crm_id', $crmId)
@@ -192,8 +195,8 @@ class SrsRequestRenewalController extends Controller
             ->where('status', 0)
             ->firstOrFail();
 
-        $srsCategories = SrsCategories::all();
-        $srsSubCategories = SrsSubCategories::all();
+        // $srsCategories = SrsCategories::all();
+        // $srsSubCategories = SrsSubCategories::all();
 
         // $requirements = SrsRequirement::with(['subCategories' => function ($query) {
         //                     $query->select('spc_subcat.id');

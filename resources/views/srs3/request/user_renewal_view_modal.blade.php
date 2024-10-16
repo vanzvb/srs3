@@ -5,39 +5,33 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="viewDetailsModalLabel-{{ $vehicle->id }}">
                     For Renewal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <!-- Add more details as needed -->
                 <h5>Vehicle Information</h5>
                 <div class="row">
                     <div class="col-md-2">
-                        <label for="plate_no" class="form-label"
-                            style="color: grey;">Plate
+                        <label for="plate_no" class="form-label" style="color: grey;">Plate
                             No.:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->plate_no }}
-                        <input type="hidden" class="form-control" id="plate_no"
-                            name="" placeholder="Plate No." required readonly
-                            value="{{ $vehicle->plate_no }}">
+                        <input type="hidden" class="form-control" id="plate_no" name="" placeholder="Plate No."
+                            required readonly value="{{ $vehicle->plate_no }}">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-2">
-                        <label for="brand" class="form-label"
-                            style="color: grey;">Brand:</label>
+                        <label for="brand" class="form-label" style="color: grey;">Brand:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->brand }}
                         <input type="hidden" name="ref[]">
-                        <input type="hidden" name="vref[]"
-                            value="{{ $vehicle->id }}">
+                        <input type="hidden" name="vref[]" value="{{ $vehicle->id }}">
                     </div>
                     <div class="col-md-2">
-                        <label for="series" class="form-label"
-                            style="color: grey;">Series:</label>
+                        <label for="series" class="form-label" style="color: grey;">Series:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->series }}
@@ -45,15 +39,13 @@
                 </div>
                 <div class="row">
                     <div class="col-md-2">
-                        <label for="color" class="form-label"
-                            style="color: grey;">Color:</label>
+                        <label for="color" class="form-label" style="color: grey;">Color:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->color }}
                     </div>
                     <div class="col-md-2">
-                        <label for="year_model" class="form-label"
-                            style="color: grey;">Year/Model:</label>
+                        <label for="year_model" class="form-label" style="color: grey;">Year/Model:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->year_model }}
@@ -61,15 +53,13 @@
                 </div>
                 <div class="row">
                     <div class="col-md-2">
-                        <label for="type" class="form-label"
-                            style="color: grey;">Type:</label>
+                        <label for="type" class="form-label" style="color: grey;">Type:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->type }}
                     </div>
                     <div class="col-md-2">
-                        <label for="year_model" class="form-label"
-                            style="color: grey;">Sticker No.:</label>
+                        <label for="year_model" class="form-label" style="color: grey;">Sticker No.:</label>
                     </div>
                     <div class="col-md-3">
                         {{ $vehicle->new_sticker_no }}
@@ -78,27 +68,20 @@
                     <div class="row mt-2">
                         <div class="px-3 py-1">
                             <div class="form-check">
-                                <input class="form-check-input new_plate_no"
-                                    type="checkbox"
-                                    name="new_plate_no_chk[{{ $vehicle->id }}]"
-                                    value="1"
+                                <input class="form-check-input new_plate_no" type="checkbox"
+                                    name="new_plate_no_chk[{{ $vehicle->id }}]" value="1"
                                     id="new_plate_no[{{ $vehicle->id }}]">
-                                <label class="form-check-label"
-                                    for="new_plate_no[{{ $vehicle->id }}]">
+                                <label class="form-check-label" for="new_plate_no[{{ $vehicle->id }}]">
                                     I have a new plate no. <sup>(If using conduction
                                         no.)</sup>
                                 </label>
                             </div>
                         </div>
-                        <div class="col-12 col-md-3 new_plate_no_input"
-                            style="display: none;">
+                        <div class="col-12 col-md-3 new_plate_no_input" style="display: none;">
                             <div class="form-floating">
-                                <input type="text" class="form-control form-control-sm"
-                                    id=""
-                                    name="new_plate_no[{{ $vehicle->id }}]"
-                                    placeholder="New Plate No.">
-                                <label for="" class="form-label"
-                                    style="color: grey;">New
+                                <input type="text" class="form-control form-control-sm" id=""
+                                    name="new_plate_no[{{ $vehicle->id }}]" placeholder="New Plate No.">
+                                <label for="" class="form-label" style="color: grey;">New
                                     Plate No.</label>
                             </div>
                         </div>
@@ -108,52 +91,207 @@
                         <div class="px-3 py-1">
                             <div class="form-check">
                                 <input class="form-check-input new_color" type="checkbox"
-                                    name="new_color_chk[{{ $vehicle->id }}]"
-                                    value="1"
+                                    name="new_color_chk[{{ $vehicle->id }}]" value="1"
                                     id="new_color_chk[{{ $vehicle->id }}]">
-                                <label class="form-check-label"
-                                    for="new_color_chk[{{ $vehicle->id }}]">
+                                <label class="form-check-label" for="new_color_chk[{{ $vehicle->id }}]">
                                     New color
                                 </label>
                             </div>
                         </div>
-                        <div class="col-12 col-md-3 new_color_input"
-                            style="display: none;">
+                        <div class="col-12 col-md-3 new_color_input" style="display: none;">
                             <div class="form-floating">
-                                <input type="text" class="form-control form-control-sm"
-                                    id="" name="new_color[{{ $vehicle->id }}]"
-                                    placeholder="New Color">
-                                <label for="" class="form-label"
-                                    style="color: grey;">New
+                                <input type="text" class="form-control form-control-sm" id=""
+                                    name="new_color[{{ $vehicle->id }}]" placeholder="New Color">
+                                <label for="" class="form-label" style="color: grey;">New
                                     Color</label>
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr>
-                <h5>Vehicle Owner Information</h5>
+                <h5>Owner Information :</h5>
                 <div class="row">
+                    <div class="row">
+                        <div class="col-md-4 p-2">
+                            <label for="first_name_{{ $vehicle->vehicleOwner->firstname }}"
+                                class="form-label"><b>First Name</b></label>
+                            <input type="text" class="form-control"
+                                id="first_name_{{ $vehicle->vehicleOwner->firstname }}"
+                                name="first_name[{{ $vehicle->vehicleOwner->firstname }}]"
+                                value="{{ $vehicle->vehicleOwner->firstname }}" placeholder="">
+                        </div>
+                        <div class="col-md-4 p-2">
+                            <label for="middle_name_{{ $vehicle->vehicleOwner->middlename }}"
+                                class="form-label"><b>Middle
+                                    Name</b></label>
+                            <input type="text" class="form-control"
+                                id="middle_name_{{ $vehicle->vehicleOwner->middlename }}"
+                                name="middle_name[{{ $vehicle->vehicleOwner->middlename }}]"
+                                value="{{ $vehicle->vehicleOwner->middlename }}" placeholder="">
+                        </div>
+                        <div class="col-md-4 p-2">
+                            <label for="last_name_{{ $vehicle->vehicleOwner->lastname }}" class="form-label"><b>Last
+                                    Name</b></label>
+                            <input type="text" class="form-control"
+                                id="last_name_{{ $vehicle->vehicleOwner->lastname }}"
+                                name="last_name[{{ $vehicle->vehicleOwner->lastname }}]"
+                                value="{{ $vehicle->vehicleOwner->lastname }}" placeholder="">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 p-2">
+                            <label for="main_contact_no_{{ $vehicle->vehicleOwner->main_contact }}"
+                                class="form-label"><b>Main Contact
+                                    No.</b></label>
+                            <input type="text" class="form-control"
+                                id="main_contact_no_{{ $vehicle->vehicleOwner->main_contact }}"
+                                name="main_contact_no[{{ $vehicle->vehicleOwner->main_contact }}]"
+                                value="{{ $vehicle->vehicleOwner->main_contact }}" placeholder="">
+                        </div>
+                        <div class="col-md-4 p-2">
+                            <label for="secondary_contact_no_{{ $vehicle->vehicleOwner->secondary_contact }}"
+                                class="form-label"><b>Secondary
+                                    Contact No.</b></label>
+                            <input type="text" class="form-control"
+                                id="secondary_contact_no_{{ $vehicle->vehicleOwner->secondary_contact }}"
+                                name="secondary_contact_no[{{ $vehicle->vehicleOwner->secondary_contact }}]"
+                                value="{{ $vehicle->vehicleOwner->secondary_contact }}" placeholder="">
+                        </div>
+                        <div class="col-md-4 p-2">
+                            <label for="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact }}"
+                                class="form-label"><b>Tertiary
+                                    Contact No.</b></label>
+                            <input type="text" class="form-control"
+                                id="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact }}"
+                                name="tertiary_contact_no[{{ $vehicle->vehicleOwner->tertiary_contact }}]"
+                                value="{{ $vehicle->vehicleOwner->tertiary_contact }}" placeholder="">
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- Address --}}
+                <br>
+                <h5>Address Information :</h5>
+                <div class="row">
+
                     <div class="col-md-6 p-2">
-                        <label for="vehicle_ownership_status_{{ $loop->index }}" class="form-label"><b>Vehicle Ownership Status</b></label>
-                        <select class="form-select" name="vehicle_ownership_status[{{ $loop->index }}]" id="vehicle_ownership_status_{{ $loop->index }}">
-                            <option value="" style="color: grey;">Please Select Ownership Status...</option>
-                            <option value="1">Sample Vehicle Ownership1</option>
-                            <option value="2">Sample Vehicle Ownership2</option>
-                        </select>  
+                        <label for="vehicle_ownership_status_{{ $vehicle->vehicleAddress->id }}" class="form-label"><b>Address</b></label>
+                        <select class="form-select" name="address[{{ $vehicle->vehicleAddress->id }}]" id="category">
+                            <option value="" style="color: grey;"
+                                {{ is_null($vehicle->vehicleAddress->id) ? 'selected' : '' }}>
+                                Please select Address
+                            </option>
+                    
+                            @foreach ($crm->CRMXIaddress as $address)
+                                <option value="{{ $address->id }}" 
+                                    {{ $address->id == $vehicle->vehicleAddress->id ? 'selected' : '' }}>
+                                    {{ $address->building_name ?? 'Unknown Address' }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-md-6 p-2">
-                        <label for="membership_type_{{ $loop->index }}" class="form-label"><b>Membership Type</b></label>
-                        <select class="form-select" name="membership_type[{{ $loop->index }}]" id="membership_type_{{ $loop->index }}">
-                            <option value="" style="color: grey;">Please Select Membership Type...</option>
-                            <option value="1">Sample Membership1</option>
-                            <option value="2">Sample Membership2</option>
+                        <label for="vehicle_ownership_status_{{ $loop->index }}" class="form-label"><b>Vehicle
+                                Ownership Status</b></label>
+                        <select class="form-select" name="vehicle_ownership_status[{{ $loop->index }}]"
+                            id="vehicle_ownership_status_{{ $loop->index }}" disabled>
+                            <option value="" style="color: grey;">Please Select Ownership Status...</option>
+                            <option value="1" selected>Sample Vehicle Ownership1</option>
+                            <option value="2">Sample Vehicle Ownership2</option>
                         </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 p-2">
+                        <label for="category_{{ $loop->index }}" class="form-label"><b>Category</b></label>
+                        <select class="form-select" name="category[{{ $loop->index }}]"
+                            id="category_{{ $loop->index }}" disabled>
+                            <option value="" style="color: grey;">Please Select Category...</option>
+                            <option value="1" selected>Sample Category 1</option>
+                            <option value="2">Sample Category 2</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 p-2">
+                        <label for="sub_category_{{ $loop->index }}" class="form-label"><b>Sub Category</b></label>
+                        <select class="form-select" name="sub_category[{{ $loop->index }}]"
+                            id="sub_category_{{ $loop->index }}" disabled>
+                            <option value="" style="color: grey;">Please Select Sub Category...</option>
+                            <option value="1" selected>Sample Sub Category 1</option>
+                            <option value="2">Sample Sub Category 2</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 p-2">
+                        <label for="hoa_{{ $loop->index }}" class="form-label"><b>HOA</b></label>
+                        <select class="form-select" name="hoa[{{ $loop->index }}]" id="hoa_{{ $loop->index }}"
+                            disabled>
+                            <option value="" style="color: grey;">Please Select HOA...</option>
+                            <option value="1" selected>Sample HOA 1</option>
+                            <option value="2">Sample HOA 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 p-2">
+                        <label for="member_type_{{ $loop->index }}" class="form-label"><b>Member Type</b></label>
+                        <select class="form-select" name="member_type[{{ $loop->index }}]"
+                            id="member_type_{{ $loop->index }}" disabled>
+                            <option value="1" selected>Sample Member Type 1</option>
+                            <option value="2">Sample Member Type 2</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 p-2">
+                        <label for="block_{{ $loop->index }}" class="form-label"><b>Block</b></label>
+                        <input type="text" class="form-control" id="block_{{ $loop->index }}"
+                            name="block[{{ $loop->index }}]" placeholder="2" disabled>
+                    </div>
+                    <div class="col-md-3 p-2">
+                        <label for="lot_{{ $loop->index }}" class="form-label"><b>Lot</b></label>
+                        <input type="text" class="form-control" id="lot_{{ $loop->index }}"
+                            name="lot[{{ $loop->index }}]" placeholder="1" disabled>
+                    </div>
+                    <div class="col-md-3 p-2">
+                        <label for="house_number_{{ $loop->index }}" class="form-label"><b>House Number</b></label>
+                        <input type="text" class="form-control" id="house_number_{{ $loop->index }}"
+                            name="house_number[{{ $loop->index }}]" placeholder="4" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 p-2">
+                        <label for="street_{{ $loop->index }}" class="form-label"><b>Street</b></label>
+                        <input type="text" class="form-control" id="street_{{ $loop->index }}"
+                            name="street[{{ $loop->index }}]" placeholder="Sample Street" disabled>
+                    </div>
+                    <div class="col-md-4 p-2">
+                        <label for="building_{{ $loop->index }}" class="form-label"><b>Building / Apartment /
+                                Condo</b></label>
+                        <input type="text" class="form-control" id="building_{{ $loop->index }}"
+                            name="building[{{ $loop->index }}]" placeholder="Building 1" disabled>
+                    </div>
+                    <div class="col-md-4 p-2">
+                        <label for="subdivision_{{ $loop->index }}" class="form-label"><b>Subdivision /
+                                Village</b></label>
+                        <input type="text" class="form-control" id="subdivision_{{ $loop->index }}"
+                            name="subdivision[{{ $loop->index }}]" placeholder="Village 1" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 p-2">
+                        <label for="city_{{ $loop->index }}" class="form-label"><b>City</b></label>
+                        <select class="form-select" name="city[{{ $loop->index }}]" id="city_{{ $loop->index }}"
+                            disabled>
+                            <option value="1" selected>Sample City 1</option>
+                            <option value="2">Sample City 2</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 p-2">
+                        <label for="zipcode_{{ $loop->index }}" class="form-label"><b>Zipcode</b></label>
+                        <input type="text" class="form-control" id="zipcode_{{ $loop->index }}"
+                            name="zipcode[{{ $loop->index }}]" placeholder="Enter Zipcode" disabled>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
-                    data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
