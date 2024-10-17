@@ -36,119 +36,117 @@
                                         <b>{{ $crm->category->name . ' / ' . $crm->subCategory->name }}</b>
                                     </div> --}}
                                 </div>
+
                                 <div class="row p-2 g-0">
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <div class="row p-2 g-0">
-                                                <div class="col-md-12">
-                                                    <label class="form-label"><b>Account ID</b></label>
-                                                    <div>
-                                                        {{ $crm->account_id }}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="col-md-2 me-2">
+                                        <label for="account_type" class="form-label"><b>Account Type</b></label>
+                                        <select class="form-select form-select-md" name="account_type" id="account_type"
+                                            disabled>
+                                            <option value="0" style="color: grey;"
+                                                {{ $crm->account_type == 0 ? 'selected' : '' }}>Individual</option>
+                                            <option value="1" {{ $crm->account_type == 1 ? 'selected' : '' }}>Company
+                                            </option>
+                                        </select>
+                                    </div>
 
-                                        </div>
-                                        <div class="row">
-                                            <div class="row p-2 g-0">
-                                                {{-- <div class="col-md-2">
-                                                    <b>Name:</b>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    {{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}
-                                                </div> --}}
-                                                <div class="col-md-12">
-                                                    <label class="form-label"><b>Name</b></label>
-                                                    <div>
-                                                        {{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}
-                                                    </div>
-                                                </div>
+                                    <div class="col-md-6 me-2">
+                                        <div class="" id="individual-name-container" style="display: none;">
+                                            <div class="col-md-12">
+                                                <label for="individualName" class="form-label"><b>Name</b></label>
+                                                <input type="text" class="form-control" id="individualName"
+                                                    name="individualName" placeholder="" value="{{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}"
+                                                    disabled>
                                             </div>
                                         </div>
-                                        {{-- <div class="row">
-                                            <div class="row p-2 g-0">
-                                                <div class="col-md-2">
-                                                    <b>Address:</b>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    {{ $crm->blk_lot . ' ' . $crm->street . ($crm->building_name ? ', ' . $crm->building_name : '') . ($crm->subdivision_village ? ', ' . $crm->subdivision_village : '') . ($crm->city ? ', ' . $crm->city : '') }}
-                                                </div>
-                                                <div class="col-md-12">
-                                                    <label class="form-label"><b>Address</b></label>
-                                                    <div>
-                                                        {{ $crm->blk_lot . ' ' . $crm->street . ($crm->building_name ? ', ' . $crm->building_name : '') . ($crm->subdivision_village ? ', ' . $crm->subdivision_village : '') . ($crm->city ? ', ' . $crm->city : '') }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
-                                        <div class="row">
-                                            <div class="row p-2 g-0">
-                                                {{-- <div class="col-md-2">
-                                                    <b>Email:</b>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    {{ $crm->email }}
-                                                </div> --}}
 
-                                                <div class="col-md-12">
-                                                    <label class="form-label"><b>Email</b></label>
-                                                    <div>
-                                                        {{ $crm->email }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="row p-2 g-0">
-                                                {{-- <div class="col-md-2">
-                                                    <b>Contact No.:</b>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    {{ $crm->main_contact }}
-                                                </div> --}}
-
-                                                <div class="col-md-12">
-                                                    <label class="form-label"><b>Contact No.</b></label>
-                                                    <div>
-                                                        {{ $crm->main_contact }}
-                                                    </div>
-                                                </div>
+                                        <div class="" id="company-name-container" style="display: none;">
+                                            <div class="col-md-12">
+                                                <label for="companyName" class="form-label"><b>Company Name</b></label>
+                                                <input type="text" class="form-control" id="companyName"
+                                                    name="companyName" placeholder="" value="{{ $crm->firstname }}"
+                                                    disabled>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        {{-- Individual / Company --}}
+
+                                    <div class="col-md-4">
+                                        <div class="" id="company-representative-container" style="display: none;">
+                                            <div class="col-md-12">
+                                                <label for="representativeName" class="form-label"><b>Company
+                                                        Representative</b></label>
+                                                <input type="text" class="form-control" id="representativeName"
+                                                    name="representativeName" placeholder="" value="{{ $crm->name }}"
+                                                    disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row p-2 g-0">
+                                    <div class="col-md-2 me-2">
+                                        <label class="form-label"><b>Account ID</b></label>
+                                        <input type="text" class="form-control" value="{{ $crm->account_id }}" disabled>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label"><b>Email</b></label>
+                                        <input type="text" class="form-control" value="{{ $crm->email }}" disabled>
+                                    </div>
+
+                                </div>
+
+                                <div class="row p-2 g-0">
+                                    
+                                    <div class="col-md-3 me-2">
+                                        <label class="form-label"><b>Main Contact</b></label>
+                                        <input type="text" class="form-control" value="{{ $crm->main_contact }}" disabled>
+                                    </div>
+
+                                    <div class="col-md-3 me-2">
+                                        <label class="form-label"><b>Secondary Contact</b></label>
+                                        <input type="text" class="form-control" value="{{ $crm->secondary_contact }}" disabled>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label"><b>Tertiary Contact</b></label>
+                                        <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}" disabled>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="row p-2 g-0"> --}}
+                                    {{-- <div class="col-md-6"> --}}
+                                        {{-- 
                                         <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="account_type" class="form-label"><b>Account Type</b></label>
-                                                <select class="form-select" name="account_type" id="account_type">
-                                                    <option value="0" style="color: grey;">Individual</option>
-                                                    <option value="1">Company</option>
+                                                <select class="form-select" name="account_type" id="account_type" disabled>
+                                                    <option value="0" style="color: grey;" {{ $crm->account_type == 0 ? 'selected' : '' }}>Individual</option>
+                                                    <option value="1" {{ $crm->account_type == 1 ? 'selected' : '' }}>Company</option>
                                                 </select>
                                             </div>
                                         </div>
 
-                                        {{-- Equivalent to firstname in CRMXI --}}
                                         <div class="row p-2 g-0" id="company-name-container" style="display: none;">
                                             <div class="col-md-12">
                                                 <label for="companyName" class="form-label"><b>Company Name</b></label>
                                                 <input type="text" class="form-control" id="companyName"
-                                                    name="companyName" placeholder="Enter company name">
+                                                    name="companyName" placeholder="" value="{{ $crm->firstname }}" disabled>
                                             </div>
                                         </div>
-                                        {{-- Equivalent to name in CRMXI --}}
                                         <div class="row p-2 g-0" id="company-representative-container"
                                             style="display: none;">
                                             <div class="col-md-12">
                                                 <label for="representativeName" class="form-label"><b>Company
                                                         Representative</b></label>
                                                 <input type="text" class="form-control" id="representativeName"
-                                                    name="representativeName" placeholder="Enter representative's name">
+                                                    name="representativeName" placeholder="" value="{{ $crm->name }}" disabled>
                                             </div>
-                                        </div>
+                                        </div> 
+                                        --}}
 
-                                        <div class="row p-2 g-0">
-                                            {{-- <div class="col-md-12">
+                                        {{-- <div class="row p-2 g-0">
+                                            <div class="col-md-12">
                                                 <label for="hoa" class="form-label"><b>HOA</b></label>
                                                 <select class="form-select" name="hoa" id="hoa">
                                                     <option value="" style="color: grey;" {{ is_null($crm->hoas) ? 'selected' : '' }}>
@@ -160,10 +158,10 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                            </div> --}}
-                                        </div>
-                                        <div class="row p-2 g-0">
-                                            {{-- <div class="col-md-12">
+                                            </div>
+                                        </div> --}}
+                                        {{-- <div class="row p-2 g-0">
+                                            <div class="col-md-12">
                                                 <label for="category" class="form-label"><b>Category</b></label>
                                                 <select class="form-select" name="category" id="category" disabled>
                                                     <option value="" style="color: grey;" {{ is_null($crm->CRMXIcategory) ? 'selected' : '' }}>
@@ -177,10 +175,10 @@
                                                     @endforeach
                                                 </select>
                                                 <input type="hidden" name="category" value="{{ $crm->CRMXIcategory ? $crm->CRMXIcategory->id : '' }}">
-                                            </div> --}}
-                                        </div>
-                                        <div class="row p-2 g-0">
-                                            {{-- <div class="col-md-12">
+                                            </div>
+                                        </div> --}}
+                                        {{-- <div class="row p-2 g-0">
+                                            <div class="col-md-12">
                                                 <label for="subcat" class="form-label"><b>Sub Category</b></label>
                                                 <select class="form-select" name="subcat" id="subcat">
                                                     <option value="" style="color: grey;" {{ is_null($crm->CRMXIsubCategory) ? 'selected' : '' }}>
@@ -193,10 +191,10 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                            </div> --}}
-                                        </div>
-                                    </div>
-                                </div>
+                                            </div>
+                                        </div> --}}
+                                    {{-- </div> --}}
+                                {{-- </div> --}}
                             </div>
 
                             {{-- For Renewal (Table) --}}
@@ -231,7 +229,7 @@
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name }}</td>
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name }}</td>
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name }}</td>
-                                                        
+
                                                         <td></td>
                                                         <td></td>
                                                         <td style="white-space: nowrap;">

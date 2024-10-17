@@ -40,6 +40,7 @@ class CRMXIMain extends Model
 
     public function CRMXIvehicles()
     {
+        // All new created in crmxi3_mains will have null "customer_id"
         if ($this->customer_id == null) {
             // if new use this
             return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'account_id')->where('assoc_crm', 1);

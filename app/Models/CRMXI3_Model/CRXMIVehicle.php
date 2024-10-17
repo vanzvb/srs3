@@ -31,5 +31,10 @@ class CRXMIVehicle extends Model
     {
         return $this->hasOne(CRMXIAddress::class, 'id','address_id');
     }
+
+    public function vehicleOwnershipStatus() 
+    {
+        return $this->hasOne(CRMXIVehicleOwnershipStatus::class, 'id', 'vehicle_ownership_status_id');
+    }
     
 }

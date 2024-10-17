@@ -2,30 +2,36 @@
 
 namespace App\Http\Controllers\srs3;
 
-use App\Models\SrsHoa;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\srs3\SrsRequestController;
+use App\Mail\RequestRenewal;
 use App\Models\CrmMain;
 use App\Models\CrmVehicle;
-use App\Models\SrsRequest;
-use Illuminate\Support\Str;
-use App\Mail\RequestRenewal;
-use App\Models\SrsCategories;
-use Illuminate\Http\Request;
-use App\Models\SrsRequirement;
-use App\Models\SrsRenewalRequest;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Contracts\Encryption\DecryptException;
-use App\Traits\WithCaptcha;
-use App\Http\Controllers\Controller;
 use App\Models\CRMXI3_Model\CRMXIAddress;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXIHoa;
 use App\Models\CRMXI3_Model\CRMXIMain;
 use App\Models\CRMXI3_Model\CRMXISubcat;
+use App\Models\CRMXI3_Model\CRXMIVehicle;
+use App\Models\SrsCategories;
+use App\Models\SrsHoa;
+use App\Models\SrsRenewalRequest;
+use App\Models\SrsRequirement;
 use App\Models\SrsSubCategories;
+use App\Traits\WithCaptcha;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+// Changed in SRS3
+// use App\Models\SrsRequest;
+
+use App\Models\SRS3_Model\SrsRequest;
 
 class SrsRequestRenewalController extends Controller
 {
@@ -168,9 +174,9 @@ class SrsRequestRenewalController extends Controller
         }
 
         // CRMXI
-        
 
-        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory','CRMXIaddress'])
+
+        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
             ->where('crm_id', $crmId)
             ->where('email', $email)
             ->firstOrFail();
@@ -178,7 +184,7 @@ class SrsRequestRenewalController extends Controller
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
         $crmxiHoas = CRMXIHoa::all();
-       
+
 
         // dd($crm);
         // TEST
@@ -223,7 +229,6 @@ class SrsRequestRenewalController extends Controller
 
     public function processRenewal(Request $request)
     {
-        dd($request);
         // $request->validate([
         //     'vref' => 'required|array',
         //     'v_or' => 'required|array',
@@ -341,219 +346,243 @@ class SrsRequestRenewalController extends Controller
         //     'general_information_sheet' => 'General Information Sheet',
         // ]);
 
-        $crm = CrmMain::with(['vehicles'])
-            ->where('crm_id', $crmId)
-            ->where('email', $crmEmail)
-            ->firstOrFail();
+        DB::beginTransaction(); // Start the transaction
 
-        $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-            ->where('email', $crm->email)
-            ->where('token', $reqToken)
-            ->where('status', 0)
-            ->firstOrFail();
+        try {
 
-        // $hoa = SrsHoa::where('name', $crm->hoa)->first();
 
-        $srsRequestController = new SrsRequestController();
+            $crm = CRMXIMain::with(['CRMXIvehicles'])
+                ->where('crm_id', $crmId)
+                ->where('email', $crmEmail)
+                ->firstOrFail();
 
-        $srsRequest = new SrsRequest();
-        $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
-        $srsRequest->category_id = $crm->category_id;
-        $srsRequest->sub_category_id = $crm->sub_category_id;
-        $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
-        $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
-        $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
-        $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
-        $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
-        $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
-        $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
-        $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
-        // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
-        $srsRequest->hoa_id = $request->hoa;
-        $srsRequest->contact_no = $crm->main_contact;
-        $srsRequest->email = $crm->email;
+            // $crm = CrmMain::with(['vehicles'])
+            //     ->where('crm_id', $crmId)
+            //     ->where('email', $crmEmail)
+            //     ->firstOrFail();
 
-        $srsRequest->created_at = now();
-        $srsRequest->updated_at = now();
+            // dd($crm);
 
-        $srsRequest->load(['category' => function ($query) {
-            $query->select('id', 'name');
-        }, 'hoa']);
+            $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
+                ->where('email', $crm->email)
+                ->where('token', $reqToken)
+                ->where('status', 0)
+                ->firstOrFail();
 
-        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+            // Changed namespace to srs 3
+            $srsRequestController = new SrsRequestController();
 
-        $renewVehicles = $crm->vehicles->whereIn('id', $request->vref);
-        $vehicles = [];
+            $srsRequest = new SrsRequest();
 
-        foreach ($renewVehicles as $renewVehicle) {
-            $vehicle = new CrmVehicle();
-            $vehicle->srs_request_id = $srsRequest->request_id;
-            $vehicle->req_type = 1;
-            $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no))));
-            $vehicle->brand = strip_tags($renewVehicle->brand);
-            $vehicle->series = strip_tags($renewVehicle->series);
-            $vehicle->year_model = strip_tags($renewVehicle->year_model);
-            // $vehicle->old_sticker_no = strip_tags($request->sticker_no[$renewVehicle->id]);
-            $vehicle->old_sticker_no = strip_tags($renewVehicle->new_sticker_no);
-            $vehicle->color = strip_tags($renewVehicle->color);
-            $vehicle->type = strip_tags($renewVehicle->type);
-            $vehicle->req1 = $srsRequestController->storeFile($path, $request->v_or[$renewVehicle->id]);
-            $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
-            $vehicle->cr = $renewVehicle->cr;
-            $vehicle->cr_path = $renewVehicle->cr_path;
+            // Generate requests_id
+            $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
+            $srsRequest->category_id = $crm->category_id;
+            $srsRequest->sub_category_id = $crm->sub_category_id;
+            $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
+            $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
+            $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
+            $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
+            $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
+            $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
+            $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
+            $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
+            // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
+            $srsRequest->hoa_id = $request->hoa;
+            $srsRequest->contact_no = $crm->main_contact;
+            $srsRequest->email = $crm->email;
 
-            if (!$renewVehicle->srs_request_id) {
-                $vehicle->cr_from_crm = 1;
-            }
+            $srsRequest->created_at = now();
+            $srsRequest->updated_at = now();
 
-            if (isset($request->new_plate_no_chk[$renewVehicle->id])) {
-                $vehicle->plate_no_remarks = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $request->new_plate_no[$renewVehicle->id]))));
-            }
+            $srsRequest->load(['category' => function ($query) {
+                $query->select('id', 'name');
+            }, 'hoa']);
 
-            if (isset($request->new_color_chk[$renewVehicle->id])) {
-                $vehicle->color_remarks = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $request->new_color[$renewVehicle->id]))));
-            }
+            // Newly Added Columns in srs3
 
-            $vehicles[] = $vehicle;
-        }
+            // membership_type - HOA TYPE (migrated accounts is null) this is crmxi3_mains.hoa_type
+            $srsRequest->membership_type = $crm->hoa_type;
 
-        $newVehicleCounter = 0;
-        if ($request['plate_no']) {
-            foreach ($request['plate_no'] as $item1) {
-                $vehicle = new CrmVehicle();
+            // block_no (migrated accounts is null) this is crmxi3_mains.block
+            $srsRequest->block_no = $crm->block;
+
+            // lot_no (migrated accounts is null) this is crmxi3_mains.lot
+            $srsRequest->lot_no = $crm->lot;
+
+            // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
+            // $srsRequest->srs3_sub_category_id = null;
+
+            // account_type - (0 = Individual, 1 = Company)
+            $srsRequest->account_type = $crm->account_type;
+
+            // company_name - "if account_type = 0, then null ,else this should be stored in crmxi3_mains.firstname"
+            $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
+
+            // company_representative - "if account_type = 0, then null, else this should be stored in crmxi3_mains.name"
+            $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
+
+            // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
+            // $srsRequest->srs3_hoa_id = null;
+
+            // OR / CR on vehicle is removed in renewal
+            // Pending
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+
+            $renewVehicles = $crm->vehicles->whereIn('id', $request->vref);
+
+            $vehicles = [];
+
+            foreach ($renewVehicles as $renewVehicle) {
+
+                $vehicle = new CRXMIVehicle();
+                // $vehicle = new CrmVehicle();
+
                 $vehicle->srs_request_id = $srsRequest->request_id;
+                $vehicle->req_type = 1;
+                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no))));
+                $vehicle->brand = strip_tags($renewVehicle->brand);
+                $vehicle->series = strip_tags($renewVehicle->series);
+                $vehicle->year_model = strip_tags($renewVehicle->year_model);
+                // $vehicle->old_sticker_no = strip_tags($request->sticker_no[$renewVehicle->id]);
+                $vehicle->old_sticker_no = strip_tags($renewVehicle->new_sticker_no);
+                $vehicle->color = strip_tags($renewVehicle->color);
+                $vehicle->type = strip_tags($renewVehicle->type);
+                // $vehicle->req1 = $srsRequestController->storeFile($path, $request->v_or[$renewVehicle->id]);
+                // $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
+                // $vehicle->cr = $renewVehicle->cr;
+                // $vehicle->cr_path = $renewVehicle->cr_path;
 
-                $existingVehicle = $crm->vehicles->where('plate_no', $item1)->first();
-
-                if ($existingVehicle) {
-                    $vehicle->req_type = 1;
-                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $existingVehicle->plate_no))));
-                    $vehicle->brand = strip_tags($existingVehicle->brand);
-                    $vehicle->series = strip_tags($existingVehicle->series);
-                    $vehicle->year_model = strip_tags($existingVehicle->year_model);
-                    $vehicle->old_sticker_no = strip_tags($existingVehicle->new_sticker_no);
-                    $vehicle->color = strip_tags($existingVehicle->color);
-                    $vehicle->type = strip_tags($existingVehicle->type);
-                    $vehicle->req1 = $srsRequestController->storeFile($path, $request->or[$newVehicleCounter]);
-                    $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
-                    $vehicle->cr = $existingVehicle->cr;
-                    $vehicle->cr_path = $existingVehicle->cr_path;
-                } else {
-                    $vehicle->req_type = 0;
-                    $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
-                    $vehicle->brand = strip_tags($request->brand[$newVehicleCounter]);
-                    $vehicle->series = strip_tags($request->series[$newVehicleCounter]);
-                    $vehicle->year_model = strip_tags($request->year_model[$newVehicleCounter]);
-                    $vehicle->color = strip_tags($request->color[$newVehicleCounter]);
-                    $vehicle->type = strip_tags($request->type[$newVehicleCounter]);
-                    $vehicle->req1 = $srsRequestController->storeFile($path, $request->or[$newVehicleCounter]);
-                    $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
-                    $vehicle->cr = $srsRequestController->storeFile($path, $request->cr[$newVehicleCounter]);
-                    $vehicle->cr_path = $vehicle->cr . '/' . $filePath;
+                if (!$renewVehicle->srs_request_id) {
+                    $vehicle->cr_from_crm = 1;
                 }
 
-                $newVehicleCounter++;
+                if (isset($request->new_plate_no_chk[$renewVehicle->id])) {
+                    $vehicle->plate_no_remarks = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $request->new_plate_no[$renewVehicle->id]))));
+                }
+
+                if (isset($request->new_color_chk[$renewVehicle->id])) {
+                    $vehicle->color_remarks = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $request->new_color[$renewVehicle->id]))));
+                }
+
+                // Added columns in crmxi3
+
+                // account_id - will be null on first entry (will be updated with crmxi3_mains.account_id when account is linked)
+                $vehicle->account_id = $renewVehicle->account_id;
+
+                // address_id - will be connected to crmxi3_address
+                $vehicle->address_id = strip_tags($renewVehicle->address_id);
+
+                // red_tag (for checking, boolean)
+                $vehicle->red_tag = $renewVehicle->red_tag;
+
+                // vehicle_ownership_status_id
+                $vehicle->vehicle_ownership_status_id = $renewVehicle->vehicle_ownership_status_id;
                 $vehicles[] = $vehicle;
             }
-        }
 
-        $files = [];
+            // for adding new vehicles
 
-        if ($request->has('hoa_endorsement')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['hoa_endorsement']), 2, $filePath);
-        }
+            // $newVehicleCounter = 0;
+            // if ($request['plate_no']) {
+            //     foreach ($request['plate_no'] as $item1) {
+            //         $vehicle = new CrmVehicle();
+            //         $vehicle->srs_request_id = $srsRequest->request_id;
 
-        if ($request->has('lease_contract')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['lease_contract']), 3, $filePath);
-        }
+            //         $existingVehicle = $crm->vehicles->where('plate_no', $item1)->first();
 
-        if ($request->has('tct')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['tct']), 4, $filePath);
-        }
+            //         if ($existingVehicle) {
+            //             $vehicle->req_type = 1;
+            //             $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $existingVehicle->plate_no))));
+            //             $vehicle->brand = strip_tags($existingVehicle->brand);
+            //             $vehicle->series = strip_tags($existingVehicle->series);
+            //             $vehicle->year_model = strip_tags($existingVehicle->year_model);
+            //             $vehicle->old_sticker_no = strip_tags($existingVehicle->new_sticker_no);
+            //             $vehicle->color = strip_tags($existingVehicle->color);
+            //             $vehicle->type = strip_tags($existingVehicle->type);
+            //             $vehicle->req1 = $srsRequestController->storeFile($path, $request->or[$newVehicleCounter]);
+            //             $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
+            //             $vehicle->cr = $existingVehicle->cr;
+            //             $vehicle->cr_path = $existingVehicle->cr_path;
+            //         } else {
+            //             $vehicle->req_type = 0;
+            //             $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
+            //             $vehicle->brand = strip_tags($request->brand[$newVehicleCounter]);
+            //             $vehicle->series = strip_tags($request->series[$newVehicleCounter]);
+            //             $vehicle->year_model = strip_tags($request->year_model[$newVehicleCounter]);
+            //             $vehicle->color = strip_tags($request->color[$newVehicleCounter]);
+            //             $vehicle->type = strip_tags($request->type[$newVehicleCounter]);
+            //             $vehicle->req1 = $srsRequestController->storeFile($path, $request->or[$newVehicleCounter]);
+            //             $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
+            //             $vehicle->cr = $srsRequestController->storeFile($path, $request->cr[$newVehicleCounter]);
+            //             $vehicle->cr_path = $vehicle->cr . '/' . $filePath;
+            //         }
 
-        if ($request->has('business_clearance')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['business_clearance']), 5, $filePath);
-        }
+            //         $newVehicleCounter++;
+            //         $vehicles[] = $vehicle;
+            //     }
+            // }
 
-        if ($request->has('deed_of_assignment')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['deed_of_assignment']), 6, $filePath);
-        }
+            $files = [];
 
-        if ($request->has('proof_of_ownership')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['proof_of_ownership']), 7, $filePath);
-        }
-
-        if ($request->has('proof_of_residency')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['proof_of_residency']), 8, $filePath);
-        }
-
-        if ($request->has('bffhai_biz_clearance')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['bffhai_biz_clearance']), 9, $filePath);
-        }
-
-        if ($request->has('valid_id_other_requirement')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
-        }
-
-        if ($request->has('other_documents_2')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['other_documents_2']), 12, $filePath);
-        }
-
-        if ($request->has('other_documents_3')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['other_documents_3']), 13, $filePath);
-        }
-
-        if ($request->has('nbi_police_clearance')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['nbi_police_clearance']), 14, $filePath);
-        }
-
-        if ($request->has('general_information_sheet')) {
-            $files[] = $this->storeRequirementFile($this->storeFile($path, $request['general_information_sheet']), 15, $filePath);
-        }
-
-        $srn = Crypt::encrypt($srsRequest->request_id);
-
-        $srsRequest->save();
-
-        $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
-        $crm->save();
-
-        if ($vehicles) {
-            $srsRequest->vehicles()->saveMany($vehicles);
-        }
-
-        if ($files) {
-            $srsRequest->files()->saveMany($files);
-        }
-
-        $renewalRequest->status = 1;
-        $renewalRequest->save();
-
-        dispatch(new \App\Jobs\SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
-
-        if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
-
-            if ($srsRequest->hoa->emailAdd1) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
-
-                dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
+            if ($request->has('valid_id_other_requirement')) {
+                $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
             }
 
-            if ($srsRequest->hoa->emailAdd2) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+            $srn = Crypt::encrypt($srsRequest->request_id);
 
-                dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
+            $srsRequest->save();
+
+            $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
+            $crm->save();
+
+            if ($vehicles) {
+                $srsRequest->vehicles()->saveMany($vehicles);
             }
 
-            if ($srsRequest->hoa->emailAdd3) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
-
-                dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
+            if ($files) {
+                $srsRequest->files()->saveMany($files);
             }
+
+            $renewalRequest->status = 1;
+            $renewalRequest->save();
+
+            dd('stop here, check saving');
+
+            DB::commit();
+
+            // dispatch(new \App\Jobs\SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
+
+            // if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
+
+            //     if ($srsRequest->hoa->emailAdd1) {
+            //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
+
+            //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
+            //     }
+
+            //     if ($srsRequest->hoa->emailAdd2) {
+            //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+
+            //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
+            //     }
+
+            //     if ($srsRequest->hoa->emailAdd3) {
+            //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+
+            //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
+            //     }
+            // }
+
+            return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
+
+        } catch (Exception $e) {
+            // If there's an error, rollback the transaction
+            DB::rollBack();
+
+            // Handle the error (e.g., log it or return an error response)
+            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
         }
-
-        return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
     }
 
     public function saveProgress(Request $request)

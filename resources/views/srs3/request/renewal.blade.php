@@ -106,8 +106,8 @@
                     <form id="sticker_renewal_form">
                         <div class="row justify-content-center align-items-center mt-3 g-0">
                             
-                            <div class="col-md-2">
-                                    <input type="text" class="form-control form-control-md" id="email" name="email" placeholder="Enter Email or Account ID" value="{{ old('email') }}" required>
+                            <div class="col-md-4">
+                                    <input type="text" class="form-control form-control-md" id="email" name="email" placeholder="Enter Email Address or Account ID" value="{{ old('email') }}" required>
 
                             </div>
                             <div class="col-md-1 text-center">

@@ -109,7 +109,17 @@
                     </div>
                 </div>
                 <hr>
+                {{-- Vehicle Owner Info --}}
                 <h5>Owner Information :</h5>
+
+                {{--  Get Vehicle Owner ID --}}
+                <div class="col-12 col-md-3 vehicle_owners_input" style="display: none;">
+                    <div class="form-floating">
+                        <input type="text" class="form-control form-control-sm" id=""
+                            name="vehicle_owners_input[{{ $vehicle->vehicleOwner->id }}]">
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="row">
                         <div class="col-md-4 p-2">
@@ -118,7 +128,7 @@
                             <input type="text" class="form-control"
                                 id="first_name_{{ $vehicle->vehicleOwner->firstname }}"
                                 name="first_name[{{ $vehicle->vehicleOwner->firstname }}]"
-                                value="{{ $vehicle->vehicleOwner->firstname }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->firstname }}" placeholder="" disabled>
                         </div>
                         <div class="col-md-4 p-2">
                             <label for="middle_name_{{ $vehicle->vehicleOwner->middlename }}"
@@ -127,7 +137,7 @@
                             <input type="text" class="form-control"
                                 id="middle_name_{{ $vehicle->vehicleOwner->middlename }}"
                                 name="middle_name[{{ $vehicle->vehicleOwner->middlename }}]"
-                                value="{{ $vehicle->vehicleOwner->middlename }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->middlename }}" placeholder="" disabled>
                         </div>
                         <div class="col-md-4 p-2">
                             <label for="last_name_{{ $vehicle->vehicleOwner->lastname }}" class="form-label"><b>Last
@@ -135,7 +145,7 @@
                             <input type="text" class="form-control"
                                 id="last_name_{{ $vehicle->vehicleOwner->lastname }}"
                                 name="last_name[{{ $vehicle->vehicleOwner->lastname }}]"
-                                value="{{ $vehicle->vehicleOwner->lastname }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->lastname }}" placeholder="" disabled>
                         </div>
                     </div>
                     <div class="row">
@@ -146,7 +156,7 @@
                             <input type="text" class="form-control"
                                 id="main_contact_no_{{ $vehicle->vehicleOwner->main_contact }}"
                                 name="main_contact_no[{{ $vehicle->vehicleOwner->main_contact }}]"
-                                value="{{ $vehicle->vehicleOwner->main_contact }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->main_contact }}" placeholder="" disabled>
                         </div>
                         <div class="col-md-4 p-2">
                             <label for="secondary_contact_no_{{ $vehicle->vehicleOwner->secondary_contact }}"
@@ -155,7 +165,7 @@
                             <input type="text" class="form-control"
                                 id="secondary_contact_no_{{ $vehicle->vehicleOwner->secondary_contact }}"
                                 name="secondary_contact_no[{{ $vehicle->vehicleOwner->secondary_contact }}]"
-                                value="{{ $vehicle->vehicleOwner->secondary_contact }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->secondary_contact }}" placeholder="" disabled>
                         </div>
                         <div class="col-md-4 p-2">
                             <label for="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact }}"
@@ -164,26 +174,37 @@
                             <input type="text" class="form-control"
                                 id="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact }}"
                                 name="tertiary_contact_no[{{ $vehicle->vehicleOwner->tertiary_contact }}]"
-                                value="{{ $vehicle->vehicleOwner->tertiary_contact }}" placeholder="">
+                                value="{{ $vehicle->vehicleOwner->tertiary_contact }}" placeholder="" disabled>
                         </div>
                     </div>
                 </div>
-                
-                {{-- Address --}}
+
+                {{-- Vehicle Address  Info --}}
                 <br>
                 <h5>Address Information :</h5>
+
+                {{--  Get Vehicle Owner ID --}}
+                <div class="col-12 col-md-3 vehicle_address_input" style="display: none;">
+                    <div class="form-floating">
+                        <input type="text" class="form-control form-control-sm" id=""
+                            name="vehicle_address_input[{{ $vehicle->vehicleAddress->id }}]">
+                    </div>
+                </div>
+
                 <div class="row">
 
                     <div class="col-md-6 p-2">
-                        <label for="vehicle_ownership_status_{{ $vehicle->vehicleAddress->id }}" class="form-label"><b>Address</b></label>
-                        <select class="form-select" name="address[{{ $vehicle->vehicleAddress->id }}]" id="category">
+                        <label for="vehicle_address_{{ $vehicle->vehicleAddress->id }}"
+                            class="form-label"><b>Address</b></label>
+                        <select class="form-select" name="vehicle_address[{{ $vehicle->vehicleAddress->id }}]"
+                            id="category" disabled>
                             <option value="" style="color: grey;"
                                 {{ is_null($vehicle->vehicleAddress->id) ? 'selected' : '' }}>
                                 Please select Address
                             </option>
-                    
+
                             @foreach ($crm->CRMXIaddress as $address)
-                                <option value="{{ $address->id }}" 
+                                <option value="{{ $address->id }}"
                                     {{ $address->id == $vehicle->vehicleAddress->id ? 'selected' : '' }}>
                                     {{ $address->building_name ?? 'Unknown Address' }}
                                 </option>
@@ -193,32 +214,22 @@
                     <div class="col-md-6 p-2">
                         <label for="vehicle_ownership_status_{{ $loop->index }}" class="form-label"><b>Vehicle
                                 Ownership Status</b></label>
-                        <select class="form-select" name="vehicle_ownership_status[{{ $loop->index }}]"
-                            id="vehicle_ownership_status_{{ $loop->index }}" disabled>
-                            <option value="" style="color: grey;">Please Select Ownership Status...</option>
-                            <option value="1" selected>Sample Vehicle Ownership1</option>
-                            <option value="2">Sample Vehicle Ownership2</option>
-                        </select>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleOwnershipStatus->name }}" disabled>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4 p-2">
                         <label for="category_{{ $loop->index }}" class="form-label"><b>Category</b></label>
-                        <select class="form-select" name="category[{{ $loop->index }}]"
-                            id="category_{{ $loop->index }}" disabled>
-                            <option value="" style="color: grey;">Please Select Category...</option>
-                            <option value="1" selected>Sample Category 1</option>
-                            <option value="2">Sample Category 2</option>
-                        </select>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->CRMXIcategory->name }}" disabled>
+
                     </div>
+
                     <div class="col-md-4 p-2">
                         <label for="sub_category_{{ $loop->index }}" class="form-label"><b>Sub Category</b></label>
-                        <select class="form-select" name="sub_category[{{ $loop->index }}]"
-                            id="sub_category_{{ $loop->index }}" disabled>
-                            <option value="" style="color: grey;">Please Select Sub Category...</option>
-                            <option value="1" selected>Sample Sub Category 1</option>
-                            <option value="2">Sample Sub Category 2</option>
-                        </select>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->CRMXIsubCategory->name }}" disabled>
                     </div>
                     <div class="col-md-4 p-2">
                         <label for="hoa_{{ $loop->index }}" class="form-label"><b>HOA</b></label>
