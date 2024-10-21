@@ -8,6 +8,8 @@ use App\Models\CrmVehicle;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXIHoa;
 use App\Models\CRMXI3_Model\CRMXISubcat;
+use App\Models\CRMXI3_Model\CRMXIVehicleOwnershipStatus;
+use App\Models\CRMXI3_Model\CRXMIVehicle;
 use App\Models\SPCCategory;
 use App\Models\SPCSubCat;
 use App\Models\SRS3_Model\SrsRequestStatus;
@@ -159,5 +161,11 @@ class SrsRequest extends Model
     public function subCategory3()
     {
         return $this->belongsTo(CRMXISubcat::class, 'srs3_sub_category_id');
+    }
+
+    public function crmVehicleRequests()
+    {
+        // return $this->hasMany(SrsVehicle::class, 'srs_request_id');
+        return $this->hasMany(CRXMIVehicle::class, 'srs_request_id');
     }
 }

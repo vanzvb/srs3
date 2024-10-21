@@ -49,7 +49,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-6 me-2">
+                                    <div class="col-md-4 me-2">
                                         <div class="" id="individual-name-container" style="display: none;">
                                             <div class="col-md-12">
                                                 <label for="individualName" class="form-label"><b>Name</b></label>

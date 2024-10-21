@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\srs3;
 
+use \App\Jobs\srs3\SendRequestorNotificationJob;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\srs3\SrsRequestController;
 use App\Mail\RequestRenewal;
@@ -13,6 +14,7 @@ use App\Models\CRMXI3_Model\CRMXIHoa;
 use App\Models\CRMXI3_Model\CRMXIMain;
 use App\Models\CRMXI3_Model\CRMXISubcat;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
+use App\Models\SRS3_Model\SrsRequest;
 use App\Models\SrsCategories;
 use App\Models\SrsHoa;
 use App\Models\SrsRenewalRequest;
@@ -25,13 +27,12 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 // Changed in SRS3
 // use App\Models\SrsRequest;
 
-use App\Models\SRS3_Model\SrsRequest;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class SrsRequestRenewalController extends Controller
 {
@@ -381,14 +382,28 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
             $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
             $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
-            $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
-            $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
-            $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
-            $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
-            $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
+
+            // SRS3 New Address Format
+            $srsRequest->block_no = $crm->block ? strip_tags($crm->block) : null;
+            $srsRequest->lot_no = $crm->lot ? strip_tags($crm->lot) : null;
+            $srsRequest->house_no = $crm->house_number ? strip_tags($crm->house_number) : null;
+            $srsRequest->street = $crm->street ? strip_tags($crm->street) : null;
+            $srsRequest->building_name = $crm->building_name ? strip_tags($crm->building_name) : null;
+            $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags( $crm->subdivision_village) : null;
+            $srsRequest->city = $crm->city ? strip_tags($crm->city) : null;
+            $srsRequest->zipcode = $crm->zipcode ? strip_tags($crm->zipcode) : null;
+
+            // $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
+            // $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
+            // $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
+            // $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
+            // $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
             // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
-            $srsRequest->hoa_id = $request->hoa;
+            $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
+
+            // Not saving 2nd, 3rd contact
             $srsRequest->contact_no = $crm->main_contact;
+
             $srsRequest->email = $crm->email;
 
             $srsRequest->created_at = now();
@@ -410,7 +425,7 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->lot_no = $crm->lot;
 
             // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
-            // $srsRequest->srs3_sub_category_id = null;
+            // $srsRequest->srs3_sub_category_id = $srsRequest->category_id;
 
             // account_type - (0 = Individual, 1 = Company)
             $srsRequest->account_type = $crm->account_type;
@@ -422,7 +437,7 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
 
             // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
-            // $srsRequest->srs3_hoa_id = null;
+            $srsRequest->srs3_hoa_id = $crm->hoa;
 
             // OR / CR on vehicle is removed in renewal
             // Pending
@@ -533,11 +548,13 @@ class SrsRequestRenewalController extends Controller
 
             $srsRequest->save();
 
-            $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
+            // $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
             $crm->save();
 
             if ($vehicles) {
-                $srsRequest->vehicles()->saveMany($vehicles);
+                // dd($vehicles);
+                $srsRequest->crmVehicleRequests()->saveMany($vehicles);
+                // $srsRequest->vehicles()->saveMany($vehicles);
             }
 
             if ($files) {
@@ -547,11 +564,11 @@ class SrsRequestRenewalController extends Controller
             $renewalRequest->status = 1;
             $renewalRequest->save();
 
-            dd('stop here, check saving');
 
             DB::commit();
 
-            // dispatch(new \App\Jobs\SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
+            // For Requestor
+            dispatch(new SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
 
             // if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
 

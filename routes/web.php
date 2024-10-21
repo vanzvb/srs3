@@ -188,3 +188,4 @@ Route::group(['middleware' => ['auth', 'isOnline']], function() {
     //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
     // });
 });
+

@@ -32,4 +32,9 @@ class CRMXIAddress extends Model
     {
         return $this->belongsTo(CRMXIHoa::class, 'hoa');
     }
+
+    public function CRMXIhoaType()
+    {
+        return $this->belongsTo(CRMXIhoaType::class, 'hoa_type');
+    }
 }

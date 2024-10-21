@@ -232,72 +232,63 @@
                             value="{{ $vehicle->vehicleAddress->CRMXIsubCategory->name }}" disabled>
                     </div>
                     <div class="col-md-4 p-2">
-                        <label for="hoa_{{ $loop->index }}" class="form-label"><b>HOA</b></label>
-                        <select class="form-select" name="hoa[{{ $loop->index }}]" id="hoa_{{ $loop->index }}"
-                            disabled>
-                            <option value="" style="color: grey;">Please Select HOA...</option>
-                            <option value="1" selected>Sample HOA 1</option>
-                            <option value="2">Sample HOA 2</option>
-                        </select>
+                            <label for="hoa_{{ $loop->index }}" class="form-label"><b>HOA</b></label>
+                            <input type="text" class="form-control"
+                                value="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}" disabled>    
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3 p-2">
+                        
                         <label for="member_type_{{ $loop->index }}" class="form-label"><b>Member Type</b></label>
-                        <select class="form-select" name="member_type[{{ $loop->index }}]"
-                            id="member_type_{{ $loop->index }}" disabled>
-                            <option value="1" selected>Sample Member Type 1</option>
-                            <option value="2">Sample Member Type 2</option>
-                        </select>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->CRMXIhoaType->name }}" disabled>   
                     </div>
                     <div class="col-md-3 p-2">
                         <label for="block_{{ $loop->index }}" class="form-label"><b>Block</b></label>
-                        <input type="text" class="form-control" id="block_{{ $loop->index }}"
-                            name="block[{{ $loop->index }}]" placeholder="2" disabled>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->block }}" disabled>   
                     </div>
                     <div class="col-md-3 p-2">
                         <label for="lot_{{ $loop->index }}" class="form-label"><b>Lot</b></label>
-                        <input type="text" class="form-control" id="lot_{{ $loop->index }}"
-                            name="lot[{{ $loop->index }}]" placeholder="1" disabled>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->lot }}" disabled>   
                     </div>
                     <div class="col-md-3 p-2">
                         <label for="house_number_{{ $loop->index }}" class="form-label"><b>House Number</b></label>
-                        <input type="text" class="form-control" id="house_number_{{ $loop->index }}"
-                            name="house_number[{{ $loop->index }}]" placeholder="4" disabled>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->house_number }}" disabled>   
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4 p-2">
                         <label for="street_{{ $loop->index }}" class="form-label"><b>Street</b></label>
-                        <input type="text" class="form-control" id="street_{{ $loop->index }}"
-                            name="street[{{ $loop->index }}]" placeholder="Sample Street" disabled>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->street }}" disabled>   
                     </div>
                     <div class="col-md-4 p-2">
                         <label for="building_{{ $loop->index }}" class="form-label"><b>Building / Apartment /
                                 Condo</b></label>
-                        <input type="text" class="form-control" id="building_{{ $loop->index }}"
-                            name="building[{{ $loop->index }}]" placeholder="Building 1" disabled>
+                                <input type="text" class="form-control"
+                                value="{{ $vehicle->vehicleAddress->building_name }}" disabled>   
                     </div>
                     <div class="col-md-4 p-2">
                         <label for="subdivision_{{ $loop->index }}" class="form-label"><b>Subdivision /
                                 Village</b></label>
-                        <input type="text" class="form-control" id="subdivision_{{ $loop->index }}"
-                            name="subdivision[{{ $loop->index }}]" placeholder="Village 1" disabled>
+                                <input type="text" class="form-control"
+                                value="{{ $vehicle->vehicleAddress->subdivision_village }}" disabled>   
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 p-2">
                         <label for="city_{{ $loop->index }}" class="form-label"><b>City</b></label>
-                        <select class="form-select" name="city[{{ $loop->index }}]" id="city_{{ $loop->index }}"
-                            disabled>
-                            <option value="1" selected>Sample City 1</option>
-                            <option value="2">Sample City 2</option>
-                        </select>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->city }}" disabled>   
                     </div>
                     <div class="col-md-6 p-2">
                         <label for="zipcode_{{ $loop->index }}" class="form-label"><b>Zipcode</b></label>
-                        <input type="text" class="form-control" id="zipcode_{{ $loop->index }}"
-                            name="zipcode[{{ $loop->index }}]" placeholder="Enter Zipcode" disabled>
+                        <input type="text" class="form-control"
+                            value="{{ $vehicle->vehicleAddress->zipcode }}" disabled>   
                     </div>
                 </div>
             </div>
