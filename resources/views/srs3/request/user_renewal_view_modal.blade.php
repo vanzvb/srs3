@@ -283,7 +283,7 @@
                     <div class="col-md-6 p-2">
                         <label for="city_{{ $loop->index }}" class="form-label"><b>City</b></label>
                         <input type="text" class="form-control"
-                            value="{{ $vehicle->vehicleAddress->city }}" disabled>   
+                            value="{{ $vehicle->vehicleAddress->crmxiAccount->cities->description }}" disabled>   
                     </div>
                     <div class="col-md-6 p-2">
                         <label for="zipcode_{{ $loop->index }}" class="form-label"><b>Zipcode</b></label>

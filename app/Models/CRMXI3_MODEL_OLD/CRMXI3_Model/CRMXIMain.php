@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
 use App\Models\CRMXI3_Model\CRMXICity;
 use App\Models\CRMXI3_Model\CRMXIHoa;
-use App\Models\CRMXI3_Model\CRMXIAddress;
 use App\Models\SrsUser;
 
 class CRMXIMain extends Model
@@ -17,11 +16,6 @@ class CRMXIMain extends Model
 
     protected $table = 'crmxi3_mains';
     protected $primaryKey = 'crm_id';
-
-    public function acc_address()
-    {
-        return $this->hasMany(CRMXIAddress::class, 'account_id', 'account_id');
-    }
 
     public function vehicles()
     {
@@ -55,6 +49,7 @@ class CRMXIMain extends Model
             // 3.0 update, new accounts does not use customer_id (they are now using acccount_id)
             return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'customer_id')->where('assoc_crm', 1);
         }
+        
     }
 
     public function CRMXIcategory()
@@ -71,4 +66,5 @@ class CRMXIMain extends Model
     {
         return $this->hasMany(CRMXIaddress::class, 'account_id', 'account_id');
     }
+
 }

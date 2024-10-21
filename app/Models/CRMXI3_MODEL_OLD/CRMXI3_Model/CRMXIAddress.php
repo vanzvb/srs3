@@ -12,6 +12,7 @@ class CRMXIAddress extends Model
 
     protected $table = 'crmxi3_address';
 
+
     public function crmxiAccount()
     {
         return $this->belongsTo(CRMXIMain::class, 'account_id');
