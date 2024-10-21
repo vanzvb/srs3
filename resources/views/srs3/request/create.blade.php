@@ -58,7 +58,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12 mt-2">
+                                    {{-- <div class="col-md-6 col-12 mt-2">
                                         <div class="input-group" style="height: 100%;">
                                             <label for="" class="input-group-text">Request for</label>
                                             <select name="category" id="category" class="form-select"
@@ -68,10 +68,10 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Second Row -->
-                                    <div class="col-md-6 col-12 mt-2">
+                                    {{-- <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="sub_category" id="sub_category"
                                                 placeholder="Category" onchange="getRequirements()">
@@ -87,7 +87,7 @@
                                             </select>
                                             <label for="hoa" class="form-label" id="hoa_label">HOA</label>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
 
 
@@ -168,6 +168,43 @@
                                         </div>
                                         {{-- Connected to account_type Toggle  End --}}
                                         <div class="row px-2 px-md-4 mt-3">
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <select name="civil_status" id="civil_status" class="form-control"
+                                                        placeholder="Select Civil Status">
+                                                        <option value="">-----</option>
+                                                        @foreach ($civilStatus as $status)
+                                                            <option value="{{ $status->id }}">{{ $status->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="civil_status">Civil Status</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <select name="nationality" id="nationality" class="form-control"
+                                                        placeholder="Select Nationality">
+                                                        <option value="">-----</option>
+                                                        @foreach ($nationalities as $nationality)
+                                                            <option value="{{ $nationality->id }}">
+                                                                {{ $nationality->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="nationality">Nationality</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="tin"
+                                                        name="tin" placeholder="Middle Name"
+                                                        value="{{ old('tin') }}" required>
+                                                    <label for="tin" class="form-label" style="color: grey;">TIN
+                                                        NO</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row px-2 px-md-4 mt-3">
                                             {{-- <p style="font-weight: bold; font-size: 12px;">Note: Enter active email. Request confirmation and appointment booking link will be sent by email.</p> --}}
                                             <div class="col-md-4">
                                                 <div class="form-floating">
@@ -178,13 +215,33 @@
                                                         Address</label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-12 mt-2 mt-md-0">
+                                            <div class="col-md-3">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="contact_no"
                                                         name="contact_no" placeholder="Tel. No./Mobile No."
                                                         value="{{ old('contact_no') }}" required>
-                                                    <label for="contact_no" class="form-label" style="color: grey;">Tel.
-                                                        No./Mobile No.</label>
+                                                    <label for="contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Main Contact No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="secondary_contact_no"
+                                                        name="secondary_contact_no" placeholder="Tel. No./Mobile No."
+                                                        value="{{ old('secondary_contact_no') }}" required>
+                                                    <label for="secondary_contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Secondary Contact
+                                                        No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="tertiary_contact_no"
+                                                        name="tertiary_contact_no" placeholder="Tel. No./Mobile No."
+                                                        value="{{ old('tertiary_contact_no') }}" required>
+                                                    <label for="tertiary_contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Tertiary Contact
+                                                        No.</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -195,6 +252,50 @@
                                             <h5>Address</h5>
                                         </strong>
                                     </div>
+                                    <div class="container mt-4">
+                                        <!-- Button to trigger modal -->
+                                        <button id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addressModal">Add Address</button>
+                                    
+                                        <!-- Table to show added addresses -->
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Address Name</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="addressesTable">
+                                                <!-- Addresses will appear here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{-- TEST --}}
+                                    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="addressForm" novalidate>
+                                                        <div class="mb-3">
+                                                            <label for="addressName" class="form-label">Address Name</label>
+                                                            <input type="text" class="form-control" id="addressName" name="addressName" placeholder="Enter Address Name" required>
+                                                            <div class="invalid-feedback">Please enter an address name.</div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- TEST --}}
+
                                     <div>
                                         <div class="row px-2 px-md-4 mt-3">
                                             <div class="col-md-4 col-6">
@@ -743,4 +844,6 @@
     {{-- <script src="{{ asset('js/11sr29.js') }}"></script> --}}
     <script src="{{ asset('js/11sr29_v3_decrypted.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplication.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3NewApplicationAddNewAddress.js') }}"></script>
+
 @endsection

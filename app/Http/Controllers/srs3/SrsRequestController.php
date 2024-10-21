@@ -15,6 +15,7 @@ use App\Models\CrmMain;
 use App\Models\CrmRedtag;
 use App\Models\CrmVehicle;
 use App\Models\CRMXI3_Model\CRMXICategory;
+use App\Models\CRMXI3_Model\CRMXICivilStatus;
 use App\Models\LogSrsHist;
 use App\Models\SPCCategory;
 use App\Models\SPCSubCat;
@@ -244,7 +245,13 @@ class SrsRequestController extends Controller
         // $hoas = SrsHoa::orderBy('name')->get();
         $cities = DB::table('crmx_bl_city')->where('status', 1)->get();
 
-        return view('srs3.request.create', compact('categories', 'cities'));
+        $civilStatus = DB::table('crmxi3_civil_status')->get();
+
+        $nationalities = DB::table('crmxi3_nationalities')->get();
+
+        // $civilStatuses = CRMXICivilStatus::all();
+
+        return view('srs3.request.create', compact('categories', 'cities','civilStatus','nationalities'));
         // return view('srs.request.create', compact('cities'));
     }
 
