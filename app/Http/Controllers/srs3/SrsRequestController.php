@@ -261,7 +261,12 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        dd($request);
+        
+
+        $addresses = json_decode($request->input('addresses'), true);
+
+        dd($addresses);
+
         $data = $request->validated();
 
         if ($data['category'] == 1) {

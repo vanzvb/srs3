@@ -274,6 +274,9 @@
                                             </thead>
                                             <tbody id="addressesTable">
                                                 <!-- Addresses will appear here -->
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No Address</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -336,7 +339,6 @@
 
 
                                     {{-- END TEST --}}
-                                    <!-- Dropdown to show addresses -->
                                     <!-- Dropdown to show addresses -->
                                     <div class="container mt-4">
                                         <label for="addressDropdown" class="form-label">Select Address</label>

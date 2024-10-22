@@ -39,8 +39,24 @@ document.addEventListener('DOMContentLoaded', function() {
             addressesArrayInput.value = JSON.stringify(addressesArray);
             resetForm();
             closeModal();
+            checkIfTableIsEmpty();
         }
     });
+
+    function checkIfTableIsEmpty() {
+        addressesTable.innerHTML = ''; // Clear the table
+        if (addressesArray.length === 0) {
+            addressesTable.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">No Address</td>
+                </tr>
+            `;
+        } else {
+            addressesArray.forEach((address, index) => {
+                addAddressRow(address, index); // Rebuild the table rows
+            });
+        }
+    }
 
     // Function to add a new row to the table
     function addAddressRow(address, index) {
@@ -117,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addressesArray.splice(index, 1); // Remove the address from the array
         refreshAddressTable();
         addressesArrayInput.value = JSON.stringify(addressesArray);
+        checkIfTableIsEmpty();
     }
 
     // Function to refresh the table after deleting an address
