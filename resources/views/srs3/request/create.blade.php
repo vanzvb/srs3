@@ -52,7 +52,7 @@
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="account_type" id="account_type"
-                                                onchange="toggleFields()">
+                                            onclick="toggleFields()">
                                                 <option value="individual" selected>Individual</option>
                                                 <option value="company">Company</option>
                                             </select>
@@ -230,7 +230,7 @@
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="secondary_contact_no"
                                                         name="secondary_contact_no" placeholder="Tel. No./Mobile No."
-                                                        value="{{ old('secondary_contact_no') }}" >
+                                                        value="{{ old('secondary_contact_no') }}">
                                                     <label for="secondary_contact_no" class="form-label"
                                                         style="color: grey; font-size: 0.8rem;">Secondary Contact
                                                         No.</label>
@@ -240,7 +240,7 @@
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="tertiary_contact_no"
                                                         name="tertiary_contact_no" placeholder="Tel. No./Mobile No."
-                                                        value="{{ old('tertiary_contact_no') }}" >
+                                                        value="{{ old('tertiary_contact_no') }}">
                                                     <label for="tertiary_contact_no" class="form-label"
                                                         style="color: grey; font-size: 0.8rem;">Tertiary Contact
                                                         No.</label>
@@ -257,8 +257,9 @@
                                     {{-- START TEST --}}
                                     <div class="container mt-4">
                                         <!-- Button to trigger modal -->
-                                        <button id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addressModal">Add Address</button>
-                                    
+                                        <button id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                                            data-bs-target="#addressModal">Add Address</button>
+
                                         <!-- Table to show added addresses -->
                                         <table class="table table-bordered">
                                             <thead>
@@ -276,51 +277,75 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    
+
                                     <!-- Hidden input to store addresses array -->
                                     <input type="hidden" id="addressesArray" name="addresses">
-                                    
-                                    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+
+                                    <div class="modal fade" id="addressModal" tabindex="-1"
+                                        aria-labelledby="addressModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <form id="addressForm" novalidate>
                                                         <div class="mb-3">
-                                                            <label for="addressName" class="form-label">Address Name</label>
-                                                            <input type="text" class="form-control" id="addressName" placeholder="Enter Address Name" >
-                                                            <div class="invalid-feedback">Please enter an address name.</div>
+                                                            <label for="addressName" class="form-label">Address
+                                                                Name</label>
+                                                            <input type="text" class="form-control" id="addressName"
+                                                                placeholder="Enter Address Name">
+                                                            <div class="invalid-feedback">Please enter an address name.
+                                                            </div>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="block" class="form-label">Block</label>
-                                                            <input type="number" class="form-control" id="block" placeholder="Enter Block" >
-                                                            <div class="invalid-feedback">Please enter a valid block number.</div>
+                                                            <input type="number" class="form-control" id="block"
+                                                                placeholder="Enter Block">
+                                                            <div class="invalid-feedback">Please enter a valid block
+                                                                number.</div>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="lot" class="form-label">Lot</label>
-                                                            <input type="number" class="form-control" id="lot" placeholder="Enter Lot" >
-                                                            <div class="invalid-feedback">Please enter a valid lot number.</div>
+                                                            <input type="number" class="form-control" id="lot"
+                                                                placeholder="Enter Lot">
+                                                            <div class="invalid-feedback">Please enter a valid lot number.
+                                                            </div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="houseNumber" class="form-label">House Number</label>
-                                                            <input type="number" class="form-control" id="houseNumber" placeholder="Enter House Number" >
-                                                            <div class="invalid-feedback">Please enter a valid house number.</div>
+                                                            <label for="houseNumber" class="form-label">House
+                                                                Number</label>
+                                                            <input type="number" class="form-control" id="houseNumber"
+                                                                placeholder="Enter House Number">
+                                                            <div class="invalid-feedback">Please enter a valid house
+                                                                number.</div>
                                                         </div>
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" id="saveAddressBtn"
+                                                        class="btn btn-primary">Save Address</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
 
                                     {{-- END TEST --}}
+                                    <!-- Dropdown to show addresses -->
+                                    <div class="container mt-4">
+                                        <label for="addressDropdown" class="form-label">Select Address</label>
+                                        <select id="addressDropdown" class="form-select"
+                                            onfocus="populateAddressDropdown()">
+                                            <option value="">-- Select Address --</option>
+                                            <!-- Options will be populated here -->
+                                        </select>
+                                    </div>
+
 
                                     {{-- <div>
                                         <div class="row px-2 px-md-4 mt-3">
@@ -574,13 +599,15 @@
                                                 </div>
                                                 <div class="row mt-2 g-2 g-md-3">
                                                     <div id="v_or_tab" class="col-12 col-md-4">
-                                                <label class="form-label">OR</label>
-                                                <input type="file" accept="image/*" class="form-control form-control-sm" name="or[]" required>
-                                            </div>
-                                            <div id="v_cr_tab" class="col-12 col-md-4">
-                                                <label class="form-label">CR</label>
-                                                <input type="file" accept="image/*" class="form-control form-control-sm" name="cr[]" required>
-                                            </div>
+                                                        <label class="form-label">OR</label>
+                                                        <input type="file" accept="image/*"
+                                                            class="form-control form-control-sm" name="or[]" required>
+                                                    </div>
+                                                    <div id="v_cr_tab" class="col-12 col-md-4">
+                                                        <label class="form-label">CR</label>
+                                                        <input type="file" accept="image/*"
+                                                            class="form-control form-control-sm" name="cr[]" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -871,5 +898,5 @@
     <script src="{{ asset('js/11sr29_v3_decrypted.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplication.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplicationAddNewAddress.js') }}"></script>
-
+    <script src="{{ asset('js/srs3/srs3PopulateDropdownWithAddress.js') }}"></script>
 @endsection
