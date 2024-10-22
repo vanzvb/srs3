@@ -257,7 +257,7 @@
                                     {{-- START TEST --}}
                                     <div class="container mt-4">
                                         <!-- Button to trigger modal -->
-                                        <button id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                                        <button type="button" id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal"
                                             data-bs-target="#addressModal">Add Address</button>
 
                                         <!-- Table to show added addresses -->
@@ -423,7 +423,7 @@
                                     <div>
                                         <div class="container mt-4">
                                             <!-- Button to trigger modal for vehicles -->
-                                            <button id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
+                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
                                         
                                             <!-- Table to show added vehicles -->
                                             <table class="table table-bordered">
@@ -444,6 +444,10 @@
                                                 </tbody>
                                             </table>
                                         </div>
+
+                                        {{-- Vehicle Array --}}
+                                        <input type="hidden" id="vehiclesArrayInput" name="vehicles">
+
                                         
                                         <!-- Modal for adding vehicles -->
                                         <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
@@ -489,7 +493,7 @@
                                         
                                     </div>
 {{-- TEST --}}
-                                    <div>
+                                    {{-- <div>
                                         <div id="vehicle_tab" class="px-md-3">
                                             <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
                                                 <div class="row mt-2">
@@ -511,7 +515,7 @@
                                                             <label for="plate_no" class="form-label"
                                                                 style="color: grey;">Plate No.</label>
                                                         </div>
-                                                    {{-- </div>
+                                                    </div>
                                                     <div id="v_brand_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <select class="form-select" id="brand" name="brand[]"
@@ -595,15 +599,15 @@
                                                                 required disabled />
                                                             <label for="" class="form-label">Brand</label>
                                                         </div>
-                                                    </div> --}}
-                                                    {{-- <div id="v_series_tab" class="col-6 col-md">
+                                                    </div>
+                                                    <div id="v_series_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <input type="text" class="form-control" id="series"
                                                                 name="series[]" placeholder="Series" required>
                                                             <label for="series" class="form-label"
                                                                 style="color: grey;">Series</label>
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
                                                     <div id="v_year_model_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <select class="form-select" id="year_model"
@@ -688,7 +692,7 @@
                                             <button type="button" class="btn btn-sm btn-info" onclick="addVehicle()"
                                                 style="color: white;">Add vehicle</button>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
 
                                     {{-- <div class="row justify-content-center">

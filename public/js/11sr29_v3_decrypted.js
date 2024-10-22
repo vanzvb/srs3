@@ -1,12 +1,12 @@
 $(document).ready(function () {
     let _0x4d8ad3 = new Date();
-    let _0x3ee702 = document.getElementById("year_model");
+    // let _0x3ee702 = document.getElementById("year_model");
     let _0x6b0daf = _0x4d8ad3.getFullYear() + 0x1;
     while (_0x6b0daf >= 0x7b7) {
       let _0x4c4f09 = document.createElement('option');
       _0x4c4f09.text = _0x6b0daf;
       _0x4c4f09.value = _0x6b0daf;
-      _0x3ee702.add(_0x4c4f09);
+      // _0x3ee702.add(_0x4c4f09);
       _0x6b0daf -= 0x1;
     }
     var _0x20d540 = [];
@@ -23,7 +23,7 @@ $(document).ready(function () {
     let _0x18bd6c = $("#vehicle_tab").find("#v_plate_no_tab").clone().html();
     let _0xe2d04c = $("#vehicle_tab").find("#v_brand_tab").clone().html();
     let _0xd6a312 = $("#vehicle_tab").find("#v_series_tab").clone().html();
-    let _0x5f3513 = $("#vehicle_tab").find('#v_year_model_tab').clone().html();
+    // let _0x5f3513 = $("#vehicle_tab").find('#v_year_model_tab').clone().html();
     let _0x482b28 = $("#vehicle_tab").find('#v_color_tab').clone().html();
     let _0x54376c = $("#vehicle_tab").find("#v_type_tab").clone().html();
     let _0x81c471 = $("#vehicle_tab").find('#v_sticker_no_tab').clone().html();
