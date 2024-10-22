@@ -419,10 +419,79 @@
                                             <h5>Vehicle Information</h5>
                                         </strong>
                                     </div>
+{{-- TEST --}}
+                                    <div>
+                                        <div class="container mt-4">
+                                            <!-- Button to trigger modal for vehicles -->
+                                            <button id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
+                                        
+                                            <!-- Table to show added vehicles -->
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Plate No.</th>
+                                                        <th>Brand</th>
+                                                        <th>Series</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vehiclesTable">
+                                                    <!-- Vehicles will appear here -->
+                                                    <tr>
+                                                        <td colspan="5" class="text-center">No Vehicle</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <!-- Modal for adding vehicles -->
+                                        <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="vehicleForm" novalidate>
+                                                            <div class="mb-3">
+                                                                <label for="plateNo" class="form-label">Plate No.</label>
+                                                                <input type="text" class="form-control" id="plateNo" name="plateNo" placeholder="Enter Plate No." required>
+                                                                <div class="invalid-feedback">Please enter a plate number.</div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="brand" class="form-label">Brand</label>
+                                                                <select class="form-select" id="brand" required>
+                                                                    <option value="">Select Brand</option>
+                                                                    <option value="Toyota">Toyota</option>
+                                                                    <option value="Honda">Honda</option>
+                                                                    <option value="Ford">Ford</option>
+                                                                    <option value="Chevrolet">Chevrolet</option>
+                                                                    <!-- Add more options as needed -->
+                                                                </select>
+                                                                <div class="invalid-feedback">Please select a brand.</div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="series" class="form-label">Series</label>
+                                                                <input type="text" class="form-control" id="series" name="series" placeholder="Enter Series" required>
+                                                                <div class="invalid-feedback">Please enter a series.</div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" id="saveVehicleBtn" class="btn btn-primary">Save Vehicle</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+{{-- TEST --}}
                                     <div>
                                         <div id="vehicle_tab" class="px-md-3">
                                             <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
-                                                {{-- <p>Vehicle</p> --}}
                                                 <div class="row mt-2">
                                                     <div id="v_req_type_tab" class="col-12 col-md-3">
                                                         <div class="form-floating">
@@ -442,7 +511,7 @@
                                                             <label for="plate_no" class="form-label"
                                                                 style="color: grey;">Plate No.</label>
                                                         </div>
-                                                    </div>
+                                                    {{-- </div>
                                                     <div id="v_brand_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <select class="form-select" id="brand" name="brand[]"
@@ -526,15 +595,15 @@
                                                                 required disabled />
                                                             <label for="" class="form-label">Brand</label>
                                                         </div>
-                                                    </div>
-                                                    <div id="v_series_tab" class="col-6 col-md">
+                                                    </div> --}}
+                                                    {{-- <div id="v_series_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <input type="text" class="form-control" id="series"
                                                                 name="series[]" placeholder="Series" required>
                                                             <label for="series" class="form-label"
                                                                 style="color: grey;">Series</label>
                                                         </div>
-                                                    </div>
+                                                    </div> --}}
                                                     <div id="v_year_model_tab" class="col-6 col-md">
                                                         <div class="form-floating">
                                                             <select class="form-select" id="year_model"
@@ -543,8 +612,6 @@
                                                                     style="color: grey;">Select Year/Model</option>
                                                             </select>
                                                             <label for="" class="form-label">Year/Model</label>
-                                                            {{-- <input type="text" class="form-control" id="year_model" name="year_model[]" placeholder="Year/Model" required>
-                                                    <label for="year_model" class="form-label" style="color: grey;">Year/Model</label> --}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -579,8 +646,6 @@
                                                     </div>
                                                     <div id="v_type_tab" class="col-6 col-md-3">
                                                         <div class="form-floating">
-                                                            {{-- <input type="text" class="form-control" id="v_type" list="v-types" name="v_type[]" placeholder="Type" autocomplete="off" required>
-                                                    <label for="v_type" class="form-label" style="color: grey;">Type</label> --}}
                                                             <select class="form-select" id="v_type" name="v_type[]"
                                                                 placeholder="Type" required>
                                                                 <option disabled selected value=""
@@ -904,4 +969,5 @@
     <script src="{{ asset('js/srs3/srs3NewApplication.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplicationAddNewAddress.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3PopulateDropdownWithAddress.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3NewApplicationAddNewVehicle.js') }}"></script>
 @endsection
