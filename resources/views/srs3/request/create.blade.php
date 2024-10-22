@@ -52,7 +52,7 @@
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="account_type" id="account_type"
-                                            onclick="toggleFields()">
+                                                onclick="toggleFields()">
                                                 <option value="individual" selected>Individual</option>
                                                 <option value="company">Company</option>
                                             </select>
@@ -337,15 +337,18 @@
 
                                     {{-- END TEST --}}
                                     <!-- Dropdown to show addresses -->
+                                    <!-- Dropdown to show addresses -->
                                     <div class="container mt-4">
                                         <label for="addressDropdown" class="form-label">Select Address</label>
-                                        <select id="addressDropdown" class="form-select"
-                                            onfocus="populateAddressDropdown()">
+                                        <select id="addressDropdown" class="form-select">
                                             <option value="">-- Select Address --</option>
                                             <!-- Options will be populated here -->
                                         </select>
                                     </div>
 
+                                    <!-- Button to trigger dropdown population -->
+                                    <button id="populateDropdownBtn" class="btn btn-info mt-3" type="button"
+                                        onclick="populateAddressDropdown()">Populate Dropdown</button>
 
                                     {{-- <div>
                                         <div class="row px-2 px-md-4 mt-3">

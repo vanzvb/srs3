@@ -1,5 +1,7 @@
+let addressesArray = []; // Array to hold addresses
+
 document.addEventListener('DOMContentLoaded', function() {
-    let addressesArray = []; // Array to hold addresses
+
     let addressCount = 0;
     let editIndex = null; // Track the index for editing
 
