@@ -37,13 +37,13 @@ class SrsRequestRequest extends FormRequest
             //         }
             //     }
             // ],
-            'category' => 'required|integer|exists:spc_categories,id',
-            'sub_category' => 'required|integer|exists:spc_subcat,id',
+            // 'category' => 'required|integer|exists:spc_categories,id',
+            // 'sub_category' => 'required|integer|exists:spc_subcat,id',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'middle_name' => 'required|string',
-            'house_no' => 'required|string',
-            'street' => 'required|string',
+            // 'house_no' => 'required|string',
+            // 'street' => 'required|string',
             'building_name' => 'nullable|string',
             'subdivision_village' => 'nullable|string',
             'city' => 'nullable|string',

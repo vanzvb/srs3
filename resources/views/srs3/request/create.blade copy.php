@@ -3,7 +3,6 @@
 @section('title', 'Sticker Application Request')
 
 @section('content')
-
     <div class="container px-md-5">
         <div class=" px-md-5 mb-3">
             @if ($errors->any())
@@ -40,7 +39,6 @@
                         {{-- <img src="{{ asset('images/bflogo.png') }}" height="100" width="100" alt=""> --}}
                         <h5>BFFHAI</h5>
                         <h5>Sticker Application Form Version 3</h5>
-                        {{-- <h5>{{ $tempId }}</h5> --}}
                     </div>
                     <div class="container justify-content-center align-items-center">
                         <div class="p-md-4 mt-1 mb-3">
@@ -265,10 +263,6 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Address Name</th>
-                                                    <th>Block</th>
-                                                    <th>Lot</th>
-                                                    <th>House Number</th>
-                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="addressesTable">
@@ -276,10 +270,6 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    
-                                    <!-- Hidden input to store addresses array -->
-                                    <input type="hidden" id="addressesArray" name="addresses">
-                                    
                                     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -291,23 +281,8 @@
                                                     <form id="addressForm" novalidate>
                                                         <div class="mb-3">
                                                             <label for="addressName" class="form-label">Address Name</label>
-                                                            <input type="text" class="form-control" id="addressName" placeholder="Enter Address Name" >
+                                                            <input type="text" class="form-control" id="addressName" name="addressName" placeholder="Enter Address Name" required>
                                                             <div class="invalid-feedback">Please enter an address name.</div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="block" class="form-label">Block</label>
-                                                            <input type="number" class="form-control" id="block" placeholder="Enter Block" >
-                                                            <div class="invalid-feedback">Please enter a valid block number.</div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="lot" class="form-label">Lot</label>
-                                                            <input type="number" class="form-control" id="lot" placeholder="Enter Lot" >
-                                                            <div class="invalid-feedback">Please enter a valid lot number.</div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="houseNumber" class="form-label">House Number</label>
-                                                            <input type="number" class="form-control" id="houseNumber" placeholder="Enter House Number" >
-                                                            <div class="invalid-feedback">Please enter a valid house number.</div>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -573,14 +548,14 @@
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2 g-2 g-md-3">
-                                                    <div id="v_or_tab" class="col-12 col-md-4">
+                                                    {{-- <div id="v_or_tab" class="col-12 col-md-4">
                                                 <label class="form-label">OR</label>
                                                 <input type="file" accept="image/*" class="form-control form-control-sm" name="or[]" required>
                                             </div>
                                             <div id="v_cr_tab" class="col-12 col-md-4">
                                                 <label class="form-label">CR</label>
                                                 <input type="file" accept="image/*" class="form-control form-control-sm" name="cr[]" required>
-                                            </div>
+                                            </div> --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -594,7 +569,7 @@
                                     </div>
 
 
-                                    {{-- <div class="row justify-content-center">
+                                    <div class="row justify-content-center">
                                         <div class="col-md-12 px-md-5">
                                             <div
                                                 style="padding: 1.0rem;
@@ -611,7 +586,7 @@
                                                 <strong>Valid ID's must contain your address</strong>
                                             </div>
                                         </div>
-                                    </div> --}}
+                                    </div>
 
 
                                     <div class="px-2 mt-5">

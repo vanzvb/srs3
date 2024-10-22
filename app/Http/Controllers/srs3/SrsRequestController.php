@@ -135,6 +135,8 @@ class SrsRequestController extends Controller
         //     ->get();
         // dd('test');
 
+        // Generate a temporary ID with the format yyyy-mm-dd-hh:mm:ss:ms
+
         return view('srs3.admin.requests');
     }
 
@@ -184,7 +186,8 @@ class SrsRequestController extends Controller
         return view('dashboard');
     }
 
-    public function dashboardCron() {
+    public function dashboardCron()
+    {
         try {
             $customersCount = CrmMain::where('crm_id', '!=', 7)->count();
             $invoicesCount = CrmInvoice::where('crm_id', '!=', 7)->count();
@@ -195,9 +198,9 @@ class SrsRequestController extends Controller
                 ->whereDate('date', '=', now()->toDateString())
                 ->first();
 
-            if(!$dashboard) {
-                DB::transaction(function () 
-                    use ($customersCount, $invoicesCount, $openSrsCount, $closedSrsCount) {
+            if (!$dashboard) {
+                DB::transaction(function ()
+                use ($customersCount, $invoicesCount, $openSrsCount, $closedSrsCount) {
                     DB::table('dashboard_table')
                         ->insert([
                             'date' => now(),
@@ -209,10 +212,9 @@ class SrsRequestController extends Controller
                 });
 
                 Log::info('Dashboard Count Inserted');
-            }
-            else {
-                 DB::transaction(function () 
-                    use ($customersCount, $invoicesCount, $openSrsCount, $closedSrsCount) {
+            } else {
+                DB::transaction(function ()
+                use ($customersCount, $invoicesCount, $openSrsCount, $closedSrsCount) {
                     DB::table('dashboard_table')
                         ->whereDate('date', '=', now()->toDateString())
                         ->update([
@@ -251,7 +253,9 @@ class SrsRequestController extends Controller
 
         // $civilStatuses = CRMXICivilStatus::all();
 
-        return view('srs3.request.create', compact('categories', 'cities','civilStatus','nationalities'));
+        $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
+
+        return view('srs3.request.create', compact('categories', 'cities', 'civilStatus', 'nationalities','tempId'));
         // return view('srs.request.create', compact('cities'));
     }
 
@@ -262,18 +266,18 @@ class SrsRequestController extends Controller
 
         if ($data['category'] == 1) {
             $sub_cats = DB::table('spc_subcat')
-            ->where('category_id', 1)
-            ->where('status', 1)
-            ->get();
+                ->where('category_id', 1)
+                ->where('status', 1)
+                ->get();
 
             Validator::make($data, [
                 'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
             ])->validate();
         } elseif ($data['category'] == 2) {
             $sub_cats = DB::table('spc_subcat')
-            ->where('category_id', 2)
-            ->where('status', 1)
-            ->get();
+                ->where('category_id', 2)
+                ->where('status', 1)
+                ->get();
 
             Validator::make($data, [
                 'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
@@ -314,7 +318,7 @@ class SrsRequestController extends Controller
         $srsRequest->building_name = $data['building_name'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['building_name'])))) : NULL;
         $srsRequest->subdivision_village = $data['subdivision_village'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['subdivision_village'])))) : NULL;
         $srsRequest->city = $data['city'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['city'])))) : NULL;
-        
+
         if (isset($data['hoa'])) {
             if ($srsRequest->category_id == 1) {
                 $srsRequest->hoa_id = $data['hoa'];
@@ -330,18 +334,18 @@ class SrsRequestController extends Controller
         $encoded_image = explode(",", $data['signature'])[1];
         $decoded_image = base64_decode($encoded_image);
         // $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.png';
-        $signatureFile = date('ymd').'_'.uniqid().'_'.date('His').'.webp';
+        $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.webp';
 
         $srsRequest->signature = $signatureFile;
         $signatureImg = Image::make($decoded_image)->encode('webp');
-        
+
 
         $srsRequest->created_at = now();
         $srsRequest->updated_at = now();
 
         // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
-        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
         Storage::put($path . '/' . $srsRequest->signature, $signatureImg);
 
@@ -355,7 +359,7 @@ class SrsRequestController extends Controller
             $vehicle->req_type = $data['req_type'][$count];
 
             if ($item1) {
-                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $item1))));
+                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
             }
 
             if ($data['brand'][$count]) {
@@ -513,7 +517,7 @@ class SrsRequestController extends Controller
 
                 dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
             }
-            
+
             if ($srsRequest->hoa->emailAdd3) {
                 $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
 
@@ -540,15 +544,15 @@ class SrsRequestController extends Controller
     public function showRequest($id)
     {
         // $this->authorize('access', SrsRequest::class);
-        
+
         // $validator = Validator::make(['id' => $id], [
         //     'id' => 'required|string|exists:srs_requests,request_id'
         // ]);
-        
+
         // if ($validator->fails()) {
         //     return back();
         // }
-    
+
         return redirect()->route('requests')->with('srsNo', $id);
     }
 
@@ -559,14 +563,14 @@ class SrsRequestController extends Controller
         // $request->validate([
         //     'type' => 'required|integer|boolean'
         // ]);
-       
-        
+
+
         if (!$request->type) {
             // $request->validate(['archive_year' => 'integer|date_format:Y']);
 
             // $tableName = 'srs_requests_archive_'.$request->archive_year;
             $tableName = $request->archive_year;
-            
+
             if (!Schema::hasTable($tableName)) {
                 return abort(403);
             }
@@ -597,8 +601,8 @@ class SrsRequestController extends Controller
                 ->orWhere('status', 0)
                 ->orderBy('date_created', 'desc');
         }])
-        ->withTrashed()
-        ->findOrFail($request->srs);
+            ->withTrashed()
+            ->findOrFail($request->srs);
 
         // $vehicles = [];
         // foreach($srsRequest->vehicles as $vehicle) {
@@ -612,15 +616,15 @@ class SrsRequestController extends Controller
                               <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
                               <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
                               <td>' . htmlspecialchars($vehicle->type) . '</td>
-                              <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: '.$vehicle->plate_no_remarks.']</b>' : '') . '</td>
+                              <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: ' . $vehicle->plate_no_remarks . ']</b>' : '') . '</td>
                               <td>' . htmlspecialchars($vehicle->brand) . '</td>
                               <td>' . htmlspecialchars($vehicle->series) . '</td>
                               <td>' . htmlspecialchars($vehicle->year_model) . '</td>
-                              <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: '.$vehicle->color_remarks.']</b>' : '') . '</td>
+                              <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
                               <td align="center">
-                                <a data-value="/srs/uploads/'. $vehicle->or_path .'" data-type="' . (explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>
+                                <a data-value="/srs/uploads/' . $vehicle->or_path . '" data-type="' . (explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>
                                 <br>
-                                <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/'.$vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img' ) . '" href="#" class="modal_img">CR</a>
+                                <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>
                               </td>
                           </tr>';
         }
@@ -636,7 +640,7 @@ class SrsRequestController extends Controller
 
         $statuses = SrsRequestStatus::with(['requests' => function ($q) use ($srsRequest) {
             $q->withTrashed()
-            // VB
+                // VB
                 // ->where('srs_requests.request_id', $srsRequest->request_id);
                 ->where('srs3_requests.request_id', $srsRequest->request_id);
         }])->get();
@@ -662,17 +666,16 @@ class SrsRequestController extends Controller
 
                 if ($status->name == 'Appointment Set' && $srsRequest->appointment) {
                     $cell = '<td style="max-width: 200px !important;text-align: left;"> Appointment<br>
-                            '. $srsRequest->appointment->date->format('M d, Y') . '<br>
+                            ' . $srsRequest->appointment->date->format('M d, Y') . '<br>
                             ' . $srsRequest->appointment->timeslot->time->format('h:i A');
 
                     if (auth()->user()->can('reset', SrsAppointment::class) && !$srsRequest->invoice) {
-                        $cell .= '<br><a data-value="'.$srsRequest->request_id.'" href="#" id="reset_appt_btn">Reset Appointment</a>';
+                        $cell .= '<br><a data-value="' . $srsRequest->request_id . '" href="#" id="reset_appt_btn">Reset Appointment</a>';
                     }
 
                     $cell .= '</td>';
 
                     $row .= $cell;
-                    
                 } else {
                     $row .= '<td style="max-width: 200px !important;text-align: left;"></td>';
                 }
@@ -706,40 +709,40 @@ class SrsRequestController extends Controller
         $cid = '';
         $refreshBtn = '';
         $rejected = $srsRequest->trashed();
-        $resendApptBtn = ''; 
+        $resendApptBtn = '';
         $isOpen = (!$srsRequest->trashed() && $srsRequest->status != 4 && $srsRequest->status != 5);
         $resendHoaNotifBtn = '';
-// VB
+        // VB
         // if (auth()->user()->can('approve', SrsRequest::class)) {
-            $requestAction = '<div class="mx-auto">
+        $requestAction = '<div class="mx-auto">
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="approve_btn" class="btn btn-sm btn-primary mx-2 px-3">APPROVE SRS</a>
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="reject_btn" class="btn btn-sm btn-danger mx-2 px-3">REJECT SRS</a>
                                 </div>';
         // } else {
-            // $requestAction = false;
+        // $requestAction = false;
         // }
 
         if ($srsRequest->status == 3 && $statuses->firstWhere('name', 'Closed')->requests->isEmpty() && $srsRequest->invoice && $srsRequest->customer) {
-            $paymentAction = '<button type="button" data-value="' . $srsRequest->request_id . '" id="invoice_payment_btn" class="btn btn-sm btn-primary px-3" '.($srsRequest->trashed() ? 'disabled' : '').'>Close Ticket</button>';
+            $paymentAction = '<button type="button" data-value="' . $srsRequest->request_id . '" id="invoice_payment_btn" class="btn btn-sm btn-primary px-3" ' . ($srsRequest->trashed() ? 'disabled' : '') . '>Close Ticket</button>';
         }
 
 
         if ($srsRequest->status == 2) {
             if (!$srsRequest->appointment && auth()->user()->can('resend', SrsAppointment::class)) {
-            
+
                 $srsRequest->load(['appointmentResends']);
 
                 if ($srsRequest->appointmentResends->count() < 2) {
                     if ($srsRequest->appointmentResends->count() == 0) {
-                            $latest = $srsRequest->statuses->whereIn('pivot.status_id', [1, 2])->sortByDesc('pivot.created_at')->first();
-                            $lastApprovalSent = $latest->pivot->created_at;
+                        $latest = $srsRequest->statuses->whereIn('pivot.status_id', [1, 2])->sortByDesc('pivot.created_at')->first();
+                        $lastApprovalSent = $latest->pivot->created_at;
                     } else {
                         $latest = $srsRequest->appointmentResends->sortByDesc('created_at')->first();
                         $lastApprovalSent = $latest->created_at;
                     }
 
                     $srsRequest->load(['latestApptReset']);
-                    
+
                     if ($srsRequest->latestApptReset) {
                         $lastResetSent = $srsRequest->latestApptReset->created_at;
                         if ($lastResetSent > $lastApprovalSent) {
@@ -785,11 +788,11 @@ class SrsRequestController extends Controller
                                         <form action="/crm_v3/view-spc/' . $srsRequest->customer->crm_id . '/' . $srsRequest->customer->customer_id . '/" id="genInvoiceForm" method="GET" target="_blank">
                                             <input type="hidden" name="ref" value="srs_inbox">
                                             <input type="hidden" name="req" value="' . $srsRequest->request_id . '">
-                                            <button type="submit" class="btn btn-sm btn-primary px-3" id="gen_invoice_btn" '.($srsRequest->trashed() ? 'disabled' : '').'>Generate Invoice</button>
+                                            <button type="submit" class="btn btn-sm btn-primary px-3" id="gen_invoice_btn" ' . ($srsRequest->trashed() ? 'disabled' : '') . '>Generate Invoice</button>
                                         </form>
                                     </div>';
             }
-            
+
             //<input type="hidden" name="crm_id" value="'.$srsRequest->customer_id.'">
             $cid = $srsRequest->customer->customer_id;
 
@@ -797,7 +800,7 @@ class SrsRequestController extends Controller
                 $redTagged = true;
             }
 
-            $redTagAction = '<input type="checkbox" name="" id="red_tag_btn"' . ($srsRequest->customer->red_tag || $srsRequest->customer->redTags->isNotEmpty() ? 'checked' : '') . ' ' . ($srsRequest->trashed() || ($srsRequest->customer->redTags->isNotEmpty() && Auth::user()->role_id < 3 ) ? 'disabled' : '') . '><label for="red_tag_btn" class="px-2" style="color: red;"> <b> RED TAG</b></label>';
+            $redTagAction = '<input type="checkbox" name="" id="red_tag_btn"' . ($srsRequest->customer->red_tag || $srsRequest->customer->redTags->isNotEmpty() ? 'checked' : '') . ' ' . ($srsRequest->trashed() || ($srsRequest->customer->redTags->isNotEmpty() && Auth::user()->role_id < 3) ? 'disabled' : '') . '><label for="red_tag_btn" class="px-2" style="color: red;"> <b> RED TAG</b></label>';
             $redTags = '';
             if ($srsRequest->customer->red_tag || $srsRequest->customer->redTags->isNotEmpty()) {
                 $redTags = $srsRequest->customer->redTags->map(function ($tag) {
@@ -805,21 +808,21 @@ class SrsRequestController extends Controller
                     //
                 })->implode("\r\n");
             }
-            $redTagNotes = '<label class="text-muted" style="font-size: 14px;">Red Tag Notes</label><textarea name="" class="form-control px-md-3 text-muted rounded-0 mb-2" disabled>'.$redTags.'</textarea>';
-            $redTagTextarea = '<textarea name="" id="red_tag_notes" class="form-control px-md-3 text-muted rounded-0 mb-2" placeholder="Reason of red tag" '.($srsRequest->trashed() ? 'disabled' : '').' style="'.($srsRequest->customer->redTags->isNotEmpty() ? '' : 'display: none;').'"></textarea>';
+            $redTagNotes = '<label class="text-muted" style="font-size: 14px;">Red Tag Notes</label><textarea name="" class="form-control px-md-3 text-muted rounded-0 mb-2" disabled>' . $redTags . '</textarea>';
+            $redTagTextarea = '<textarea name="" id="red_tag_notes" class="form-control px-md-3 text-muted rounded-0 mb-2" placeholder="Reason of red tag" ' . ($srsRequest->trashed() ? 'disabled' : '') . ' style="' . ($srsRequest->customer->redTags->isNotEmpty() ? '' : 'display: none;') . '"></textarea>';
         }
 
         $refreshBtn = '<a data-id="' . $srsRequest->request_id . '" role="button" id="btn_refresh_request_details" title="Refresh" href="#">
                         <i class="bi bi-arrow-clockwise"></i>
                     </a>';
 
-                    if ($srsRequest->trashed()) {
+        if ($srsRequest->trashed()) {
             $requestAction = '';
             $routeReject = '<tr style="color: red;font-weight: bold;">
                                 <td style="text-align: left;min-width: 150px !important;"><label>Rejected</label></td>
-                                <td style="min-width: 150px !important;text-align: left;">'.$srsRequest->rejected_by.'</td>
-                                <td style="max-width: 100px !important;">'.$srsRequest->deleted_at->format('m/d/Y h:i A').'</td>
-                                <td style="max-width: 200px !important;text-align: left;">'.$srsRequest->reject_reason.'</td>
+                                <td style="min-width: 150px !important;text-align: left;">' . $srsRequest->rejected_by . '</td>
+                                <td style="max-width: 100px !important;">' . $srsRequest->deleted_at->format('m/d/Y h:i A') . '</td>
+                                <td style="max-width: 200px !important;text-align: left;">' . $srsRequest->reject_reason . '</td>
                             </tr>
                             ';
             $routes[] = $routeReject;
@@ -840,9 +843,9 @@ class SrsRequestController extends Controller
         $subCatName = $srsRequest->subCategory ? $srsRequest->subCategory->name : 'Not Found (Might be outdated)';
 
         // SRS 3
-         $srs3Category = $srsRequest->category3->name ?? null;
-         $srs3SubCategory = $srsRequest->subCategory3->name ?? null;
-         $srs3Service =  $srs3Category . ' / ' . $srs3SubCategory;
+        $srs3Category = $srsRequest->category3->name ?? null;
+        $srs3SubCategory = $srsRequest->subCategory3->name ?? null;
+        $srs3Service =  $srs3Category . ' / ' . $srs3SubCategory;
 
         $data = [
             'id' => $srsRequest->request_id,
@@ -968,8 +971,7 @@ class SrsRequestController extends Controller
         if (isset($prevUrlParam['ref']) && $prevUrlParam['ref']) {
             try {
                 $actionBy = Crypt::decrypt($prevUrlParam['ref']);
-            } catch(DecryptException $e) {
-
+            } catch (DecryptException $e) {
             }
         }
 
@@ -995,7 +997,7 @@ class SrsRequestController extends Controller
     }
 
     public function adminDestroy(Request $request, $reqId)
-    {   
+    {
         // $this->authorize('approve', SrsRequest::class);
 
         if (!$request->ajax()) {
@@ -1010,18 +1012,18 @@ class SrsRequestController extends Controller
         ]);
 
         $srsRequest = SrsRequest::with(['hoa' => function ($query) {
-                                            $query->select('id');
-                                        }])
-                                        ->where('request_id', $request->reqId)
-                                        ->first();
-        
+            $query->select('id');
+        }])
+            ->where('request_id', $request->reqId)
+            ->first();
+
         if (!$srsRequest) {
             $rejected = SrsRequest::where('request_id', $request->reqId)
-                                    ->onlyTrashed()
-                                    ->select('rejected_by', 'reject_reason', 'deleted_at')
-                                    ->first();
+                ->onlyTrashed()
+                ->select('rejected_by', 'reject_reason', 'deleted_at')
+                ->first();
 
-            return response()->json(['status' => 0, 'rejectedBy' => $rejected->deleted_at->diffForHumans().' by '.$rejected->rejected_by, 'reason' => $rejected->reject_reason]);
+            return response()->json(['status' => 0, 'rejectedBy' => $rejected->deleted_at->diffForHumans() . ' by ' . $rejected->rejected_by, 'reason' => $rejected->reject_reason]);
         }
 
         $srsRequest->status = 61;
@@ -1069,8 +1071,7 @@ class SrsRequestController extends Controller
         if (isset($prevUrlParam['ref']) && $prevUrlParam['ref']) {
             try {
                 $actionBy = Crypt::decrypt($prevUrlParam['ref']);
-            } catch(DecryptException $e) {
-
+            } catch (DecryptException $e) {
             }
         }
 
@@ -1108,7 +1109,7 @@ class SrsRequestController extends Controller
 
         return response()->json(['status' => 1, 'msg' => 'Request Rejected!']);
     }
-    
+
     public function resendHoaNotification(Request $request)
     {
         // $this->authorize('resendHoaNotif', SrsRequest::class);
@@ -1118,8 +1119,8 @@ class SrsRequestController extends Controller
         ]);
 
         $srsRequest = SrsRequest::with('hoa')
-                                ->where('request_id', $data['request_id'])
-                                ->first();
+            ->where('request_id', $data['request_id'])
+            ->first();
 
         if (!$srsRequest) {
 
@@ -1129,23 +1130,23 @@ class SrsRequestController extends Controller
         try {
 
             $srn = Crypt::encrypt($srsRequest->request_id);
-            
+
             if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
                 if ($srsRequest->hoa->emailAdd1) {
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
-    
+
                     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url, 'resend'))->delay(now()->addSeconds(10));
                 }
-    
+
                 if ($srsRequest->hoa->emailAdd2) {
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
-    
+
                     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url, 'resend'))->delay(now()->addSeconds(12));
                 }
-                
+
                 if ($srsRequest->hoa->emailAdd3) {
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
-    
+
                     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url, 'resend'))->delay(now()->addSeconds(14));
                 }
             }
@@ -1173,7 +1174,7 @@ class SrsRequestController extends Controller
                 $img->resize(800, 800, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })->save(storage_path('app').'/'.$path.'/'.$filename, 70);
+                })->save(storage_path('app') . '/' . $path . '/' . $filename, 70);
             } catch (\Exception $e) {
                 $file->storeAs($path, $filename);
             }
@@ -1201,7 +1202,7 @@ class SrsRequestController extends Controller
     }
 
     public function hoaShowFile($id, $date, $name, $hoa, $category)
-    {   
+    {
         $urls = [
             'https://bffhai.znergee.com/sticker/request/hoa_approval',
             'https://bffhai2.znergee.com/sticker/request/hoa_approval'
@@ -1241,20 +1242,20 @@ class SrsRequestController extends Controller
 
     public function getRequests(Request $request)
     {
-        
+
         // $this->authorize('access', SrsRequest::class);
-        
+
         // if (!$request->ajax()) {
         //     abort(404);
         // }
         // dd($request->year);
 
         $tableName = 'srs3_requests';
-        
+
         // if type = 0 then 'Archive'
         if ($request->type == 4) {
             // $request->validate(['year' => 'integer|date_format:Y']);
-            
+
             if ($request->year == 1) {
                 // VB Error Archive Here
 
@@ -1264,20 +1265,20 @@ class SrsRequestController extends Controller
                 // dd($a);
                 // dd($archiveTables);
                 foreach ($archiveTables as $index => $archiveTable) {
-                    
+
                     // $q = SrsRequestsArchive::fromTable($archiveTable->table_name)->with('stats')->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved');
-                    
+
                     // $q = DB::table($archiveTable->table_name)->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved', 'deleted_at');
 
-                    $srsRequestArchive = SrsRequestsArchive::fromTable($archiveTable->table_name)->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved', 'deleted_at', DB::raw('"'.$archiveTable->table_name.'" as source'));
+                    $srsRequestArchive = SrsRequestsArchive::fromTable($archiveTable->table_name)->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved', 'deleted_at', DB::raw('"' . $archiveTable->table_name . '" as source'));
 
                     if ($request->search['value']) {
                         $keyword = $request->search['value'];
                         $srsRequestArchive->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?",  ["%$keyword%"])
-                            ->orWhere(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'LIKE', "%".$request->search['value']."%")
-                            ->orWhere('request_id', 'LIKE', "%".$request->search['value']."%");
-                            
-                            //->orWhere(DB::raw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A')"), 'LIKE', "%".$request->search['value']."%");
+                            ->orWhere(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'LIKE', "%" . $request->search['value'] . "%")
+                            ->orWhere('request_id', 'LIKE', "%" . $request->search['value'] . "%");
+
+                        //->orWhere(DB::raw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A')"), 'LIKE', "%".$request->search['value']."%");
                     }
 
 
@@ -1285,181 +1286,178 @@ class SrsRequestController extends Controller
                         $srsQuery = $srsRequestArchive;
                         $tableName = $archiveTable->table_name;
                     } else {
-                        
+
                         $srsQuery = $srsQuery->union($srsRequestArchive);
                     }
-                    
                 }
 
                 $requests = $srsQuery;
-                
-                $datatable = DataTables::of($requests)                    
-                                // ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
-                                //     $sql = "CONCAT(".$tableName.".first_name,' ',".$tableName.".last_name)  like ?";
-                                //     $query->whereRaw($sql, ["%{$keyword}%"]);
-                                //     // $query->where('first_name', 'LIKE', '%'.$keyword.'%')
-                                //     //         ->orWhere('last_name', 'LIKE', '%'.$keyword.'%');
-                                // })
-                                // ->filterColumn('created_at', function ($query, $keyword) {
-                                //     $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
-                                // })
-                                // ->filterColumn('status', function ($query, $keyword) use ($tableName) {
-                                //     $query->join('srs_request_statuses', 'srs_request_statuses', '=', $tableName.'.status')
-                                //             ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
-                                // })
-                                ->editColumn('request_id', function ($request) {
 
-                                    return '<a data-id="' . $request->request_id . '" data-archive="'.$request->source.'" class="view_request" href="#">' . $request->request_id . '</a>';
-                                })
-                                ->addColumn('requestor', function ($request) {
-                                    return $request->first_name . ' ' . $request->last_name;
-                                })
-                                ->editColumn('created_at', function ($request) {
-                                    // $date = Carbon::parse($request->created_at);
-                                    // return $date->format('M d, Y h:i A');
+                $datatable = DataTables::of($requests)
+                    // ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
+                    //     $sql = "CONCAT(".$tableName.".first_name,' ',".$tableName.".last_name)  like ?";
+                    //     $query->whereRaw($sql, ["%{$keyword}%"]);
+                    //     // $query->where('first_name', 'LIKE', '%'.$keyword.'%')
+                    //     //         ->orWhere('last_name', 'LIKE', '%'.$keyword.'%');
+                    // })
+                    // ->filterColumn('created_at', function ($query, $keyword) {
+                    //     $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
+                    // })
+                    // ->filterColumn('status', function ($query, $keyword) use ($tableName) {
+                    //     $query->join('srs_request_statuses', 'srs_request_statuses', '=', $tableName.'.status')
+                    //             ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
+                    // })
+                    ->editColumn('request_id', function ($request) {
 
-                                    return $request->created_at->format('M d, Y h:i A');
-                                })
-                                ->editColumn('status', function ($request) {
-                                    
-                                    if ($request->trashed()) {
-                                        return 'Rejected';
-                                    }
+                        return '<a data-id="' . $request->request_id . '" data-archive="' . $request->source . '" class="view_request" href="#">' . $request->request_id . '</a>';
+                    })
+                    ->addColumn('requestor', function ($request) {
+                        return $request->first_name . ' ' . $request->last_name;
+                    })
+                    ->editColumn('created_at', function ($request) {
+                        // $date = Carbon::parse($request->created_at);
+                        // return $date->format('M d, Y h:i A');
 
-                                    if ($request->status == 61) {
-                                        return 'Rejected by Admin';
-                                    } else if ($request->status == 62) {
-                                        return 'Rejected by HOA';
-                                    }
+                        return $request->created_at->format('M d, Y h:i A');
+                    })
+                    ->editColumn('status', function ($request) {
 
-                                    // return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
-                                    return $this->getStatus($request->status, $request->admin_approved);
-                                })
-                                ->rawColumns(['request_id'])
-                                ->make(true);
-                
+                        if ($request->trashed()) {
+                            return 'Rejected';
+                        }
 
+                        if ($request->status == 61) {
+                            return 'Rejected by Admin';
+                        } else if ($request->status == 62) {
+                            return 'Rejected by HOA';
+                        }
+
+                        // return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
+                        return $this->getStatus($request->status, $request->admin_approved);
+                    })
+                    ->rawColumns(['request_id'])
+                    ->make(true);
             } else {
 
-                $tableName = 'srs_requests_archive_'.$request->year;
+                $tableName = 'srs_requests_archive_' . $request->year;
 
                 if (!Schema::hasTable($tableName)) {
                     return [];
                 }
 
-                $srsQuery = SrsRequestsArchive::fromTable($tableName)->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved', 'deleted_at', DB::raw('"'.$tableName.'" as source'));
+                $srsQuery = SrsRequestsArchive::fromTable($tableName)->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'admin_approved', 'deleted_at', DB::raw('"' . $tableName . '" as source'));
 
                 $requests = $srsQuery;
-                                    
-                $datatable = DataTables::of($requests)                    
-                                    ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
-                                        $sql = "CONCAT(".$tableName.".first_name,' ',".$tableName.".last_name)  like ?";
-                                        $query->whereRaw($sql, ["%{$keyword}%"]);
-                                    })
-                                    ->filterColumn('created_at', function ($query, $keyword) {
-                                        $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
-                                    })
-                                    ->filterColumn('status', function ($query, $keyword) use ($tableName) {
-                                        $query->join('srs_request_statuses', 'srs_request_statuses', '=', $tableName.'.status')
-                                                ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
-                                    })
-                                    ->editColumn('request_id', function ($request) {
 
-                                        return '<a data-id="' . $request->request_id . '" data-archive="'.$request->source.'" class="view_request" href="#">' . $request->request_id . '</a>';
-                                    })
-                                    ->addColumn('requestor', function ($request) {
-                                        return $request->first_name . ' ' . $request->last_name;
-                                    })
-                                    ->editColumn('created_at', function ($request) {
-                                        return $request->created_at->format('M d, Y h:i A');
-                                    })
-                                    ->editColumn('status', function ($request) {
-                                        
-                                        if ($request->trashed()) {
-                                            return 'Rejected';
-                                        }
+                $datatable = DataTables::of($requests)
+                    ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
+                        $sql = "CONCAT(" . $tableName . ".first_name,' '," . $tableName . ".last_name)  like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->filterColumn('created_at', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('status', function ($query, $keyword) use ($tableName) {
+                        $query->join('srs_request_statuses', 'srs_request_statuses', '=', $tableName . '.status')
+                            ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
+                    })
+                    ->editColumn('request_id', function ($request) {
 
-                                        if ($request->status == 61) {
-                                            return 'Rejected by Admin';
-                                        } else if ($request->status == 62) {
-                                            return 'Rejected by HOA';
-                                        }
+                        return '<a data-id="' . $request->request_id . '" data-archive="' . $request->source . '" class="view_request" href="#">' . $request->request_id . '</a>';
+                    })
+                    ->addColumn('requestor', function ($request) {
+                        return $request->first_name . ' ' . $request->last_name;
+                    })
+                    ->editColumn('created_at', function ($request) {
+                        return $request->created_at->format('M d, Y h:i A');
+                    })
+                    ->editColumn('status', function ($request) {
 
-                                        // return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
-                                        return $this->getStatus($request->status, $request->admin_approved);
-                                    })
-                                    ->rawColumns(['request_id'])
-                                    ->make(true);
+                        if ($request->trashed()) {
+                            return 'Rejected';
+                        }
+
+                        if ($request->status == 61) {
+                            return 'Rejected by Admin';
+                        } else if ($request->status == 62) {
+                            return 'Rejected by HOA';
+                        }
+
+                        // return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
+                        return $this->getStatus($request->status, $request->admin_approved);
+                    })
+                    ->rawColumns(['request_id'])
+                    ->make(true);
             }
-            
+
             // $srsQuery = SrsRequestsArchive::query()->table('srs_requests_archive_2022');
         } else {
             // VB
             $srsQuery = SrsRequest::query();
 
-        $requests = $srsQuery->with('stats')
-                            ->when($request->type == 1, function ($query) {
-                                return $query->where('status', 4);
-                            })
-                            ->when($request->type == 0, function ($query) {
-                                return $query->where('status', '<', 4);
-                            })
-                            ->when($request->type == 2, function ($query) {
-                                return $query->onlyTrashed();
-                            })
-                            ->when($request->type == 3, function ($query) {
-                                // return $query ->whereNotIn('srs_requests.request_id', function ($q) {
-                                //     $q->select('srs_request_status_logs.request_id')
-                                //             ->from('srs_request_status_logs')
-                                //             ->join('srs_request_statuses', 'srs_request_statuses.id', 'srs_request_status_logs.status_id')
-                                //             ->where('srs_request_statuses.name', 'Approval - Admin');
-                                // });
+            $requests = $srsQuery->with('stats')
+                ->when($request->type == 1, function ($query) {
+                    return $query->where('status', 4);
+                })
+                ->when($request->type == 0, function ($query) {
+                    return $query->where('status', '<', 4);
+                })
+                ->when($request->type == 2, function ($query) {
+                    return $query->onlyTrashed();
+                })
+                ->when($request->type == 3, function ($query) {
+                    // return $query ->whereNotIn('srs_requests.request_id', function ($q) {
+                    //     $q->select('srs_request_status_logs.request_id')
+                    //             ->from('srs_request_status_logs')
+                    //             ->join('srs_request_statuses', 'srs_request_statuses.id', 'srs_request_status_logs.status_id')
+                    //             ->where('srs_request_statuses.name', 'Approval - Admin');
+                    // });
 
-                                // return $query->where('status', '<', 2)->orderBy('status');
+                    // return $query->where('status', '<', 2)->orderBy('status');
 
-                                return $query->where('status', '<', 2)
-                                                ->where('admin_approved', 0);      
-                            })
-                            ->select('request_id', 'first_name', 'last_name', 'status', 'created_at');
+                    return $query->where('status', '<', 2)
+                        ->where('admin_approved', 0);
+                })
+                ->select('request_id', 'first_name', 'last_name', 'status', 'created_at');
 
-        $datatable = DataTables::of($requests)
-            ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
-                $sql = "CONCAT(".$tableName.".first_name,' ',".$tableName.".last_name)  like ?";
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-                // $query->where('first_name', 'LIKE', '%'.$keyword.'%')
-                //         ->orWhere('last_name', 'LIKE', '%'.$keyword.'%');
-            })
-            ->filterColumn('created_at', function ($query, $keyword) {
-                $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
-            })
-            // ->filterColumn('status', function ($query, $keyword) {
-            //     $query->join('srs_request_statuses', 'srs_request_statuses', '=', 'srs_requests.status')
-            //             ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
-            // })
-            ->editColumn('request_id', function ($request) {
-                return '<a data-id="' . $request->request_id . '" class="view_request" href="#">' . $request->request_id . '</a>';
-            })
-            ->addColumn('requestor', function ($request) {
-                return $request->first_name . ' ' . $request->last_name;
-            })
-            ->editColumn('created_at', function ($request) {
-                return $request->created_at->format('M d, Y h:i A');
-            })
-            ->editColumn('status', function ($request) {
-                if ($request->trashed()) {
-                    return 'Rejected';
-                }
+            $datatable = DataTables::of($requests)
+                ->filterColumn('requestor', function ($query, $keyword) use ($tableName) {
+                    $sql = "CONCAT(" . $tableName . ".first_name,' '," . $tableName . ".last_name)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                    // $query->where('first_name', 'LIKE', '%'.$keyword.'%')
+                    //         ->orWhere('last_name', 'LIKE', '%'.$keyword.'%');
+                })
+                ->filterColumn('created_at', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(created_at,'%M %d, %Y %h:%i %A') LIKE ?", ["%$keyword%"]);
+                })
+                // ->filterColumn('status', function ($query, $keyword) {
+                //     $query->join('srs_request_statuses', 'srs_request_statuses', '=', 'srs_requests.status')
+                //             ->where('srs_request_statuses.name', 'LIKE', ["%$keyword%"]);
+                // })
+                ->editColumn('request_id', function ($request) {
+                    return '<a data-id="' . $request->request_id . '" class="view_request" href="#">' . $request->request_id . '</a>';
+                })
+                ->addColumn('requestor', function ($request) {
+                    return $request->first_name . ' ' . $request->last_name;
+                })
+                ->editColumn('created_at', function ($request) {
+                    return $request->created_at->format('M d, Y h:i A');
+                })
+                ->editColumn('status', function ($request) {
+                    if ($request->trashed()) {
+                        return 'Rejected';
+                    }
 
-                if ($request->status == 61) {
-                    return 'Rejected by Admin';
-                } else if ($request->status == 62) {
-                    return 'Rejected by HOA';
-                }
-                
-                return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
-            })
-            ->rawColumns(['request_id'])
-            ->make(true);
+                    if ($request->status == 61) {
+                        return 'Rejected by Admin';
+                    } else if ($request->status == 62) {
+                        return 'Rejected by HOA';
+                    }
+
+                    return $this->getStatus($request->status, $request->stats->where('name', 'Approval - Admin')->isNotEmpty());
+                })
+                ->rawColumns(['request_id'])
+                ->make(true);
         }
 
         return $datatable;
@@ -1492,10 +1490,10 @@ class SrsRequestController extends Controller
         // }
 
         return response()->json([
-            'status' => $srsRequest->status, 
-            'request_id' => $srsRequest->request_id, 
+            'status' => $srsRequest->status,
+            'request_id' => $srsRequest->request_id,
             'request_date' => $srsRequest->created_at->format('M d, Y h:i A'),
-            'appointment' => $srsRequest->appointment ? $srsRequest->appointment->date->format('M d, Y') .' '. $srsRequest->appointment->timeslot->time->format('h:i A') : '',
+            'appointment' => $srsRequest->appointment ? $srsRequest->appointment->date->format('M d, Y') . ' ' . $srsRequest->appointment->timeslot->time->format('h:i A') : '',
             'rejected' => $srsRequest->rejected_by ? [
                 'rejectedBy' => $srsRequest->rejected_by ?? '',
                 'rejectedReason' => $srsRequest->reject_reason ?? '',
@@ -1531,11 +1529,11 @@ class SrsRequestController extends Controller
         $requirements = SrsRequirement::with(['subCategories' => function ($query) {
             $query->select('spc_subcat.id');
         }])
-        ->whereHas('subCategories', function ($query) use ($data) {
-            $query->where('spc_subcat.id', $data['sub_category']);
-        })
-        ->select('id', 'name', 'description', 'required')
-        ->get();
+            ->whereHas('subCategories', function ($query) use ($data) {
+                $query->where('spc_subcat.id', $data['sub_category']);
+            })
+            ->select('id', 'name', 'description', 'required')
+            ->get();
 
 
         return $requirements;
@@ -1570,7 +1568,7 @@ class SrsRequestController extends Controller
 
         return response()->json($hoaList);
     }
-    
+
     public function hoaApproval(Request $request)
     {
         if (!$request->hasValidSignature() || !$request->key) {
@@ -1593,26 +1591,26 @@ class SrsRequestController extends Controller
         ]);
 
         $srsRequest = SrsRequest::withTrashed()
-                                ->with(['files.requirement' => function ($query) {
-                                    $query->select('id', 'description');
-                                }, 'category' => function ($query) {
-                                    $query->select('id', 'name');
-                                }, 'subCategory' => function ($query) {
-                                    $query->select('id', 'name');
-                                }, 'statuses'])
-                                ->where('request_id', $data['srn'])
-                                ->where(function ($query) {
-                                    $query->where('status', 0)
-                                        ->orWhere('status', 1)
-                                        ->orWhere('status', 61)
-                                        ->orWhere('status', 62);
-                                })
-                                // ->whereDoesntHave('statuses', function ($query) {
-                                //     $query->where('status_id', 2);
-                                // })
-                                ->whereDoesntHave('appointment')
-                                // ->firstOrFail();
-                                ->first();
+            ->with(['files.requirement' => function ($query) {
+                $query->select('id', 'description');
+            }, 'category' => function ($query) {
+                $query->select('id', 'name');
+            }, 'subCategory' => function ($query) {
+                $query->select('id', 'name');
+            }, 'statuses'])
+            ->where('request_id', $data['srn'])
+            ->where(function ($query) {
+                $query->where('status', 0)
+                    ->orWhere('status', 1)
+                    ->orWhere('status', 61)
+                    ->orWhere('status', 62);
+            })
+            // ->whereDoesntHave('statuses', function ($query) {
+            //     $query->where('status_id', 2);
+            // })
+            ->whereDoesntHave('appointment')
+            // ->firstOrFail();
+            ->first();
 
         if (!$srsRequest) {
             abort(404);
@@ -1626,7 +1624,7 @@ class SrsRequestController extends Controller
             abort(404, '[CM404] Ticket is already approved');
         }
 
-        
+
         return view('srs.request.hoa_approval', compact('srsRequest'));
     }
 
@@ -1655,7 +1653,7 @@ class SrsRequestController extends Controller
         $srsRequest = SrsRequest::findOrFail($data['req_id']);
         $srsRequest->admin_notes = $data['notes'];
 
-        $this->insertLogSrs('Updated SRS Info, SRS ID '.$srsRequest->request_id.', admin_notes: '.$data['notes']);
+        $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', admin_notes: ' . $data['notes']);
 
         if ($srsRequest->save()) {
             if ($data['acc']) {
@@ -1665,7 +1663,7 @@ class SrsRequestController extends Controller
                     $query->whereNull('status')
                         ->orWhere('status', 0);
                 }]);
-                
+
                 if ($srsRequest->customer->redTags->isNotEmpty()) {
                     if ($data['red_tag'] != 1) {
                         $srsRequest->customer()->update([
@@ -1677,7 +1675,7 @@ class SrsRequestController extends Controller
                             'deleted_by' => Auth::user()->name
                         ]);
 
-                        $this->insertLogSrs('Updated SRS Info, SRS ID '.$srsRequest->request_id.', red_tag: '.$data['red_tag']);
+                        $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
                     }
                 } else {
                     if ($data['red_tag'] == 1) {
@@ -1685,11 +1683,11 @@ class SrsRequestController extends Controller
                             'red_tag' => $data['red_tag'],
                         ]);
 
-                        $this->insertLogSrs('Updated SRS Info, SRS ID '.$srsRequest->request_id.', red_tag: '.$data['red_tag']);
+                        $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
                     }
                 }
 
-                
+
 
                 if ($data['red_tag_notes'] && $data['red_tag'] == 1) {
                     $redTag = new CrmRedtag();
@@ -1698,7 +1696,7 @@ class SrsRequestController extends Controller
 
                     $srsRequest->customer->redTags()->save($redTag);
 
-                    $this->insertLogSrs('Updated SRS Info, SRS ID '.$srsRequest->request_id.', reason_of_tag: '.$data['red_tag_notes']);
+                    $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', reason_of_tag: ' . $data['red_tag_notes']);
                 }
             }
 
@@ -1717,23 +1715,23 @@ class SrsRequestController extends Controller
 
         // $srsRequest = SrsRequest::findOrFail($data['req_id']);
         $srsRequest = SrsRequest::with(['vehicles' => function ($query) {
-                                    $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm');
-                                }])
-                                ->findOrFail($data['req_id']);
+            $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm');
+        }])
+            ->findOrFail($data['req_id']);
 
         $srsRequest->customer_id = $data['acc'];
         if ($srsRequest->save()) {
             // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
             // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
             $account = CrmMain::with(['vehicles' => function ($query) {
-                                    $query->select('id', 'crm_id', 'plate_no', 'created_at');
-                                }])
-                                ->where('crm_id', $srsRequest->customer_id)
-                                ->first();
+                $query->select('id', 'crm_id', 'plate_no', 'created_at');
+            }])
+                ->where('crm_id', $srsRequest->customer_id)
+                ->first();
 
             $vehicles = [];
-           
-            foreach($srsRequest->vehicles as $reqVehicle) {
+
+            foreach ($srsRequest->vehicles as $reqVehicle) {
                 $crmVehicle = $account->vehicles->where('plate_no', $reqVehicle->plate_no)->sortBy('created_at')->first();
                 if ($crmVehicle) {
                     $vehicles[] = $crmVehicle->id;
@@ -1743,14 +1741,14 @@ class SrsRequestController extends Controller
                     $reqVehicle->save();
                 }
             }
-            
+
             $srsRequest->crmVehicles()->sync($vehicles);
 
             $srsRequest->vehicles()->update([
                 'crm_id' => $account->customer_id
             ]);
 
-            $this->insertLogSrs('SRS Linked to Account, SRS ID '.$srsRequest->request_id.', Linked to Customer ID '. $account->customer_id);
+            $this->insertLogSrs('SRS Linked to Account, SRS ID ' . $srsRequest->request_id . ', Linked to Customer ID ' . $account->customer_id);
 
             // if (!$account->blk_lot) {
             //     $account->blk_lot = $srsRequest->house_no;
@@ -1798,14 +1796,14 @@ class SrsRequestController extends Controller
         ]);
 
         $srsRequest = SrsRequest::with(['hoa' => function ($query) {
-                                    $query->select('id', 'name');
-                                }, 'vehicles' => function ($query) {
-                                    $query->select('id', 'srs_request_id');
-                                }, 'nrHoa' => function ($query) {
-                                    $query->select('id', 'name');
-                                }])
-                                ->withCount('vehicles')
-                                ->findOrFail($data['req_id']);
+            $query->select('id', 'name');
+        }, 'vehicles' => function ($query) {
+            $query->select('id', 'srs_request_id');
+        }, 'nrHoa' => function ($query) {
+            $query->select('id', 'name');
+        }])
+            ->withCount('vehicles')
+            ->findOrFail($data['req_id']);
 
         // $account = CrmMain::firstOrNew([
         //     'category_id' => $srsRequest->category_id,
@@ -1866,7 +1864,7 @@ class SrsRequestController extends Controller
             $account->created_by = Auth::id();
             $account->save();
 
-            $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID '.$srsRequest->request_id.', Customer ID '.$account->customer_id);
+            $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID ' . $srsRequest->request_id . ', Customer ID ' . $account->customer_id);
             $srsRequest->customer()->associate($account);
             $srsRequest->vehicles()->update(['crm_id' => $account->customer_id, 'assoc_crm' => 1]);
             $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
@@ -1926,33 +1924,33 @@ class SrsRequestController extends Controller
         // ->get();
 
         $accounts = CrmMain::query()
-        ->with(['spc_category' => function ($query) {
-            $query->select('id', 'name');
-        }, 'spc_subcat' => function ($query) {
-            $query->select('id', 'name');
-        }])
-        ->where(function ($query) use ($data) {
-            $query->where('firstname', $data['fname'])
-                ->where('lastname', $data['lname']);
-        })
-        ->orWhere(function ($query) use ($data) {
-            $query->where('firstname', $data['fname'])
+            ->with(['spc_category' => function ($query) {
+                $query->select('id', 'name');
+            }, 'spc_subcat' => function ($query) {
+                $query->select('id', 'name');
+            }])
+            ->where(function ($query) use ($data) {
+                $query->where('firstname', $data['fname'])
+                    ->where('lastname', $data['lname']);
+            })
+            ->orWhere(function ($query) use ($data) {
+                $query->where('firstname', $data['fname'])
                     ->where('middlename', $data['lname']);
-        })
-        ->orWhere(function ($query) use ($data) {
-            $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.lastname)  like ?";
-            $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
-        })
-        ->orWhere(function ($query) use ($data) {
-            $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.middlename)  like ?";
-            $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
-        })
-        ->orWhere(function ($query) use ($data) {
-            $query->where('blk_lot', $data['blk_lot'])
-                ->where('street', $data['street']);
-        })
-        // ->select('crm_mains.*', 'spc_categories.name as category_name', 'spc_subcat.name as sub_category_name')
-        ->get();
+            })
+            ->orWhere(function ($query) use ($data) {
+                $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.lastname)  like ?";
+                $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
+            })
+            ->orWhere(function ($query) use ($data) {
+                $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.middlename)  like ?";
+                $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
+            })
+            ->orWhere(function ($query) use ($data) {
+                $query->where('blk_lot', $data['blk_lot'])
+                    ->where('street', $data['street']);
+            })
+            // ->select('crm_mains.*', 'spc_categories.name as category_name', 'spc_subcat.name as sub_category_name')
+            ->get();
 
         // dd($accounts);
 
@@ -2012,7 +2010,7 @@ class SrsRequestController extends Controller
                             ' . htmlspecialchars($account->blk_lot . ', ' . $account->street . ($account->building_name ? ', ' . $account->building_name : '') . ($account->subdivision_village ? ', ' . $account->subdivision_village : '') . ($account->city ? ', ' . $account->city : '')) . '
                             </td>
                             <td>' . htmlspecialchars($account->spc_category ? $account->spc_category->name : 'Not Found (Might be outdated)') . '</td>
-                            <td>' . htmlspecialchars($account->spc_subcat? $account->spc_subcat->name : 'Not Found (Might be outdated)') . '</td>
+                            <td>' . htmlspecialchars($account->spc_subcat ? $account->spc_subcat->name : 'Not Found (Might be outdated)') . '</td>
                             <td>' . ($account->red_tag ? 'Red Tag' : '') . '</td>
                       </tr>';
         }
@@ -2066,7 +2064,7 @@ class SrsRequestController extends Controller
             'from' => 'required|date',
             'to' => 'required|date_format:Y-m-d'
         ]);
-        
+
         return (new CrmRedTagExport($data['from'], $data['to']))->download('crm_redtag.xlsx');
     }
 
@@ -2081,62 +2079,62 @@ class SrsRequestController extends Controller
 
 
         $srsRequests = SrsRequest::with(['category' => function ($query) {
-                                $query->select('id', 'name');
-                            }, 'subCategory' => function ($query) {
-                                $query->select('id', 'name');
-                            }, 'hoa' => function ($query) {
-                                $query->select('id', 'name');
-                            }])
-                            ->when($data['period'] == 1, function ($q) {
-                                return $q->whereBetween('created_at', [today()->startOfWeek(), today()->endOfWeek()]);
-                            })
-                            ->when($data['period'] == 2, function ($q) use ($data) {
-                                return $q->whereYear('created_at', $data['year'])
-                                         ->whereMonth('created_at', $data['sub_select']);
-                            })
-                            ->when($data['period'] == 3, function ($q) use ($data) {
-                                return $q->whereYear('created_at', $data['year'])
-                                        ->when($data['sub_select'] == 1, function ($q) {
-                                            return $q->whereMonth('created_at', '>=', 1)
-                                                        ->whereMonth('created_at', '<=', 3);
-                                        })
-                                        ->when($data['sub_select'] == 2, function ($q) {
-                                            return $q->whereMonth('created_at', '>=', 4)
-                                                        ->whereMonth('created_at', '<=', 6);
-                                        })
-                                        ->when($data['sub_select'] == 3, function ($q) {
-                                            return $q->whereMonth('created_at', '>=', 7)
-                                                        ->whereMonth('created_at', '<=', 9);
-                                        })
-                                        ->when($data['sub_select'] == 4, function ($q) {
-                                            return $q->whereMonth('created_at', '>=', 10)
-                                                        ->whereMonth('created_at', '<=', 12);
-                                        });
-                            })
-                            ->when($data['period'] == 4, function ($q) use ($data) {
-                                return $q->whereYear('created_at', $data['year']);
-                            })
-                            ->when($data['status'] == 1, function ($q) {
-                                return $q->withTrashed();
-                            })
-                            ->when($data['status'] == 2, function ($q) {
-                                return $q->where('status', '<', 4);
-                            })
-                            ->when($data['status'] == 3, function ($q) {
-                                return $q->where('status', 4);
-                            })
-                            ->when($data['status'] == 4, function ($q) {
-                                return $q->onlyTrashed();
-                            })
-                            ->select('request_id', 'first_name', 'middle_name', 'last_name', 'category_id', 'sub_category_id', 'hoa_id', 'created_at')
-                            ->orderBy('created_at')
-                            ->get();
-        
+            $query->select('id', 'name');
+        }, 'subCategory' => function ($query) {
+            $query->select('id', 'name');
+        }, 'hoa' => function ($query) {
+            $query->select('id', 'name');
+        }])
+            ->when($data['period'] == 1, function ($q) {
+                return $q->whereBetween('created_at', [today()->startOfWeek(), today()->endOfWeek()]);
+            })
+            ->when($data['period'] == 2, function ($q) use ($data) {
+                return $q->whereYear('created_at', $data['year'])
+                    ->whereMonth('created_at', $data['sub_select']);
+            })
+            ->when($data['period'] == 3, function ($q) use ($data) {
+                return $q->whereYear('created_at', $data['year'])
+                    ->when($data['sub_select'] == 1, function ($q) {
+                        return $q->whereMonth('created_at', '>=', 1)
+                            ->whereMonth('created_at', '<=', 3);
+                    })
+                    ->when($data['sub_select'] == 2, function ($q) {
+                        return $q->whereMonth('created_at', '>=', 4)
+                            ->whereMonth('created_at', '<=', 6);
+                    })
+                    ->when($data['sub_select'] == 3, function ($q) {
+                        return $q->whereMonth('created_at', '>=', 7)
+                            ->whereMonth('created_at', '<=', 9);
+                    })
+                    ->when($data['sub_select'] == 4, function ($q) {
+                        return $q->whereMonth('created_at', '>=', 10)
+                            ->whereMonth('created_at', '<=', 12);
+                    });
+            })
+            ->when($data['period'] == 4, function ($q) use ($data) {
+                return $q->whereYear('created_at', $data['year']);
+            })
+            ->when($data['status'] == 1, function ($q) {
+                return $q->withTrashed();
+            })
+            ->when($data['status'] == 2, function ($q) {
+                return $q->where('status', '<', 4);
+            })
+            ->when($data['status'] == 3, function ($q) {
+                return $q->where('status', 4);
+            })
+            ->when($data['status'] == 4, function ($q) {
+                return $q->onlyTrashed();
+            })
+            ->select('request_id', 'first_name', 'middle_name', 'last_name', 'category_id', 'sub_category_id', 'hoa_id', 'created_at')
+            ->orderBy('created_at')
+            ->get();
+
         $categoryGroup = $srsRequests->groupBy('category.name');
         $residentSubGroup = collect([]);
         $nonResidentSubGroup = collect([]);
         $commercialSubGroup = collect([]);
-        
+
         if (isset($categoryGroup['Resident'])) {
             $residentSubGroup = $categoryGroup['Resident']->groupBy('subCategory.name')->sortDesc();
         } else {
@@ -2154,58 +2152,59 @@ class SrsRequestController extends Controller
         } else {
             $categoryGroup['Commercial'] = collect([]);
         }
-        
-        
+
+
         $period = '';
         $time = '';
 
         if ($data['period'] == 1) {
             $period = 'WEEKLY';
-            $time = today()->startOfWeek()->format('M d, Y').' - '.today()->endOfWeek()->format('M d, Y');
+            $time = today()->startOfWeek()->format('M d, Y') . ' - ' . today()->endOfWeek()->format('M d, Y');
         } elseif ($data['period'] == 2) {
             $period = 'MONTHLY';
             $time = Carbon::createFromDate($data['year'], $data['sub_select'], 1)->format('F Y');
         } elseif ($data['period'] == 3) {
             $period = 'QUARTERLY';
-            $time = 'Q'.$data['sub_select'].' '.$data['year'];
+            $time = 'Q' . $data['sub_select'] . ' ' . $data['year'];
         } elseif ($data['period'] == 4) {
             $period = 'ANNUAL';
             $time = $data['year'];
         }
-        
+
         $pdf = PDF::loadView('exports.srs_tickets', compact('srsRequests', 'period', 'time', 'categoryGroup', 'residentSubGroup', 'nonResidentSubGroup', 'commercialSubGroup'))->setPaper('a4', 'portrait');
         //return $pdf->download('srs_tickets.pdf');
         return $pdf->stream();
     }
 
     public function destroyTest()
-    {   
+    {
         $srsRequests = SrsRequest::withTrashed()
-                                ->whereIn('request_id', ['2329-0802-00090'])
-                                ->get();
+            ->whereIn('request_id', ['2329-0802-00090'])
+            ->get();
 
-        
-        foreach($srsRequests as $srsRequest) {
+
+        foreach ($srsRequests as $srsRequest) {
 
             // $path = 'bffhai/'.$srsRequest->created_at->format('Y/m/d').'/'.$this->getCategoryName($srsRequest->category_id).'/'.$srsRequest->subCategory->name.'/'.($srsRequest->hoa_id ?: '0').'/'.$srsRequest->request_id;
-            $path = 'bffhai/'.$srsRequest->created_at->format('Y').'/'.($srsRequest->hoa_id ?: '0').'/'.$this->getCategoryName($srsRequest->category_id).'/'.$srsRequest->created_at->format('m').'/'.$srsRequest->first_name.'_'.$srsRequest->last_name;
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
 
             if (!$srsRequest->trashed()) {
-                $srsRequest->delete();  
+                $srsRequest->delete();
             }
-            
 
-            if (is_dir(storage_path('app/'.$path))) {
+
+            if (is_dir(storage_path('app/' . $path))) {
                 Storage::deleteDirectory($path);
             }
         }
-        
-           
+
+
 
         dd('deleted');
     }
 
-    public function resendBulk(Request $request) {
+    public function resendBulk(Request $request)
+    {
         $auth_emails = [
             'test@test.com',
             'itqa@atomitsoln.com',
@@ -2213,22 +2212,22 @@ class SrsRequestController extends Controller
             'srsadmin@atomitsoln.com'
         ];
 
-        if(!in_array(auth()->user()->email, $auth_emails)) {
+        if (!in_array(auth()->user()->email, $auth_emails)) {
             abort(404);
         }
 
         try {
-        	$currentDate = date('Y-m-d');
+            $currentDate = date('Y-m-d');
 
-			$srs_numbers = SrsRequest::query()
-			    ->whereBetween('created_at', ['2024-01-01', '2024-03-31'])
-			    ->where('status', 0)
+            $srs_numbers = SrsRequest::query()
+                ->whereBetween('created_at', ['2024-01-01', '2024-03-31'])
+                ->where('status', 0)
                 ->where('category_id', 1)
                 ->whereNotIn('sub_category_id', [7, 8])
-			    ->where('hoa_notif_resend', 0)
+                ->where('hoa_notif_resend', 0)
                 ->where('hoa_id', '!=', 73)
-			   	->where('hoa_renotif_at', null)
-			    ->select('request_id', 'email', 'created_at', 'hoa_id')
+                ->where('hoa_renotif_at', null)
+                ->select('request_id', 'email', 'created_at', 'hoa_id')
                 ->whereNotIn('email', [
                     'test@test.com',
                     'ivan.deposoy@atomitsoln.com',
@@ -2236,22 +2235,22 @@ class SrsRequestController extends Controller
                     'itqa@atomitsoln.com'
                 ])
                 ->orderBy('created_at', 'desc')
-			    ->limit($request->count);
+                ->limit($request->count);
 
             // dd($srs_numbers->get(), $srs_numbers->count());
         } catch (\Exception $e) {
             dd($e);
         }
-        
-        
+
+
         $sentEmails = [];
 
         // dd($srs_count, $srs_numbers->get());
-       
-        foreach($srs_numbers->get() as $number) {
+
+        foreach ($srs_numbers->get() as $number) {
             $sent = $this->sendMail($number->request_id, $request->email, $request->pw);
 
-            if($sent != null) {
+            if ($sent != null) {
                 $sentEmails[] = $sent;
             }
 
@@ -2283,22 +2282,22 @@ class SrsRequestController extends Controller
     }
 
     public function sendMail($request_id, $senderEmail, $senderPW)
-    {   
+    {
         $srsRequest = SrsRequest::with('hoa')
-        ->where('request_id', $request_id)
-        ->first();
+            ->where('request_id', $request_id)
+            ->first();
 
         // Get the current date in 'Y-m-d' format (year-month-day)
-		$currentDate = date('Y-m-d');
+        $currentDate = date('Y-m-d');
 
-		// Extract the date part from $srsRequest->hoa_renotif_at
-		$srsRequestDate = substr($srsRequest->hoa_renotif_at, 0, 10); // Assuming the date format is 'Y-m-d H:i:s'
+        // Extract the date part from $srsRequest->hoa_renotif_at
+        $srsRequestDate = substr($srsRequest->hoa_renotif_at, 0, 10); // Assuming the date format is 'Y-m-d H:i:s'
 
-		// Compare the dates
-		if ($srsRequestDate === $currentDate) {
-		    // Dates match (same year, month, and day)
-		    return;
-		}
+        // Compare the dates
+        if ($srsRequestDate === $currentDate) {
+            // Dates match (same year, month, and day)
+            return;
+        }
 
         try {
             $mailFrom = "bffhai@zn.donotreply.notification.znergee.com";
@@ -2306,13 +2305,13 @@ class SrsRequestController extends Controller
             $sentToEmails = [];
 
             $srn = Crypt::encrypt($srsRequest->request_id);
-            
+
             if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
-            	// \Log::info('Attempting to resend for approval. Email: ' + $srsRequest->request_id);
+                // \Log::info('Attempting to resend for approval. Email: ' + $srsRequest->request_id);
                 $sentToEmails[] = 'SRS # ' . $srsRequest->request_id;
 
                 if ($srsRequest->hoa->emailAdd1) {
-                    $sentToEmails[] = 'Email is sent to '.$srsRequest->hoa->emailAdd1;
+                    $sentToEmails[] = 'Email is sent to ' . $srsRequest->hoa->emailAdd1;
 
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 
@@ -2320,9 +2319,9 @@ class SrsRequestController extends Controller
 
                     Mail::mailer('smtp_2')->to($srsRequest->hoa->emailAdd1)->send(new RequestSubmitted($srsRequest, $url, $mailFrom));
                 }
-    
+
                 if ($srsRequest->hoa->emailAdd2) {
-                    $sentToEmails[] = 'Email is sent to '.$srsRequest->hoa->emailAdd2;
+                    $sentToEmails[] = 'Email is sent to ' . $srsRequest->hoa->emailAdd2;
 
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 
@@ -2330,9 +2329,9 @@ class SrsRequestController extends Controller
 
                     Mail::mailer('smtp_2')->to($srsRequest->hoa->emailAdd2)->send(new RequestSubmitted($srsRequest, $url, $mailFrom));
                 }
-                
+
                 if ($srsRequest->hoa->emailAdd3) {
-                    $sentToEmails[] = 'Email is sent to '.$srsRequest->hoa->emailAdd3;
+                    $sentToEmails[] = 'Email is sent to ' . $srsRequest->hoa->emailAdd3;
 
                     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 

@@ -59,6 +59,8 @@ Route::prefix('v3')->group(function () {
 
     // index for new sticker application
     Route::get('/sticker/new', [Srs3RequestController::class, 'create']);
+    // Submit new application
+    Route::post('/sticker/request', [Srs3RequestController::class, 'store'])->name('request.v3.store');
 
     // SRS Inbox
     Route::get('/requests', [Srs3RequestController::class, 'list'])->name('requests.v3');
@@ -173,7 +175,7 @@ Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'
 // Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
 
-Route::group(['middleware' => ['auth', 'isOnline']], function() {
+Route::group(['middleware' => ['auth', 'isOnline']], function () {
     // Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
 
     // Approvers
@@ -188,4 +190,3 @@ Route::group(['middleware' => ['auth', 'isOnline']], function() {
     //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
     // });
 });
-
