@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveVehicleBtn = document.getElementById('saveVehicleBtn');
     const vehiclesTable = document.getElementById('vehiclesTable');
     const vehiclesArrayInput = document.getElementById('vehiclesArrayInput');
+    const addressDropdown = document.getElementById('addressDropdown');
 
     const plateNoInput = document.getElementById('plateNo');
     const brandInput = document.getElementById('brand');
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 plateNo: plateNoInput.value.trim(),
                 brand: brandInput.value.trim(),
                 series: seriesInput.value.trim(),
-                addressIndex: addressDropdown.value
+                addressIndex: addressDropdown.value // Get selected address index
             };
 
             if (editVehicleIndex === null) {
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
             plateNoInput.value = vehicle.plateNo;
             brandInput.value = vehicle.brand;
             seriesInput.value = vehicle.series;
+            addressDropdown.value = vehicle.addressIndex;
 
             const modalInstance = bootstrap.Modal.getOrCreateInstance(vehicleModal);
             modalInstance.show();
@@ -123,6 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
             seriesInput.classList.add('is-invalid');
             isValid = false;
         }
+        if (!addressDropdown.value) {
+            addressDropdown.classList.add('is-invalid');
+            isValid = false;
+        }
 
         return isValid;
     }
@@ -132,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         plateNoInput.value = '';
         brandInput.value = '';
         seriesInput.value = '';
+        addressDropdown.value = '';
         editVehicleIndex = null; // Reset the edit index
     }
 

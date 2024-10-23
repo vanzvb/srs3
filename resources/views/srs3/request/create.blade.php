@@ -340,13 +340,12 @@
 
                                     {{-- END TEST --}}
                                     <!-- Dropdown to show addresses -->
-                                    <div class="container mt-4">
+                                    {{-- <div class="container mt-4">
                                         <label for="addressDropdown" class="form-label">Select Address</label>
                                         <select id="addressDropdown" class="form-select">
                                             <option value="">-- Select Address --</option>
-                                            <!-- Options will be populated here -->
                                         </select>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Button to trigger dropdown population -->
                                     <button id="populateDropdownBtn" class="btn btn-info mt-3" type="button"
@@ -423,7 +422,7 @@
                                     <div>
                                         <div class="container mt-4">
                                             <!-- Button to trigger modal for vehicles -->
-                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
+                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal" onclick="populateAddressDropdown()">Add Vehicle</button>
                                         
                                             <!-- Table to show added vehicles -->
                                             <table class="table table-bordered">
@@ -480,6 +479,13 @@
                                                                 <label for="series" class="form-label">Series</label>
                                                                 <input type="text" class="form-control" id="series" name="series" placeholder="Enter Series" required>
                                                                 <div class="invalid-feedback">Please enter a series.</div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="addressDropdown" class="form-label">Select Address</label>
+                                                                <select class="form-select" id="addressDropdown" required>
+                                                                    <option value="">-- Select Address --</option>
+                                                                </select>
+                                                                <div class="invalid-feedback">Please select an address.</div>
                                                             </div>
                                                         </form>
                                                     </div>
