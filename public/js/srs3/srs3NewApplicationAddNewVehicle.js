@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 addressIndex: addressDropdown.value // Get selected address index
             };
 
+            console.log("Selected Address Index: ", addressDropdown.value);
+
             if (editVehicleIndex === null) {
                 // Adding a new vehicle
                 vehiclesArray.push(newVehicle);
@@ -57,6 +59,10 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVehicleTable(); // Update the table to reflect changes
         }
     });
+
+    // addressDropdown.addEventListener('change', function() {
+    //     console.log("Dropdown Changed, Selected Address Index: ", addressDropdown.value);
+    // });
 
     // Function to add a new row to the vehicle table
     function addVehicleRow(vehicle, index) {

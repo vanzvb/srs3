@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
             option.value = index; // Using the index or any identifier you prefer
             option.textContent = address.addressName; // Displaying address name
             addressDropdown.appendChild(option);
+
+            // console.log(`Option Value (Index): ${option.value}, Address Name: ${option.textContent}`);
         });
     };
+    
 });

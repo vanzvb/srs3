@@ -348,8 +348,8 @@
                                     </div> --}}
 
                                     <!-- Button to trigger dropdown population -->
-                                    <button id="populateDropdownBtn" class="btn btn-info mt-3" type="button"
-                                        onclick="populateAddressDropdown()">Populate Dropdown</button>
+                                    {{-- <button id="populateDropdownBtn" class="btn btn-info mt-3" type="button"
+                                        onclick="populateAddressDropdown()">Populate Dropdown</button> --}}
 
                                     {{-- <div>
                                         <div class="row px-2 px-md-4 mt-3">
