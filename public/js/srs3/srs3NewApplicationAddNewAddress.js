@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryInput = document.getElementById('category_modal');
     const subCategoryInput = document.getElementById('sub_category_modal');
 
+    
+
     saveAddressBtn.addEventListener('click', function() {
         let isValid = validateForm();
 
@@ -26,8 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 block: blockInput.value.trim(),
                 lot: lotInput.value.trim(),
                 houseNumber: houseNumberInput.value.trim(),
-                category_modal : categoryInput.value.trim(),
-                sub_category_modal : subCategoryInput.value.trim(),
+                category_modal: categoryInput.value.trim(),
+                category_name: categoryInput.options[categoryInput.selectedIndex].getAttribute('data-name'), // Get category name
+                sub_category_modal: subCategoryInput.value.trim(),
+                sub_category_name: subCategoryInput.options[subCategoryInput.selectedIndex].getAttribute('data-name'), // Get sub-category name
             };
 
             if (editIndex === null) {
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td>${address.category_modal + ' / ' + address.sub_category_modal}</td>
+             <td>${address.category_name} / ${address.sub_category_name}</td>
             <td>${address.block}</td>
             <td>${address.lot}</td>
             <td>${address.houseNumber}</td>
@@ -96,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (row) {
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${address.category_modal + ' / ' + address.sub_category_modal}</td>
+                 <td>${address.category_name} / ${address.sub_category_name}</td>
                 <td>${address.block}</td>
                 <td>${address.lot}</td>
                 <td>${address.houseNumber}</td>

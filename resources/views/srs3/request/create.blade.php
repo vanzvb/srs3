@@ -298,11 +298,11 @@
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="category_modal" class="form-label">Category</label>
-                                                                <select name="category_modal" id="category_modal"
+                                                                <select name="category_modal" id="category_modal" class="form-select"
                                                                     class="form-select">
                                                                     {{-- <option value="">---</option> --}}
                                                                     @foreach ($categories as $category)
-                                                                        <option value="{{ $category->id }}">
+                                                                        <option value="{{ $category->id }}" data-name="{{ $category->name }}">
                                                                             {{ $category->name }}</option>
                                                                     @endforeach
                                                                 </select>
@@ -310,11 +310,12 @@
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="sub_category_modal" class="form-label">Sub
                                                                     Category</label>
-                                                                <select class="form-select" name="sub_category_modal"
+                                                                <select class="form-select" name="sub_category_modal" class="form-select"
                                                                     id="sub_category_modal">
-                                                                    <option value="0">Test Sub Cat</option>
-                                                                    <option value="1">Test Sub Cat2</option>
-                                                                    <!-- Options will be populated here -->
+                                                                    @foreach ($subcats as $subcat)
+                                                                        <option value="{{ $subcat->id }}" data-name="{{ $subcat->name }}">
+                                                                            {{ $subcat->name }}</option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
