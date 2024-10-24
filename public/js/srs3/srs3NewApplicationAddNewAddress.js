@@ -10,20 +10,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const addressesTable = document.getElementById('addressesTable');
     const addressesArrayInput = document.getElementById('addressesArray');
 
-    const addressInput = document.getElementById('addressName');
+    // const addressInput = document.getElementById('addressName');
     const blockInput = document.getElementById('block');
     const lotInput = document.getElementById('lot');
     const houseNumberInput = document.getElementById('houseNumber');
+    const categoryInput = document.getElementById('category_modal');
+    const subCategoryInput = document.getElementById('sub_category_modal');
 
     saveAddressBtn.addEventListener('click', function() {
         let isValid = validateForm();
 
         if (isValid) {
             const newAddress = {
-                addressName: addressInput.value.trim(),
+                // addressName: addressInput.value.trim(),
                 block: blockInput.value.trim(),
                 lot: lotInput.value.trim(),
                 houseNumber: houseNumberInput.value.trim(),
+                category_modal : categoryInput.value.trim(),
+                sub_category_modal : subCategoryInput.value.trim(),
             };
 
             if (editIndex === null) {
@@ -65,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td>${address.addressName}</td>
+            <td>${address.category_modal}</td>
             <td>${address.block}</td>
             <td>${address.lot}</td>
             <td>${address.houseNumber}</td>
@@ -92,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (row) {
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${address.addressName}</td>
+                <td>${address.category_modal}</td>
                 <td>${address.block}</td>
                 <td>${address.lot}</td>
                 <td>${address.houseNumber}</td>
@@ -118,7 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (address) {
             editIndex = index; // Set the current index to edit
-            addressInput.value = address.addressName;
+            // addressInput.value = address.addressName;
+            categoryInput.value = address.category_modal;
             blockInput.value = address.block;
             lotInput.value = address.lot;
             houseNumberInput.value = address.houseNumber;
@@ -148,15 +153,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateForm() {
         let isValid = true;
 
-        addressInput.classList.remove('is-invalid');
+        // addressInput.classList.remove('is-invalid');
         blockInput.classList.remove('is-invalid');
         lotInput.classList.remove('is-invalid');
         houseNumberInput.classList.remove('is-invalid');
 
-        if (!addressInput.value.trim()) {
-            addressInput.classList.add('is-invalid');
-            isValid = false;
-        }
+        // if (!addressInput.value.trim()) {
+        //     addressInput.classList.add('is-invalid');
+        //     isValid = false;
+        // }
         if (!blockInput.value || isNaN(blockInput.value)) {
             blockInput.classList.add('is-invalid');
             isValid = false;
@@ -175,7 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to reset the form
     function resetForm() {
-        addressInput.value = '';
+        // addressInput.value = '';
+        categoryInput.value = '';
+        subCategoryInput = '';
         blockInput.value = '';
         lotInput.value = '';
         houseNumberInput.value = '';

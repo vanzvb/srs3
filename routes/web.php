@@ -62,6 +62,9 @@ Route::prefix('v3')->group(function () {
     // Submit new application
     Route::post('/sticker/request', [Srs3RequestController::class, 'store'])->name('request.v3.store');
 
+    //Loads on change of sub cat in "New" Application
+    Route::get('/sticker/request/requirements', [Srs3RequestController::class, 'getRequirements'])->name('getRequirements.v3');
+
     // SRS Inbox
     Route::get('/requests', [Srs3RequestController::class, 'list'])->name('requests.v3');
     // Route::get('/requests/report', [Srs3RequestController::class, 'report'])->name('requests.report');

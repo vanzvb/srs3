@@ -113,29 +113,29 @@ $(document).ready(function () {
       });
     };
     getRequirements = () => {
-      // $.ajax({
-      //   'url': '/sticker/request/requirements',
-      //   'data': {
-      //     'sub_category': $("#sub_category").val()
-      //   },
-      //   'success': function (_0x45dc6d) {
-      //     var _0x5cdd0e = '';
-      //     if (_0x45dc6d.length) {
-      //       $.each(_0x45dc6d, function (_0x457fd2, _0x40bd70) {
-      //         let _0x38d18a = '';
-      //         if (_0x40bd70.required) {
-      //           _0x38d18a = 'required';
-      //         }
-      //         _0x5cdd0e += "<tr>\n                                   <td>\n                                       <div class=\"my-3\">\n                                           <label class=\"form-label\">" + _0x40bd70.description + "</label>\n                                       </div>\n                                   </td>\n                                   <td>\n                                       <div class=\"my-3\">\n                                           <input class=\"form-control form-control-sm\" type=\"file\" accept=\"image/*\" name=\"" + _0x40bd70.name + "\" id=\"\" " + _0x38d18a + ">\n                                       </div>\n                                   </td>\n                               </tr>";
-      //       });
-      //       $('#requirements_tbody').html(_0x5cdd0e);
-      //       $("#requirements_table").show();
-      //     } else {
-      //       $("#requirements_tbody").html(_0x5cdd0e);
-      //       $("#requirements_table").hide();
-      //     }
-      //   }
-      // });
+      $.ajax({
+        'url': '/v3/sticker/request/requirements',
+        'data': {
+          'sub_category': $("#sub_category").val()
+        },
+        'success': function (_0x45dc6d) {
+          var _0x5cdd0e = '';
+          if (_0x45dc6d.length) {
+            $.each(_0x45dc6d, function (_0x457fd2, _0x40bd70) {
+              let _0x38d18a = '';
+              if (_0x40bd70.required) {
+                _0x38d18a = 'required';
+              }
+              _0x5cdd0e += "<tr>\n                                   <td>\n                                       <div class=\"my-3\">\n                                           <label class=\"form-label\">" + _0x40bd70.description + "</label>\n                                       </div>\n                                   </td>\n                                   <td>\n                                       <div class=\"my-3\">\n                                           <input class=\"form-control form-control-sm\" type=\"file\" accept=\"image/*\" name=\"" + _0x40bd70.name + "\" id=\"\" " + _0x38d18a + ">\n                                       </div>\n                                   </td>\n                               </tr>";
+            });
+            $('#requirements_tbody').html(_0x5cdd0e);
+            $("#requirements_table").show();
+          } else {
+            $("#requirements_tbody").html(_0x5cdd0e);
+            $("#requirements_table").hide();
+          }
+        }
+      });
     };
     getHoas = () => {
       $.ajax({

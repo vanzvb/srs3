@@ -261,7 +261,7 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        dd($request);
+        // dd($request);
 
         $addresses = json_decode($request->input('addresses'), true);
 
@@ -269,25 +269,25 @@ class SrsRequestController extends Controller
 
         $data = $request->validated();
 
-        if ($data['category'] == 1) {
-            $sub_cats = DB::table('spc_subcat')
-                ->where('category_id', 1)
-                ->where('status', 1)
-                ->get();
+        // if ($data['category'] == 1) {
+        //     $sub_cats = DB::table('spc_subcat')
+        //         ->where('category_id', 1)
+        //         ->where('status', 1)
+        //         ->get();
 
-            Validator::make($data, [
-                'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
-            ])->validate();
-        } elseif ($data['category'] == 2) {
-            $sub_cats = DB::table('spc_subcat')
-                ->where('category_id', 2)
-                ->where('status', 1)
-                ->get();
+        //     Validator::make($data, [
+        //         'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
+        //     ])->validate();
+        // } elseif ($data['category'] == 2) {
+        //     $sub_cats = DB::table('spc_subcat')
+        //         ->where('category_id', 2)
+        //         ->where('status', 1)
+        //         ->get();
 
-            Validator::make($data, [
-                'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
-            ])->validate();
-        }
+        //     Validator::make($data, [
+        //         'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
+        //     ])->validate();
+        // }
         // elseif ($data['category'] == 3) {
         //     Validator::make($data, [
         //         'sub_category' => 'in:19,20'
@@ -295,21 +295,23 @@ class SrsRequestController extends Controller
         // }
 
 
-        if ($data['category'] == 1 && $data['sub_category'] != 8) {
-            $validator = Validator::make($data, [
-                'hoa' => 'required'
-            ]);
-            if ($validator->fails()) {
-                return back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-        }
+        // if ($data['category'] == 1 && $data['sub_category'] != 8) {
+        //     $validator = Validator::make($data, [
+        //         'hoa' => 'required'
+        //     ]);
+        //     if ($validator->fails()) {
+        //         return back()
+        //             ->withErrors($validator)
+        //             ->withInput();
+        //     }
+        // }
 
         $srsRequest = new SrsRequest();
-        $srsRequest->request_id = $this->getNextId($request->category, $request->sub_category);
-        $srsRequest->category_id = $data['category'];
-        $srsRequest->sub_category_id = $data['sub_category'];
+        dd($this->getNextId());
+        $srsRequest->request_id = $this->getNextId();
+        
+        // $srsRequest->category_id = $data['category'];
+        // $srsRequest->sub_category_id = $data['sub_category'];
         // $srsRequest->first_name = $data['first_name'];
         // $srsRequest->last_name = $data['last_name'];
         // $srsRequest->middle_name = $data['middle_name'];
@@ -895,10 +897,11 @@ class SrsRequestController extends Controller
         return response()->json(['srs' => $data]);
     }
 
-    public function getNextId($category, $subCategory)
+    public function getNextId()
     {
         $today = now();
-        $series = $today->format('y') . $category . $subCategory . '-' . $today->format('d') . $today->format('m') . '-';
+        $series = $today->format('y') . '-' . $today->format('d') . $today->format('m') . '-';
+        // $series = $today->format('y') . $category . $subCategory . '-' . $today->format('d') . $today->format('m') . '-';
 
         $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
 

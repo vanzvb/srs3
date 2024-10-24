@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addressesArray.forEach(function(address, index) {
             const option = document.createElement('option');
             option.value = index; // Using the index or any identifier you prefer
-            option.textContent = address.addressName; // Displaying address name
+            option.textContent = address.block; // Displaying address name
             addressDropdown.appendChild(option);
 
             // console.log(`Option Value (Index): ${option.value}, Address Name: ${option.textContent}`);

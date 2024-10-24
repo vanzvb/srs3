@@ -60,7 +60,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- <div class="col-md-6 col-12 mt-2">
+                                    <div class="col-md-6 col-12 mt-2">
                                         <div class="input-group" style="height: 100%;">
                                             <label for="" class="input-group-text">Request for</label>
                                             <select name="category" id="category" class="form-select"
@@ -70,10 +70,10 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div> --}}
+                                    </div>
 
                                     <!-- Second Row -->
-                                    {{-- <div class="col-md-6 col-12 mt-2">
+                                    <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="sub_category" id="sub_category"
                                                 placeholder="Category" onchange="getRequirements()">
@@ -89,7 +89,7 @@
                                             </select>
                                             <label for="hoa" class="form-label" id="hoa_label">HOA</label>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </div>
 
 
@@ -257,15 +257,15 @@
                                     {{-- START TEST --}}
                                     <div class="container mt-4">
                                         <!-- Button to trigger modal -->
-                                        <button type="button" id="addAddressBtn" class="btn btn-primary mb-3" data-bs-toggle="modal"
-                                            data-bs-target="#addressModal">Add Address</button>
+                                        <button type="button" id="addAddressBtn" class="btn btn-primary mb-3"
+                                            data-bs-toggle="modal" data-bs-target="#addressModal">Add Address</button>
 
                                         <!-- Table to show added addresses -->
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Address Name</th>
+                                                    <th>Category/Sub Category</th>
                                                     <th>Block</th>
                                                     <th>Lot</th>
                                                     <th>House Number</th>
@@ -286,7 +286,7 @@
 
                                     <div class="modal fade" id="addressModal" tabindex="-1"
                                         aria-labelledby="addressModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
+                                        <div class="modal-dialog modal-xl">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
@@ -295,35 +295,91 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <form id="addressForm" novalidate>
-                                                        <div class="mb-3">
-                                                            <label for="addressName" class="form-label">Address
-                                                                Name</label>
-                                                            <input type="text" class="form-control" id="addressName"
-                                                                placeholder="Enter Address Name">
-                                                            <div class="invalid-feedback">Please enter an address name.
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="category_modal" class="form-label">Category</label>
+                                                                <select name="category_modal" id="category_modal"
+                                                                    class="form-select">
+                                                                    {{-- <option value="">---</option> --}}
+                                                                    @foreach ($categories as $category)
+                                                                        <option value="{{ $category->id }}">
+                                                                            {{ $category->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="sub_category_modal" class="form-label">Sub
+                                                                    Category</label>
+                                                                <select class="form-select" name="sub_category_modal"
+                                                                    id="sub_category_modal">
+                                                                    <!-- Options will be populated here -->
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="HOA" class="form-label">HOA</label>
+                                                                <select class="form-select" name="HOA"
+                                                                    id="HOA">
+                                                                    <option value="">---</option>
+                                                                    <!-- Options will be populated here -->
+                                                                </select>
                                                             </div>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label for="block" class="form-label">Block</label>
-                                                            <input type="number" class="form-control" id="block"
-                                                                placeholder="Enter Block">
-                                                            <div class="invalid-feedback">Please enter a valid block
-                                                                number.</div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="lot" class="form-label">Lot</label>
-                                                            <input type="number" class="form-control" id="lot"
-                                                                placeholder="Enter Lot">
-                                                            <div class="invalid-feedback">Please enter a valid lot number.
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="member_type" class="form-label">Member Type</label>
+                                                                <select class="form-select" name="member_type"
+                                                                    id="member_type">
+                                                                    <option value="">---</option>
+                                                                    <!-- Options will be populated here -->
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-2 mb-3">
+                                                                <label for="block" class="form-label">Block</label>
+                                                                <input type="number" class="form-control" id="block">
+                                                                <div class="invalid-feedback">Please enter a valid block
+                                                                    number.</div>
+                                                            </div>
+                                                            <div class="col-md-2 mb-3">
+                                                                <label for="lot" class="form-label">Lot</label>
+                                                                <input type="number" class="form-control" id="lot">
+                                                                <div class="invalid-feedback">Please enter a valid lot number.
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="houseNumber" class="form-label">House
+                                                                    Number</label>
+                                                                <input type="number" class="form-control" id="houseNumber">
+                                                                <div class="invalid-feedback">Please enter a valid house
+                                                                    number.</div>
                                                             </div>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label for="houseNumber" class="form-label">House
-                                                                Number</label>
-                                                            <input type="number" class="form-control" id="houseNumber"
-                                                                placeholder="Enter House Number">
-                                                            <div class="invalid-feedback">Please enter a valid house
-                                                                number.</div>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="street" class="form-label">Street</label>
+                                                                <input type="text" class="form-control" id="street">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="street" class="form-label">Building / Apartment / Condo</label>
+                                                                <input type="text" class="form-control" id="building_name">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="street" class="form-label">Subdivision / Village</label>
+                                                                <input type="text" class="form-control" id="subdivision_village">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="city" class="form-label">City</label>
+                                                                <select class="form-select" name="city"
+                                                                    id="city">
+                                                                    <option value="">---</option>
+                                                                    <!-- Options will be populated here -->
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="zipcode" class="form-label">Zipcode</label>
+                                                                <input type="text" class="form-control" id="zipcode">
+                                                            </div>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -418,12 +474,14 @@
                                             <h5>Vehicle Information</h5>
                                         </strong>
                                     </div>
-{{-- TEST --}}
+                                    {{-- TEST --}}
                                     <div>
                                         <div class="container mt-4">
                                             <!-- Button to trigger modal for vehicles -->
-                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vehicleModal" onclick="populateAddressDropdown()">Add Vehicle</button>
-                                        
+                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3"
+                                                data-bs-toggle="modal" data-bs-target="#vehicleModal"
+                                                onclick="populateAddressDropdown()">Add Vehicle</button>
+
                                             <!-- Table to show added vehicles -->
                                             <table class="table table-bordered">
                                                 <thead>
@@ -447,21 +505,26 @@
                                         {{-- Vehicle Array --}}
                                         <input type="hidden" id="vehiclesArrayInput" name="vehicles">
 
-                                        
+
                                         <!-- Modal for adding vehicles -->
-                                        <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+                                        <div class="modal fade" id="vehicleModal" tabindex="-1"
+                                            aria-labelledby="vehicleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
                                                         <form id="vehicleForm" novalidate>
                                                             <div class="mb-3">
                                                                 <label for="plateNo" class="form-label">Plate No.</label>
-                                                                <input type="text" class="form-control" id="plateNo" name="plateNo" placeholder="Enter Plate No." required>
-                                                                <div class="invalid-feedback">Please enter a plate number.</div>
+                                                                <input type="text" class="form-control" id="plateNo"
+                                                                    name="plateNo" placeholder="Enter Plate No." required>
+                                                                <div class="invalid-feedback">Please enter a plate number.
+                                                                </div>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label for="brand" class="form-label">Brand</label>
@@ -477,28 +540,33 @@
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label for="series" class="form-label">Series</label>
-                                                                <input type="text" class="form-control" id="series" name="series" placeholder="Enter Series" required>
+                                                                <input type="text" class="form-control" id="series"
+                                                                    name="series" placeholder="Enter Series" required>
                                                                 <div class="invalid-feedback">Please enter a series.</div>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label for="addressDropdown" class="form-label">Select Address</label>
+                                                                <label for="addressDropdown" class="form-label">Select
+                                                                    Address</label>
                                                                 <select class="form-select" id="addressDropdown" required>
                                                                     <option value="">-- Select Address --</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an address.</div>
+                                                                <div class="invalid-feedback">Please select an address.
+                                                                </div>
                                                             </div>
                                                         </form>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="button" id="saveVehicleBtn" class="btn btn-primary">Save Vehicle</button>
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" id="saveVehicleBtn"
+                                                            class="btn btn-primary">Save Vehicle</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                     </div>
-{{-- TEST --}}
+                                    {{-- TEST --}}
                                     {{-- <div>
                                         <div id="vehicle_tab" class="px-md-3">
                                             <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
@@ -701,7 +769,7 @@
                                     </div> --}}
 
 
-                                    {{-- <div class="row justify-content-center">
+                                    <div class="row justify-content-center">
                                         <div class="col-md-12 px-md-5">
                                             <div
                                                 style="padding: 1.0rem;
@@ -718,9 +786,7 @@
                                                 <strong>Valid ID's must contain your address</strong>
                                             </div>
                                         </div>
-                                    </div> --}}
-
-
+                                    </div>
                                     <div class="px-2 mt-5">
                                         <div id="requirements_table" class="table-responsive" style="display: none;">
                                             <table class="table table-bordered">
@@ -735,6 +801,7 @@
                                             </table>
                                         </div>
                                     </div>
+
                                     <div id="rules_regulation" class="px-2 px-md-0 mb-3 mt-4">
                                         <strong>
                                             <h3>Rules and Regulations</h3>
