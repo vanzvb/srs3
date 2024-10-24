@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newRow.innerHTML = `
             <td>${index + 1}</td>
-            <td>${address.category_modal}</td>
+            <td>${address.category_modal + ' / ' + address.sub_category_modal}</td>
             <td>${address.block}</td>
             <td>${address.lot}</td>
             <td>${address.houseNumber}</td>
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (row) {
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${address.category_modal}</td>
+                <td>${address.category_modal + ' / ' + address.sub_category_modal}</td>
                 <td>${address.block}</td>
                 <td>${address.lot}</td>
                 <td>${address.houseNumber}</td>
@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             editIndex = index; // Set the current index to edit
             // addressInput.value = address.addressName;
             categoryInput.value = address.category_modal;
+            subCategoryInput.value = address.sub_category_modal
             blockInput.value = address.block;
             lotInput.value = address.lot;
             houseNumberInput.value = address.houseNumber;
@@ -182,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetForm() {
         // addressInput.value = '';
         categoryInput.value = '';
-        subCategoryInput = '';
+        subCategoryInput.value = '';
         blockInput.value = '';
         lotInput.value = '';
         houseNumberInput.value = '';

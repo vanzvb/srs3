@@ -312,6 +312,8 @@
                                                                     Category</label>
                                                                 <select class="form-select" name="sub_category_modal"
                                                                     id="sub_category_modal">
+                                                                    <option value="0">Test Sub Cat</option>
+                                                                    <option value="1">Test Sub Cat2</option>
                                                                     <!-- Options will be populated here -->
                                                                 </select>
                                                             </div>
