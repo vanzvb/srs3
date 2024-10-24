@@ -266,6 +266,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Category/Sub Category</th>
+                                                    <th>HOA/Member Type</th>
                                                     <th>Block</th>
                                                     <th>Lot</th>
                                                     <th>House Number</th>
@@ -275,7 +276,7 @@
                                             <tbody id="addressesTable">
                                                 <!-- Addresses will appear here -->
                                                 <tr>
-                                                    <td colspan="6" class="text-center">No Address</td>
+                                                    <td colspan="7" class="text-center">No Address</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -319,21 +320,25 @@
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="HOA" class="form-label">HOA</label>
-                                                                <select class="form-select" name="HOA"
-                                                                    id="HOA">
-                                                                    <option value="">---</option>
-                                                                    <!-- Options will be populated here -->
+                                                                <label for="HOA_modal" class="form-label">HOA</label>
+                                                                <select class="form-select" name="HOA_modal"
+                                                                    id="HOA_modal">
+                                                                    @foreach ($hoas as $hoa)
+                                                                        <option value="{{ $hoa->id }}" data-name="{{ $hoa->name }}">
+                                                                            {{ $hoa->name }}</option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="member_type" class="form-label">Member Type</label>
-                                                                <select class="form-select" name="member_type"
-                                                                    id="member_type">
-                                                                    <option value="">---</option>
-                                                                    <!-- Options will be populated here -->
+                                                                <label for="member_type_modal" class="form-label">Member Type</label>
+                                                                <select class="form-select" name="member_type_modal"
+                                                                    id="member_type_modal">
+                                                                    @foreach ($hoatypes as $hoatype)
+                                                                        <option value="{{ $hoatype->id }}" data-name="{{ $hoatype->name }}">
+                                                                            {{ $hoatype->name }}</option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-2 mb-3">

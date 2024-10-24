@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const houseNumberInput = document.getElementById('houseNumber');
     const categoryInput = document.getElementById('category_modal');
     const subCategoryInput = document.getElementById('sub_category_modal');
+    const hoaInput = document.getElementById('HOA_modal');
+    const memberTypeInput = document.getElementById('member_type_modal');
 
     
 
@@ -28,10 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 block: blockInput.value.trim(),
                 lot: lotInput.value.trim(),
                 houseNumber: houseNumberInput.value.trim(),
+
                 category_modal: categoryInput.value.trim(),
-                category_name: categoryInput.options[categoryInput.selectedIndex].getAttribute('data-name'), // Get category name
+                category_name: categoryInput.options[categoryInput.selectedIndex].getAttribute('data-name'), 
+
                 sub_category_modal: subCategoryInput.value.trim(),
-                sub_category_name: subCategoryInput.options[subCategoryInput.selectedIndex].getAttribute('data-name'), // Get sub-category name
+                sub_category_name: subCategoryInput.options[subCategoryInput.selectedIndex].getAttribute('data-name'), 
+
+                HOA_modal: hoaInput.value.trim(),
+                HOA_modal_name: hoaInput.options[hoaInput.selectedIndex].getAttribute('data-name'),
+
+                member_type_modal: memberTypeInput.value.trim(),
+                member_type_modal_name: memberTypeInput.options[memberTypeInput.selectedIndex].getAttribute('data-name'), 
             };
 
             if (editIndex === null) {
@@ -73,7 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newRow.innerHTML = `
             <td>${index + 1}</td>
-             <td>${address.category_name} / ${address.sub_category_name}</td>
+            <td>${address.category_name} / ${address.sub_category_name}</td>
+            <td>${address.HOA_modal_name} / ${address.member_type_modal_name}</td>
             <td>${address.block}</td>
             <td>${address.lot}</td>
             <td>${address.houseNumber}</td>
@@ -100,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (row) {
             row.innerHTML = `
                 <td>${index + 1}</td>
-                 <td>${address.category_name} / ${address.sub_category_name}</td>
+                <td>${address.category_name} / ${address.sub_category_name}</td>
+                <td>${address.HOA_modal_name} / ${address.member_type_modal_name}</td>
                 <td>${address.block}</td>
                 <td>${address.lot}</td>
                 <td>${address.houseNumber}</td>
@@ -129,6 +141,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // addressInput.value = address.addressName;
             categoryInput.value = address.category_modal;
             subCategoryInput.value = address.sub_category_modal
+
+            hoaInput.value = address.HOA_modal;
+            memberTypeInput.value = address.member_type_modal
+
             blockInput.value = address.block;
             lotInput.value = address.lot;
             houseNumberInput.value = address.houseNumber;
@@ -188,6 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // addressInput.value = '';
         categoryInput.value = '';
         subCategoryInput.value = '';
+        hoaInput.value = '';
+        memberTypeInput.value = '';
         blockInput.value = '';
         lotInput.value = '';
         houseNumberInput.value = '';

@@ -244,19 +244,22 @@ class SrsRequestController extends Controller
     {
         // $categories = SPCCategory::where('status', 1)->get();
         $categories = CRMXICategory::select('id', 'name')->get();
+        
+        $hoas = DB::select('SELECT * FROM crmxi3_hoas');
+
         $subcats = DB::select('SELECT * FROM get_subcat');
-        // $hoas = SrsHoa::orderBy('name')->get();
+
+        $hoatypes = DB::select('SELECT * FROM get_hoa_types');
+
         $cities = DB::table('crmx_bl_city')->where('status', 1)->get();
 
         $civilStatus = DB::table('crmxi3_civil_status')->get();
 
         $nationalities = DB::table('crmxi3_nationalities')->get();
 
-        // $civilStatuses = CRMXICivilStatus::all();
-
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'cities', 'civilStatus', 'nationalities','tempId'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes','cities', 'hoas','civilStatus', 'nationalities','tempId'));
         // return view('srs.request.create', compact('cities'));
     }
 
