@@ -53,8 +53,8 @@
                                         <div class="form-floating">
                                             <select class="form-select" name="account_type" id="account_type"
                                                 onclick="toggleFields()">
-                                                <option value="individual" selected>Individual</option>
-                                                <option value="company">Company</option>
+                                                <option value="0" selected>Individual</option>
+                                                <option value="1">Company</option>
                                             </select>
                                             <label for="account_type">Account Type</label>
                                         </div>
@@ -198,10 +198,10 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-floating">
-                                                    <input type="text" class="form-control" id="tin"
-                                                        name="tin" placeholder="Middle Name"
-                                                        value="{{ old('tin') }}" required>
-                                                    <label for="tin" class="form-label" style="color: grey;">TIN
+                                                    <input type="text" class="form-control" id="tin_no"
+                                                        name="tin_no" placeholder="Middle Name"
+                                                        value="{{ old('tin_no') }}" required>
+                                                    <label for="tin_no" class="form-label" style="color: grey;">TIN
                                                         NO</label>
                                                 </div>
                                             </div>
@@ -267,16 +267,14 @@
                                                     <th>#</th>
                                                     <th>Category/Sub Category</th>
                                                     <th>HOA/Member Type</th>
-                                                    <th>Block</th>
-                                                    <th>Lot</th>
-                                                    <th>House Number</th>
+                                                    <th>Address</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="addressesTable">
                                                 <!-- Addresses will appear here -->
                                                 <tr>
-                                                    <td colspan="7" class="text-center">No Address</td>
+                                                    <td colspan="5" class="text-center">No Address</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -298,12 +296,14 @@
                                                     <form id="addressForm" novalidate>
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="category_modal" class="form-label">Category</label>
-                                                                <select name="category_modal" id="category_modal" class="form-select"
-                                                                    class="form-select">
+                                                                <label for="category_modal"
+                                                                    class="form-label">Category</label>
+                                                                <select name="category_modal" id="category_modal"
+                                                                    class="form-select" class="form-select">
                                                                     {{-- <option value="">---</option> --}}
                                                                     @foreach ($categories as $category)
-                                                                        <option value="{{ $category->id }}" data-name="{{ $category->name }}">
+                                                                        <option value="{{ $category->id }}"
+                                                                            data-name="{{ $category->name }}">
                                                                             {{ $category->name }}</option>
                                                                     @endforeach
                                                                 </select>
@@ -311,10 +311,11 @@
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="sub_category_modal" class="form-label">Sub
                                                                     Category</label>
-                                                                <select class="form-select" name="sub_category_modal" class="form-select"
-                                                                    id="sub_category_modal">
+                                                                <select class="form-select" name="sub_category_modal"
+                                                                    class="form-select" id="sub_category_modal">
                                                                     @foreach ($subcats as $subcat)
-                                                                        <option value="{{ $subcat->id }}" data-name="{{ $subcat->name }}">
+                                                                        <option value="{{ $subcat->id }}"
+                                                                            data-name="{{ $subcat->name }}">
                                                                             {{ $subcat->name }}</option>
                                                                     @endforeach
                                                                 </select>
@@ -324,7 +325,8 @@
                                                                 <select class="form-select" name="HOA_modal"
                                                                     id="HOA_modal">
                                                                     @foreach ($hoas as $hoa)
-                                                                        <option value="{{ $hoa->id }}" data-name="{{ $hoa->name }}">
+                                                                        <option value="{{ $hoa->id }}"
+                                                                            data-name="{{ $hoa->name }}">
                                                                             {{ $hoa->name }}</option>
                                                                     @endforeach
                                                                 </select>
@@ -332,61 +334,81 @@
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="member_type_modal" class="form-label">Member Type</label>
+                                                                <label for="member_type_modal" class="form-label">Member
+                                                                    Type</label>
                                                                 <select class="form-select" name="member_type_modal"
                                                                     id="member_type_modal">
                                                                     @foreach ($hoatypes as $hoatype)
-                                                                        <option value="{{ $hoatype->id }}" data-name="{{ $hoatype->name }}">
+                                                                        <option value="{{ $hoatype->id }}"
+                                                                            data-name="{{ $hoatype->name }}">
                                                                             {{ $hoatype->name }}</option>
                                                                     @endforeach
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-2 mb-3">
                                                                 <label for="block" class="form-label">Block</label>
-                                                                <input type="number" class="form-control" id="block">
+                                                                <input type="number" class="form-control"
+                                                                    id="block">
                                                                 <div class="invalid-feedback">Please enter a valid block
                                                                     number.</div>
                                                             </div>
                                                             <div class="col-md-2 mb-3">
                                                                 <label for="lot" class="form-label">Lot</label>
-                                                                <input type="number" class="form-control" id="lot">
-                                                                <div class="invalid-feedback">Please enter a valid lot number.
+                                                                <input type="number" class="form-control"
+                                                                    id="lot">
+                                                                <div class="invalid-feedback">Please enter a valid lot
+                                                                    number.
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="houseNumber" class="form-label">House
                                                                     Number</label>
-                                                                <input type="number" class="form-control" id="houseNumber">
+                                                                <input type="number" class="form-control"
+                                                                    id="houseNumber">
                                                                 <div class="invalid-feedback">Please enter a valid house
                                                                     number.</div>
                                                             </div>
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="street" class="form-label">Street</label>
-                                                                <input type="text" class="form-control" id="street">
+                                                                <label for="street_modal"
+                                                                    class="form-label">Street</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="street_modal">
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="street" class="form-label">Building / Apartment / Condo</label>
-                                                                <input type="text" class="form-control" id="building_name">
+                                                                <label for="building_name_modal"
+                                                                    class="form-label">Building / Apartment / Condo</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="building_name_modal">
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="street" class="form-label">Subdivision / Village</label>
-                                                                <input type="text" class="form-control" id="subdivision_village">
+                                                                <label for="subdivision_village_modal"
+                                                                    class="form-label">Subdivision / Village</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="subdivision_village_modal">
                                                             </div>
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="city" class="form-label">City</label>
-                                                                <select class="form-select" name="city"
-                                                                    id="city">
-                                                                    <option value="">---</option>
+                                                                <label for="city_modal" class="form-label">City</label>
+                                                                <select class="form-select" name="city_modal"
+                                                                    id="city_modal">
+                                                                    <option value =''>---</option>
+                                                                    @foreach ($cities as $city)
+                                                                        <option value="{{ $city->bl_id }}"
+                                                                            data-name="{{ $city->description }}">
+                                                                            {{ $city->description }}</option>
+                                                                    @endforeach
                                                                     <!-- Options will be populated here -->
+
+                                                                    
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="zipcode" class="form-label">Zipcode</label>
-                                                                <input type="text" class="form-control" id="zipcode">
+                                                                <label for="zipcode_modal" class="form-label">Zipcode</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="zipcode_modal">
                                                             </div>
                                                         </div>
                                                     </form>

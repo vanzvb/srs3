@@ -240,9 +240,9 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        // dd($request);
+        dd($request);
         $data = $request->validated();
-
+        
         if ($data['category'] == 1) {
             $sub_cats = DB::table('spc_subcat')
             ->where('category_id', 1)

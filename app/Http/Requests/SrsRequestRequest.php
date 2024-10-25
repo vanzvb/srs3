@@ -84,6 +84,9 @@ class SrsRequestRequest extends FormRequest
             'other_documents_3' => 'file|mimes:jpg,png,jpeg|max:5120',
             'nbi_police_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
             'general_information_sheet' => 'file|mimes:jpg,png,jpeg|max:5120',
+            // Validation 3.0
+
+            
         ];
     }
 

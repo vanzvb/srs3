@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const addressesTable = document.getElementById('addressesTable');
     const addressesArrayInput = document.getElementById('addressesArray');
 
-    // const addressInput = document.getElementById('addressName');
     const blockInput = document.getElementById('block');
     const lotInput = document.getElementById('lot');
     const houseNumberInput = document.getElementById('houseNumber');
@@ -19,7 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const hoaInput = document.getElementById('HOA_modal');
     const memberTypeInput = document.getElementById('member_type_modal');
 
-    
+    const streetInput = document.getElementById('street_modal');
+    const buildingNameInput = document.getElementById('building_name_modal');
+    const subdivisionVillageInput = document.getElementById('subdivision_village_modal');
+
+    const cityInput = document.getElementById('city_modal');
+    const zipcodeInput = document.getElementById('zipcode_modal');
 
     saveAddressBtn.addEventListener('click', function() {
         let isValid = validateForm();
@@ -42,6 +46,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 member_type_modal: memberTypeInput.value.trim(),
                 member_type_modal_name: memberTypeInput.options[memberTypeInput.selectedIndex].getAttribute('data-name'), 
+
+                street_modal: streetInput.value.trim(),
+                building_name_modal: buildingNameInput.value.trim(),
+                subdivision_village_modal: subdivisionVillageInput.value.trim(),
+
+                city_modal: cityInput.value.trim(),
+                zipcode_modal: zipcodeInput.value.trim(),
+
             };
 
             if (editIndex === null) {
@@ -85,9 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${index + 1}</td>
             <td>${address.category_name} / ${address.sub_category_name}</td>
             <td>${address.HOA_modal_name} / ${address.member_type_modal_name}</td>
-            <td>${address.block}</td>
-            <td>${address.lot}</td>
-            <td>${address.houseNumber}</td>
+            <td>${ 'Block : ' + address.block + ' Lot : ' + address.lot + ', ' + address.houseNumber + ', ' + address.street_modal 
+                + ', ' + address.building_name_modal + ', ' + address.subdivision_village_modal + ', ' + address.HOA_modal_name
+                + ', ' + address.city_modal + ', ' + address.zipcode_modal}
+            </td>
             <td>
                 <button class="btn btn-sm btn-warning editAddressBtn">Edit</button>
                 <button class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
@@ -113,9 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${index + 1}</td>
                 <td>${address.category_name} / ${address.sub_category_name}</td>
                 <td>${address.HOA_modal_name} / ${address.member_type_modal_name}</td>
-                <td>${address.block}</td>
-                <td>${address.lot}</td>
-                <td>${address.houseNumber}</td>
+                <td>${ 'Block : ' + address.block + ' Lot : ' + address.lot + ', ' + address.houseNumber + ', ' + address.street_modal 
+                    + ', ' + address.building_name_modal + ', ' + address.subdivision_village_modal + ', ' + address.HOA_modal_name
+                    + ', ' + address.city_modal + ', ' + address.zipcode_modal}
+                </td>
                 <td>
                     <button class="btn btn-sm btn-warning editAddressBtn">Edit</button>
                     <button class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
@@ -148,6 +162,13 @@ document.addEventListener('DOMContentLoaded', function() {
             blockInput.value = address.block;
             lotInput.value = address.lot;
             houseNumberInput.value = address.houseNumber;
+
+            streetInput.value = address.street_modal;
+            buildingNameInput.value = address.building_name_modal;
+            subdivisionVillageInput.value = address.subdivision_village_modal;
+
+            cityInput.value = address.city_modal;
+            zipcodeInput.value = address.zipcode_modal;
 
             const modalInstance = bootstrap.Modal.getOrCreateInstance(addressModal);
             modalInstance.show();
@@ -209,6 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
         blockInput.value = '';
         lotInput.value = '';
         houseNumberInput.value = '';
+        streetInput.value = '';
+        buildingNameInput.value  = '';
+        subdivisionVillageInput.value = '';
+        cityInput.value  = '';
+        zipcodeInput.value = '';
+
         editIndex = null;
     }
 
