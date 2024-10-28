@@ -24,6 +24,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const secondaryContactInput = document.getElementById('secondary_contact_no_modal');
     const tertiaryContactInput = document.getElementById('tertiary_contact_no_modal');
 
+    const populateFromIndividualCheckbox = document.getElementById('populateFromIndividual');
+
+    // Event listener for the checkbox
+    populateFromIndividualCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            // Populate modal fields with values from individual fields
+            firstNameInput.value = document.getElementById('first_name').value;
+            middleNameInput.value = document.getElementById('middle_name').value;
+            lastNameInput.value = document.getElementById('last_name').value;
+            mainContactInput.value = document.getElementById('contact_no').value;
+            secondaryContactInput.value = document.getElementById('secondary_contact_no').value;
+            tertiaryContactInput.value = document.getElementById('tertiary_contact_no').value;
+            // Optionally clear the secondary and tertiary contacts if desired
+            // document.getElementById('secondary_contact_no').value = '';
+            // document.getElementById('tertiary_contact_no').value = '';
+        } else {
+            // Clear modal fields
+            firstNameInput.value = '';
+            middleNameInput.value = '';
+            lastNameInput.value = '';
+            mainContactInput.value = '';
+            secondaryContactInput = '';
+            tertiaryContactInput = '';
+        }
+    });
+
     // Function to update the table based on vehiclesArray
     function updateVehicleTable() {
         vehiclesTable.innerHTML = ''; // Clear the table body
@@ -145,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
         firstNameInput.classList.remove('is-invalid');
         lastNameInput.classList.remove('is-invalid');
         mainContactInput.classList.remove('is-invalid');
-        
+
         addressDropdown.classList.remove('is-invalid');
 
         if (!plateNoInput.value.trim()) {

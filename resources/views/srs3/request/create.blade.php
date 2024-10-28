@@ -632,6 +632,10 @@
                                                             </div>
                                                             <br>
                                                             <h5>Onwer Infomation</h5>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" id="populateFromIndividual" />
+                                                                <label class="form-check-label" for="populateFromIndividual">Use Individual Fields</label>
+                                                            </div>
 
                                                             <div class="row mb-3">
                                                                 <div class="col">
