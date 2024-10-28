@@ -1149,4 +1149,27 @@
             }
         }
     </script>
+
+    {{--  --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let categoryModalSelect = document.getElementById('category_modal');
+            categoryModalSelect.addEventListener('change', handleModalCategoryChange);
+            handleModalCategoryChange(); // Check on modal load
+        });
+    
+        function handleModalCategoryChange() {
+            let categoryModalSelect = document.getElementById('category_modal');
+            let hoaModalSelect = document.getElementById('HOA_modal');
+    
+            if (categoryModalSelect.value == '2') {
+                hoaModalSelect.disabled = true;
+                hoaModalSelect.value = ''; // Clear selection if disabled
+            } else {
+                hoaModalSelect.disabled = false;
+            }
+        }
+    </script>
+    
 @endsection

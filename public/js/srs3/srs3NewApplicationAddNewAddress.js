@@ -42,7 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 sub_category_name: subCategoryInput.options[subCategoryInput.selectedIndex].getAttribute('data-name'), 
 
                 HOA_modal: hoaInput.value.trim(),
-                HOA_modal_name: hoaInput.options[hoaInput.selectedIndex].getAttribute('data-name'),
+                // HOA_modal_name: hoaInput.options[hoaInput.selectedIndex].getAttribute('data-name'),
+                HOA_modal_name: (!hoaInput.disabled && hoaInput.selectedIndex !== -1) 
+                ? hoaInput.options[hoaInput.selectedIndex].getAttribute('data-name') 
+                : '', // Set to 0 if disabled or no option selected
 
                 member_type_modal: memberTypeInput.value.trim(),
                 member_type_modal_name: memberTypeInput.options[memberTypeInput.selectedIndex].getAttribute('data-name'), 
