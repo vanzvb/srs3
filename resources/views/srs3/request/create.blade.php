@@ -63,8 +63,7 @@
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="input-group" style="height: 100%;">
                                             <label for="" class="input-group-text">Request for</label>
-                                            <select name="category" id="category" class="form-select"
-                                                onchange="changeSubCategories()">
+                                            <select name="category" id="category" class="form-select">
                                                 @foreach ($categories as $category)
                                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                                                 @endforeach
@@ -72,22 +71,42 @@
                                         </div>
                                     </div>
 
-                                    <!-- Second Row -->
-                                    <div class="col-md-6 col-12 mt-2">
+                                    {{-- Old sub cat, have onload value --}}
+                                    {{-- <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="sub_category" id="sub_category"
                                                 placeholder="Category" onchange="getRequirements()">
-                                                <!-- Options will be populated here -->
                                             </select>
                                             <label for="sub_categories">Sub-Category</label>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-12 mt-2" id="hoa_tab">
+                                    </div> --}}
+
+                                    {{-- Old Hoa, connected to file attachements --}}
+                                    {{-- <div class="col-md-6 col-12 mt-2" id="hoa_tab">
                                         <div class="form-floating">
                                             <select class="form-select" name="hoa" id="hoa" required>
                                                 <!-- Options will be populated here -->
                                             </select>
                                             <label for="hoa" class="form-label" id="hoa_label">HOA</label>
+                                        </div>
+                                    </div> --}}
+
+                                    <!-- Second Row -->
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="sub_category_1" id="sub_category_1">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12 mt-2" id="hoa_tab">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="hoa_1" id="hoa_1" required>
+                                                @foreach ($hoas as $hoa)
+                                                    <option value="{{ $hoa->id }}">
+                                                        {{ $hoa->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -402,11 +421,12 @@
                                                                     @endforeach
                                                                     <!-- Options will be populated here -->
 
-                                                                    
+
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
-                                                                <label for="zipcode_modal" class="form-label">Zipcode</label>
+                                                                <label for="zipcode_modal"
+                                                                    class="form-label">Zipcode</label>
                                                                 <input type="text" class="form-control"
                                                                     id="zipcode_modal">
                                                             </div>
@@ -1077,4 +1097,56 @@
     <script src="{{ asset('js/srs3/srs3NewApplicationAddNewAddress.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3PopulateDropdownWithAddress.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplicationAddNewVehicle.js') }}"></script>
+    {{-- <script src="{{ asset('js/srs3/srs3NewApplicationChangeSubCat.js') }}"></script> --}}
+
+    {{-- Pivot of category to sub cat --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger the fetch when the page loads with the current category value
+            let categoryId = document.getElementById('category').value;
+            fetchSubCategories(categoryId);
+        });
+
+        document.getElementById('category').addEventListener('change', function() {
+            fetchSubCategories(this.value);
+        });
+
+        function fetchSubCategories(categoryId) {
+            fetch(`/v3/sticker/request/sub_categories?category_id=${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let subCategorySelect = document.getElementById('sub_category_1');
+                    subCategorySelect.innerHTML = ''; // Clear current options
+
+                    data.forEach(subcat => {
+                        let option = document.createElement('option');
+                        option.value = subcat.id;
+                        option.text = subcat.name;
+                        subCategorySelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching subcategories:', error));
+        }
+    </script>
+
+    {{-- Disable HOA if category is (2) NON-RESIDENT --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let categorySelect = document.getElementById('category');
+            categorySelect.addEventListener('change', handleCategoryChange);
+            handleCategoryChange(); // Check on page load
+        });
+    
+        function handleCategoryChange() {
+            let categorySelect = document.getElementById('category');
+            let hoaSelect = document.getElementById('hoa_1');
+    
+            if (categorySelect.value == '2') {
+                hoaSelect.disabled = true;
+                hoaSelect.value = ''; // Clear selection if disabled
+            } else {
+                hoaSelect.disabled = false;
+            }
+        }
+    </script>
 @endsection

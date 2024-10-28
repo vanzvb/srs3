@@ -1538,6 +1538,14 @@ class SrsRequestController extends Controller
         return $subCategories;
     }
 
+    public function getSubCategoriesV3(Request $request)
+    {
+        $categoryId = $request->query('category_id');
+        $subcategories = DB::table('get_subcat')->where('category_id', $categoryId)->get();
+        
+        return response()->json($subcategories);
+    }
+
     public function getRequirements(Request $request)
     {
         if (!$request->ajax()) {
