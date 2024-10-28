@@ -527,12 +527,10 @@
                                     {{-- TEST --}}
                                     <div>
                                         <div class="container mt-4">
-                                            <!-- Button to trigger modal for vehicles -->
                                             <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3"
                                                 data-bs-toggle="modal" data-bs-target="#vehicleModal"
                                                 onclick="populateAddressDropdown()">Add Vehicle</button>
 
-                                            <!-- Table to show added vehicles -->
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
@@ -544,7 +542,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="vehiclesTable">
-                                                    <!-- Vehicles will appear here -->
                                                     <tr>
                                                         <td colspan="5" class="text-center">No Vehicle</td>
                                                     </tr>
@@ -552,14 +549,11 @@
                                             </table>
                                         </div>
 
-                                        {{-- Vehicle Array --}}
                                         <input type="hidden" id="vehiclesArrayInput" name="vehicles">
 
-
-                                        <!-- Modal for adding vehicles -->
                                         <div class="modal fade" id="vehicleModal" tabindex="-1"
                                             aria-labelledby="vehicleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
+                                            <div class="modal-dialog modal-xl">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle
@@ -569,31 +563,74 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <form id="vehicleForm" novalidate>
-                                                            <div class="mb-3">
-                                                                <label for="plateNo" class="form-label">Plate No.</label>
-                                                                <input type="text" class="form-control" id="plateNo"
-                                                                    name="plateNo" placeholder="Enter Plate No." required>
-                                                                <div class="invalid-feedback">Please enter a plate number.
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="plateNo" class="form-label">Plate
+                                                                        No.</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="plateNo" name="plateNo"
+                                                                        placeholder="Enter Plate No." required>
+                                                                    <div class="invalid-feedback">Please enter a plate
+                                                                        number.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="year_model"
+                                                                        class="form-label">Year/Model</label>
+                                                                    <select class="form-select" id="year_model"
+                                                                        name="year_model" required>
+                                                                        <option value="" disabled selected>Select
+                                                                            Year</option>
+                                                                        @foreach ($years as $year)
+                                                                            <option value="{{ $year }}">
+                                                                                {{ $year }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="series"
+                                                                        class="form-label">Series</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="series" name="series"
+                                                                        placeholder="Enter Series" required>
+                                                                    <div class="invalid-feedback">Please enter a series.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="vehicle_type" class="form-label">Type</label>
+                                                                    <select class="form-select" id="vehicle_type" required>
+                                                                        <option value="">Select Type</option>
+                                                                        <option value="Car">Car</option>
+                                                                        <option value="Motorcycle">Motorcycle</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label for="brand" class="form-label">Brand</label>
-                                                                <select class="form-select" id="brand" required>
-                                                                    <option value="">Select Brand</option>
-                                                                    <option value="Toyota">Toyota</option>
-                                                                    <option value="Honda">Honda</option>
-                                                                    <option value="Ford">Ford</option>
-                                                                    <option value="Chevrolet">Chevrolet</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                                <div class="invalid-feedback">Please select a brand.</div>
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="brand" class="form-label">Brand</label>
+                                                                    <select class="form-select" id="brand" required>
+                                                                        <option disabled selected value=""
+                                                                        style="color: grey;">Select brand</option>
+                                                                        <option value="Abarth">Abarth</option>
+                                                                        <option value="Alfa Romeo">Alfa Romeo</option>
+                                                                        <option value="Aprilia">Aprilia</option>
+                                                                        <option value="Aston Martin">Aston Martin</option>
+                                                                    </select>
+                                                                    <div class="invalid-feedback">Please select a brand.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="color" class="form-label">Color</label>
+                                                                    <select class="form-select" id="color" required>
+                                                                        <option disabled selected value=""
+                                                                        style="color: grey;">Select color</option>
+                                                                        <option value="Red">Red</option>
+                                                                        <option value="Blue">Blue</option>
+                                                                        <option value="Green">Green</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label for="series" class="form-label">Series</label>
-                                                                <input type="text" class="form-control" id="series"
-                                                                    name="series" placeholder="Enter Series" required>
-                                                                <div class="invalid-feedback">Please enter a series.</div>
-                                                            </div>
+
                                                             <div class="mb-3">
                                                                 <label for="addressDropdown" class="form-label">Select
                                                                     Address</label>
@@ -617,6 +654,8 @@
 
                                     </div>
                                     {{-- TEST --}}
+
+
                                     {{-- <div>
                                         <div id="vehicle_tab" class="px-md-3">
                                             <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
@@ -1136,11 +1175,11 @@
             categorySelect.addEventListener('change', handleCategoryChange);
             handleCategoryChange(); // Check on page load
         });
-    
+
         function handleCategoryChange() {
             let categorySelect = document.getElementById('category');
             let hoaSelect = document.getElementById('hoa_1');
-    
+
             if (categorySelect.value == '2') {
                 hoaSelect.disabled = true;
                 hoaSelect.value = ''; // Clear selection if disabled
@@ -1158,11 +1197,11 @@
             categoryModalSelect.addEventListener('change', handleModalCategoryChange);
             handleModalCategoryChange(); // Check on modal load
         });
-    
+
         function handleModalCategoryChange() {
             let categoryModalSelect = document.getElementById('category_modal');
             let hoaModalSelect = document.getElementById('HOA_modal');
-    
+
             if (categoryModalSelect.value == '2') {
                 hoaModalSelect.disabled = true;
                 hoaModalSelect.value = ''; // Clear selection if disabled
@@ -1171,5 +1210,5 @@
             }
         }
     </script>
-    
+
 @endsection

@@ -244,6 +244,7 @@ class SrsRequestController extends Controller
     public function create()
     {
         // $categories = SPCCategory::where('status', 1)->get();
+        // Account Info
         $categories = CRMXICategory::select('id', 'name')->get();
 
         $hoas = DB::select('SELECT * FROM crmxi3_hoas');
@@ -258,9 +259,14 @@ class SrsRequestController extends Controller
 
         $nationalities = DB::table('crmxi3_nationalities')->get();
 
+        // Vehicle
+
+        $currentYear = date('Y');
+        $years = range($currentYear, 1975);
+
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId','years'));
         // return view('srs.request.create', compact('cities'));
     }
 
