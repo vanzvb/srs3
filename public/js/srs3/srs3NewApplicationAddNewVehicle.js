@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const plateNoInput = document.getElementById('plateNo');
     const brandInput = document.getElementById('brand');
     const seriesInput = document.getElementById('series');
+    const yearModelInput = document.getElementById('year_model'); // Added
+    const colorInput = document.getElementById('color'); // Added
+    const vehicleTypeInput = document.getElementById('vehicle_type'); // Added
 
     // Function to update the table based on vehiclesArray
     function updateVehicleTable() {
@@ -38,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 plateNo: plateNoInput.value.trim(),
                 brand: brandInput.value.trim(),
                 series: seriesInput.value.trim(),
+                year_model: yearModelInput.value, // Get selected year model
+                color: colorInput.value, // Get selected color
+                vehicle_type: vehicleTypeInput.value, // Get selected vehicle type
                 addressIndex: addressDropdown.value // Get selected address index
             };
 
@@ -59,10 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVehicleTable(); // Update the table to reflect changes
         }
     });
-
-    // addressDropdown.addEventListener('change', function() {
-    //     console.log("Dropdown Changed, Selected Address Index: ", addressDropdown.value);
-    // });
 
     // Function to add a new row to the vehicle table
     function addVehicleRow(vehicle, index) {
@@ -105,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
             plateNoInput.value = vehicle.plateNo;
             brandInput.value = vehicle.brand;
             seriesInput.value = vehicle.series;
+            yearModelInput.value = vehicle.year_model; // Load year model
+            colorInput.value = vehicle.color; // Load color
+            vehicleTypeInput.value = vehicle.vehicle_type; // Load vehicle type
             addressDropdown.value = vehicle.addressIndex;
 
             const modalInstance = bootstrap.Modal.getOrCreateInstance(vehicleModal);
@@ -118,6 +123,9 @@ document.addEventListener('DOMContentLoaded', function() {
         plateNoInput.classList.remove('is-invalid');
         brandInput.classList.remove('is-invalid');
         seriesInput.classList.remove('is-invalid');
+        yearModelInput.classList.remove('is-invalid'); // Added
+        colorInput.classList.remove('is-invalid'); // Added
+        vehicleTypeInput.classList.remove('is-invalid'); // Added
 
         if (!plateNoInput.value.trim()) {
             plateNoInput.classList.add('is-invalid');
@@ -129,6 +137,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!seriesInput.value.trim()) {
             seriesInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!yearModelInput.value) { // Added validation for year model
+            yearModelInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!colorInput.value) { // Added validation for color
+            colorInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!vehicleTypeInput.value) { // Added validation for vehicle type
+            vehicleTypeInput.classList.add('is-invalid');
             isValid = false;
         }
         if (!addressDropdown.value) {
@@ -144,6 +164,9 @@ document.addEventListener('DOMContentLoaded', function() {
         plateNoInput.value = '';
         brandInput.value = '';
         seriesInput.value = '';
+        yearModelInput.value = ''; // Reset year model
+        colorInput.value = ''; // Reset color
+        vehicleTypeInput.value = ''; // Reset vehicle type
         addressDropdown.value = '';
         editVehicleIndex = null; // Reset the edit index
     }
