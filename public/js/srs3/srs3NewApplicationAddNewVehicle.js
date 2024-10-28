@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tertiaryContactInput = document.getElementById('tertiary_contact_no_modal');
 
     const populateFromIndividualCheckbox = document.getElementById('populateFromIndividual');
+    const useIndividualFieldsInput = document.getElementById('useIndividualFields');
 
     // Event listener for the checkbox
     populateFromIndividualCheckbox.addEventListener('change', function() {
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Optionally clear the secondary and tertiary contacts if desired
             // document.getElementById('secondary_contact_no').value = '';
             // document.getElementById('tertiary_contact_no').value = '';
+            useIndividualFieldsInput.value = '1';
         } else {
             // Clear modal fields
             firstNameInput.value = '';
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainContactInput.value = '';
             secondaryContactInput = '';
             tertiaryContactInput = '';
+            useIndividualFieldsInput.value = '0';
         }
     });
 

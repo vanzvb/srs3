@@ -634,7 +634,7 @@
                                                             <h5>Onwer Infomation</h5>
                                                             <div class="form-check">
                                                                 <input class="form-check-input" type="checkbox" id="populateFromIndividual" />
-                                                                <label class="form-check-label" for="populateFromIndividual">Use Individual Fields</label>
+                                                                <label class="form-check-label" for="populateFromIndividual">Same as Account</label>
                                                             </div>
 
                                                             <div class="row mb-3">
@@ -667,14 +667,36 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="mb-3">
-                                                                <label for="addressDropdown" class="form-label">Select
-                                                                    Address</label>
-                                                                <select class="form-select" id="addressDropdown" required>
-                                                                    <option value="">-- Select Address --</option>
-                                                                </select>
-                                                                <div class="invalid-feedback">Please select an address.
+                                                            <br>
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="addressDropdown" class="form-label">Select
+                                                                        Address</label>
+                                                                    <select class="form-select" id="addressDropdown" required>
+                                                                        <option value="">-- Select Address --</option>
+                                                                    </select>
+                                                                    <div class="invalid-feedback">Please select an address.
+                                                                    </div>
                                                                 </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="vehicle_ownership_type_modal"
+                                                                        class="form-label">Vehicle Ownership Type</label>
+                                                                    <select class="form-select" id="vehicle_ownership_type_modal"
+                                                                        name="vehicle_ownership_type_modal" required>
+                                                                        <option value="" disabled selected>Select Here...</option>
+                                                                        @foreach ($vehicleOwnershipTypes as $type)
+                                                                            <option value="{{ $type->id }}">
+                                                                                {{ $type->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mb-3">
+
+                                                            </div>
+                                                            <div>
+                                                                
                                                             </div>
                                                         </form>
                                                     </div>

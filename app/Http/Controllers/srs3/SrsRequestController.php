@@ -259,6 +259,8 @@ class SrsRequestController extends Controller
 
         $nationalities = DB::table('crmxi3_nationalities')->get();
 
+        $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
+
         // Vehicle
 
         $currentYear = date('Y');
@@ -266,7 +268,7 @@ class SrsRequestController extends Controller
 
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId','years'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId','years','vehicleOwnershipTypes'));
         // return view('srs.request.create', compact('cities'));
     }
 
