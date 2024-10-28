@@ -632,7 +632,37 @@
                                                             </div>
                                                             <br>
                                                             <h5>Onwer Infomation</h5>
-                                                            <div>
+
+                                                            <div class="row mb-3">
+                                                                <div class="col">
+                                                                    <label for="first_name_modal">First Name</label>
+                                                                    <input type="text" class="form-control" id="first_name_modal" placeholder="Enter first name">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="middle_name_modal">Middle Name</label>
+                                                                    <input type="text" class="form-control" id="middle_name_modal" placeholder="Enter middle name">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="last_name_modal">Last Name</label>
+                                                                    <input type="text" class="form-control" id="last_name_modal" placeholder="Enter last name">
+                                                                </div>
+                                                            </div>
+                                                        
+                                                            <div class="row mb-3">
+                                                                <div class="col">
+                                                                    <label for="main_contact_no_modal">Main Contact No</label>
+                                                                    <input type="text" class="form-control" id="main_contact_no_modal" placeholder="Enter main contact number">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="secondary_contact_no_modal">Secondary Contact No</label>
+                                                                    <input type="text" class="form-control" id="secondary_contact_no_modal" placeholder="Enter secondary contact number">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="tertiary_contact_no_modal">Tertiary Contact No</label>
+                                                                    <input type="text" class="form-control" id="tertiary_contact_no_modal" placeholder="Enter tertiary contact number">
+                                                                </div>
+                                                            </div>
+
                                                             <div class="mb-3">
                                                                 <label for="addressDropdown" class="form-label">Select
                                                                     Address</label>

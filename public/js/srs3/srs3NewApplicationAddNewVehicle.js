@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const colorInput = document.getElementById('color'); // Added
     const vehicleTypeInput = document.getElementById('vehicle_type'); // Added
 
+    // Owner Info
+    const firstNameInput = document.getElementById('first_name_modal');
+    const middleNameInput = document.getElementById('middle_name_modal');
+    const lastNameInput = document.getElementById('last_name_modal');
+    const mainContactInput = document.getElementById('main_contact_no_modal');
+    const secondaryContactInput = document.getElementById('secondary_contact_no_modal');
+    const tertiaryContactInput = document.getElementById('tertiary_contact_no_modal');
+
     // Function to update the table based on vehiclesArray
     function updateVehicleTable() {
         vehiclesTable.innerHTML = ''; // Clear the table body
@@ -44,7 +52,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 year_model: yearModelInput.value, // Get selected year model
                 color: colorInput.value, // Get selected color
                 vehicle_type: vehicleTypeInput.value, // Get selected vehicle type
-                addressIndex: addressDropdown.value // Get selected address index
+                addressIndex: addressDropdown.value, // Get selected address index
+
+                // Owner Info
+                firstName: firstNameInput.value.trim(),
+                middleName: middleNameInput.value.trim(),
+                lastName: lastNameInput.value.trim(),
+                mainContact: mainContactInput.value.trim(),
+                secondaryContact: secondaryContactInput.value.trim(),
+                tertiaryContact: tertiaryContactInput.value.trim(),
             };
 
             console.log("Selected Address Index: ", addressDropdown.value);
@@ -126,6 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
         yearModelInput.classList.remove('is-invalid'); // Added
         colorInput.classList.remove('is-invalid'); // Added
         vehicleTypeInput.classList.remove('is-invalid'); // Added
+        firstNameInput.classList.remove('is-invalid');
+        lastNameInput.classList.remove('is-invalid');
+        mainContactInput.classList.remove('is-invalid');
+        
+        addressDropdown.classList.remove('is-invalid');
 
         if (!plateNoInput.value.trim()) {
             plateNoInput.classList.add('is-invalid');
@@ -153,6 +174,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!addressDropdown.value) {
             addressDropdown.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        if (!firstNameInput.value.trim()) {
+            firstNameInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!lastNameInput.value.trim()) {
+            lastNameInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!mainContactInput.value.trim()) {
+            mainContactInput.classList.add('is-invalid');
             isValid = false;
         }
 
