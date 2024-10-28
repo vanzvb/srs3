@@ -90,6 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainContact: mainContactInput.value.trim(),
                 secondaryContact: secondaryContactInput.value.trim(),
                 tertiaryContact: tertiaryContactInput.value.trim(),
+
+                useIndividualFields: populateFromIndividualCheckbox.checked,
             };
 
             console.log("Selected Address Index: ", addressDropdown.value);
@@ -122,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${vehicle.brand}</td>
             <td>${vehicle.series}</td>
             <td>
-                <button class="btn btn-sm btn-warning editVehicleBtn">Edit</button>
-                <button class="btn btn-sm btn-danger deleteVehicleBtn">Delete</button>
+                <button type="button" class="btn btn-sm btn-warning editVehicleBtn">Edit</button>
+                <button type="button" class="btn btn-sm btn-danger deleteVehicleBtn">Delete</button>
             </td>
         `;
         vehiclesTable.appendChild(newRow);
@@ -156,6 +158,8 @@ document.addEventListener('DOMContentLoaded', function() {
             colorInput.value = vehicle.color; // Load color
             vehicleTypeInput.value = vehicle.vehicle_type; // Load vehicle type
             addressDropdown.value = vehicle.addressIndex;
+
+            populateFromIndividualCheckbox.checked = vehicle.useIndividualFields;
 
             const modalInstance = bootstrap.Modal.getOrCreateInstance(vehicleModal);
             modalInstance.show();

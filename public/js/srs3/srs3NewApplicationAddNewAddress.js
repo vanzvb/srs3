@@ -105,8 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 + ', ' + address.city_modal + ', ' + address.zipcode_modal}
             </td>
             <td>
-                <button class="btn btn-sm btn-warning editAddressBtn">Edit</button>
-                <button class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
+                <button type="button" class="btn btn-sm btn-warning editAddressBtn">Edit</button>
+                <button type="button" class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
             </td>
         `;
         addressesTable.appendChild(newRow);
@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     + ', ' + address.city_modal + ', ' + address.zipcode_modal}
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-warning editAddressBtn">Edit</button>
-                    <button class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
+                    <button type="button" class="btn btn-sm btn-warning editAddressBtn">Edit</button>
+                    <button type="button" class="btn btn-sm btn-danger deleteAddressBtn">Delete</button>
                 </td>
             `;
 
