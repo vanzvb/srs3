@@ -3,13 +3,16 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
 use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
+use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
+use App\Http\Controllers\srs3\SubCategoryController as Srs3SubCategoryController;
 use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
+use App\Http\Controllers\SubCategoryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -78,6 +81,24 @@ Route::prefix('v3')->group(function () {
     Route::get('/srs/i/requests/', [Srs3RequestController::class, 'getRequests'])->name('getRequests.v3');
     Route::post('/srs/i/requests/', [Srs3RequestController::class, 'getRequest'])->name('getRequest.v3');
     Route::get('/srs/request/{srsRequest}', [Srs3RequestController::class, 'show'])->name('srsRequest.v3.show');
+
+    Route::prefix('sub-categories')->group(function() {
+        Route::get('/', [Srs3SubCategoryController::class, 'index'])->name('v3.sub-categories.index');
+        Route::post('/create', [Srs3SubCategoryController::class, 'store'])->name('v3.sub-categories.store');
+        Route::get('/list', [Srs3SubCategoryController::class, 'list'])->name('v3.sub-categories.list');
+        Route::get('/{subCategory}', [Srs3SubCategoryController::class, 'show'])->name('v3.sub-categories.show');
+        Route::put('/{subCategory}', [Srs3SubCategoryController::class, 'edit'])->name('v3.sub-categories.edit');
+        Route::delete('/{subCategory}', [Srs3SubCategoryController::class, 'destroy'])->name('v3.sub-categories.destroy');
+    });
+});
+
+Route::prefix('sub-categories')->group(function() {
+    Route::get('/', [SubCategoryController::class, 'index'])->name('sub-categories.index');
+    Route::post('/create', [SubCategoryController::class, 'store'])->name('sub-categories.store');
+    Route::get('/list', [SubCategoryController::class, 'list'])->name('sub-categories.list');
+    Route::get('/{subCategory}', [SubCategoryController::class, 'show'])->name('sub-categories.show');
+    Route::put('/{subCategory}', [SubCategoryController::class, 'edit'])->name('sub-categories.edit');
+    Route::delete('/{subCategory}', [SubCategoryController::class, 'destroy'])->name('sub-categories.destroy');
 });
 
 // index for new
