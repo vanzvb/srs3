@@ -67,7 +67,30 @@
                                     @endif
                                 </td>
                                 <!-- Add other fields as necessary -->
-                                <td></td>
+                                <td>
+                                    {{-- @can('update', \App\Models\SPCSubCat::class) --}}
+                                    <button type="button" data-bs-toggle="modal"
+                                        data-bs-target="#purchaseOrderDetailModal{{ isset($subcat) ? $subcat->id : null }}"
+                                        class="btn btn-outline-primary btn-sm">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    {{-- @endcan --}}
+                                    @include('sub3_categories.sub3_category_edit_modal_form')
+
+                                    <!-- Delete Form -->
+                                    {{-- @can('delete', \App\Models\SPCSubCat::class) --}}
+                                    <form action="{{ route('v3.sub-categories.destroy', $subcat->id) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to delete this item?');">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {{-- @endcan --}}
+                                    
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -95,7 +118,9 @@
                 paging: true,
                 searching: true,
                 ordering: true,
-                order: [[0, 'desc']],
+                order: [
+                    [0, 'desc']
+                ],
                 responsive: true, // Optional for responsive design
                 autoWidth: false // Adjusts columns to fit within AdminLTE design
             });

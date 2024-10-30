@@ -47,51 +47,11 @@ class SubCategoryController extends Controller
         ));
     }
 
-    public function list()
-    {
-        // $this->authorize('access', SPCSubCat::class);
-
-        if (!request()->ajax()) {
-            abort(404);
-        }
-
-        $sub_categories = SPCSubCat::with([
-            'category',
-            'requiredFiles'
-        ])
-            ->orderBy('category_id', 'desc')
-            ->get();
-
-        return response()->json([
-            'data' => $sub_categories
-        ]);
-    }
-
-    public function show($id)
-    {
-        // $this->authorize('access', SPCSubCat::class);
-
-        // if(!request()->ajax()) {
-        //     abort(404);
-        // }
-
-        $sub_category = SPCSubCat::findOrFail($id)
-            ->load([
-                'category',
-                'requiredFiles'
-            ]);
-
-        return response()->json([
-            'data' => $sub_category
-        ]);
-    }
-
     public function store(Request $request)
     {
         // $this->authorize('create', SPCSubCat::class);
         try {
 
-            // dd($request);
             $request->validate([
                 'category_modal' => 'required|exists:crmxi3_categories,id',
                 'subcat_category' => 'nullable',
@@ -128,66 +88,61 @@ class SubCategoryController extends Controller
     public function edit(Request $request)
     {
         // $this->authorize('update', SPCSubCat::class);
+    try {
+        // Find the subcategory by ID
+        $sub_category = SPC3Subcat::findOrFail($request->id);
 
-        // if(!request()->ajax()) {
-        //     abort(404);
-        // }
-
-        $sub_category = SPCSubCat::findOrFail($request->id);
-
-        $data = $request->validate([
-            'name' => 'required',
-            'category' => 'required|exists:spc_categories,id',
-            'status' => 'required',
-            'required_files' => 'nullable|exists:srs_requirements,id|array'
+        $request->validate([
+            'category_modal' => 'required|exists:crmxi3_categories,id',
+            'subcat_category' => 'nullable',
+            'name_modal' => 'required',
+            'hoa_type' => 'nullable',
+            'hoas' => 'nullable',
+            'required_files' => 'nullable|array',
+            'sub_status' => 'required',
         ]);
 
-        try {
-            DB::transaction(function () use ($sub_category, $data) {
-                $sub_category->update([
-                    'category_id' => $data['category'],
-                    'name' => $data['name'],
-                    'status' => $data['status']
-                ]);
+        DB::transaction(function () use ($request, $sub_category) {
+            // Update the subcategory details
+            $sub_category->update([
+                'category_id' => $request->category_modal,
+                'sub_category_id' => $request->subcat_category,
+                'hoa_id' => $request->hoas,
+                'hoa_type_id' => $request->hoa_type,
+                'name' => $request->name_modal,
+                'status' => $request->sub_status,
+            ]);
 
-                if (isset($data['required_files'])) {
-                    $sub_category->requiredFiles()->sync($data['required_files']);
-                } else {
-                    $sub_category->requiredFiles()->detach();
-                }
-            });
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
-        }
+            // Sync the required files (attach if new, detach if removed)
+            if ($request->has('required_files')) {
+                $sub_category->requiredFiles()->sync($request->required_files);
+            } else {
+                $sub_category->requiredFiles()->detach();
+            }
+        });
 
-        return response()->json([
-            'data' => $sub_category
-        ]);
+        return redirect()->back()->with('success', 'Item updated successfully!');
+    } catch (QueryException $e) {
+        return redirect()->back()->with('error', 'Failed to update item: ' . $e->getMessage());
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+    }
+
     }
 
     public function destroy($id)
     {
         // $this->authorize('delete', SPCSubCat::class);
-
-        if (!request()->ajax()) {
-            abort(404);
-        }
-
-        $sub_category = SPCSubCat::findOrFail($id);
-
         try {
-            $sub_category->requiredFiles()->detach();
-            $sub_category->delete();
+            $subCategory = SPC3Subcat::findOrFail($id);
+            $subCategory->requiredFiles()->detach(); // Detach any related files if necessary
+            $subCategory->delete();
+    
+            return redirect()->back()->with('success', 'Item deleted successfully!');
+        } catch (QueryException $e) {
+            return redirect()->back()->with('error', 'Failed to delete item: ' . $e->getMessage());
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
         }
-
-        return response()->json([
-            'message' => 'Sub Category deleted successfully'
-        ]);
     }
 }
