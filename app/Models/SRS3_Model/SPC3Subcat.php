@@ -9,10 +9,11 @@ use App\Models\CRMXI3_Model\CRMXISubcat;
 use App\Models\SrsRequirement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SPC3Subcat extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $table = 'spc3_subcat';
 
