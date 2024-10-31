@@ -116,7 +116,7 @@ $(document).ready(function () {
       $.ajax({
         'url': '/v3/sticker/request/requirements',
         'data': {
-          'sub_category': $("#sub_category").val()
+          'sub_category_1': $("#sub_category_1").val()
         },
         'success': function (_0x45dc6d) {
           var _0x5cdd0e = '';

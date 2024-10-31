@@ -16,7 +16,7 @@
             <div class="card-body p-5">
                 <div class="text-muted h1 fw-bold">
                     <i class='bx bx-category icon'></i>
-                    Sub Categories 3.0
+                    SRS File Attachment
                 </div>
                 <hr>
 

@@ -1560,15 +1560,18 @@ class SrsRequestController extends Controller
             abort(404);
         }
 
+        // dd($request);
+
         $data = $request->validate([
-            'sub_category' => 'required|int|exists:spc_subcat,id'
+            // 'sub_category' => 'required|int|exists:spc_subcat,id'
+            'sub_category_1' => 'required|int'
         ]);
 
         $requirements = SrsRequirement::with(['subCategories' => function ($query) {
             $query->select('spc_subcat.id');
         }])
             ->whereHas('subCategories', function ($query) use ($data) {
-                $query->where('spc_subcat.id', $data['sub_category']);
+                $query->where('spc_subcat.id', $data['sub_category_1']);
             })
             ->select('id', 'name', 'description', 'required')
             ->get();

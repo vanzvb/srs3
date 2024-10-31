@@ -59,8 +59,18 @@
                                             <label for="account_type">Account Type</label>
                                         </div>
                                     </div>
-
                                     <div class="col-md-6 col-12 mt-2">
+                                        <div class="form-floating">
+                                            <select name="category" id="category" class="form-select">
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <label for="account_type">Category</label>
+                                        </div>
+                                    </div>
+
+                                    {{-- <div class="col-md-6 col-12 mt-2">
                                         <div class="input-group" style="height: 100%;">
                                             <label for="" class="input-group-text">Request for</label>
                                             <select name="category" id="category" class="form-select">
@@ -69,7 +79,7 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     {{-- Old sub cat, have onload value --}}
                                     {{-- <div class="col-md-6 col-12 mt-2">
@@ -94,9 +104,10 @@
                                     <!-- Second Row -->
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
-                                            <select class="form-select" name="sub_category_1" id="sub_category_1">
+                                            <select class="form-select" name="sub_category_1" id="sub_category_1" onchange="getRequirements()">
                                                 <!-- Options will be populated dynamically -->
                                             </select>
+                                            <label for="account_type">Sub Category</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-12 mt-2" id="hoa_tab">
@@ -107,6 +118,7 @@
                                                         {{ $hoa->name }}</option>
                                                 @endforeach
                                             </select>
+                                            <label for="account_type">HOA</label>
                                         </div>
                                     </div>
                                 </div>
