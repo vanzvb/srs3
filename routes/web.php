@@ -110,7 +110,7 @@ Route::post('/sticker/request', [SrsRequestController::class, 'store'])->name('r
 // Route::post('/sticker/request/renewalv3', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
 // for generating sub category onchange (in new)
-Route::get('/sticker/request/requirements', [Srs3RequestController::class, 'getRequirements'])->name('getRequirements');
+Route::get('/sticker/request/requirements', [SrsRequestController::class, 'getRequirements'])->name('getRequirements');
 // for generating sub category onload (in new)
 Route::get('/sticker/request/sub_categories', [SrsRequestController::class, 'getSubCategories'])->name('getSubCategories');
 // for generating hoa onload (in new)

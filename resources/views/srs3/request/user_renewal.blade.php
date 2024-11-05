@@ -211,12 +211,12 @@
                                                 <tr>
                                                     <th>Plate Number</th>
                                                     <th>Brand, Series</th>
-                                                    <th>Status</th>
+                                                    {{-- <th>Status</th> --}}
                                                     <th>Category</th>
                                                     <th>Sub Category</th>
                                                     <th>HOA</th>
-                                                    <th>VOS</th>
-                                                    <th>Membership Type</th>
+                                                    {{-- <th>VOS</th> --}}
+                                                    {{-- <th>Membership Type</th> --}}
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -225,13 +225,13 @@
                                                     <tr id="vehicle-row-{{ $vehicle->id }}">
                                                         <td>{{ $vehicle->plate_no }}</td>
                                                         <td>{{ $vehicle->brand . ', ' . $vehicle->series }}</td>
-                                                        <td></td>
+                                                        {{-- <td></td> --}}
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name }}</td>
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name }}</td>
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name }}</td>
 
-                                                        <td></td>
-                                                        <td></td>
+                                                        {{-- <td></td> --}}
+                                                        {{-- <td></td> --}}
                                                         <td style="white-space: nowrap;">
                                                             {{-- <button type="button" class="btn btn-primary"
                                                                 data-bs-toggle="modal"

@@ -439,9 +439,12 @@ class SrsRequestRenewalController extends Controller
             // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
             $srsRequest->srs3_hoa_id = $crm->hoa;
 
+            // dd($srsRequest);
+
             // OR / CR on vehicle is removed in renewal
             // Pending
-            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
             $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
             $renewVehicles = $crm->vehicles->whereIn('id', $request->vref);
