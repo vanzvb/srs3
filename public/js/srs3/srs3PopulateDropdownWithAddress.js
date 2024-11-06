@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to populate the dropdown with address names
     window.populateAddressDropdown = function() {
-        if (addressesArray.length === 0) {
-            // If there are no addresses, prompt the user to add one first
-            alert("Add Address first");
-            return;
-        }
+        // if (addressesArray.length === 0) {
+        //     // If there are no addresses, prompt the user to add one first
+        //     alert("Add Address first");
+        //     return;
+        // }
 
         // Clear any existing options except the default one
         addressDropdown.innerHTML = `<option value="">-- Select Address --</option>`;

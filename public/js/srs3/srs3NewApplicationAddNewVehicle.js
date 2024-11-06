@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const secondaryContactInput = document.getElementById('secondary_contact_no_modal');
     const tertiaryContactInput = document.getElementById('tertiary_contact_no_modal');
 
+    // File inputs for OR and CR
+    const orAttachmentInput = document.getElementById('orAttachment');
+    const crAttachmentInput = document.getElementById('crAttachment');
+
     const populateFromIndividualCheckbox = document.getElementById('populateFromIndividual');
     const useIndividualFieldsInput = document.getElementById('useIndividualFields');
 
@@ -92,6 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 tertiaryContact: tertiaryContactInput.value.trim(),
 
                 useIndividualFields: populateFromIndividualCheckbox.checked,
+
+                orAttachment: orAttachmentInput.files[0] ? orAttachmentInput.files[0].name : '', // Store file name
+                crAttachment: crAttachmentInput.files[0] ? crAttachmentInput.files[0].name : ''  // Store file name
             };
 
             console.log("Selected Address Index: ", addressDropdown.value);
@@ -236,6 +243,17 @@ document.addEventListener('DOMContentLoaded', function() {
         vehicleTypeInput.value = ''; // Reset vehicle type
         addressDropdown.value = '';
         editVehicleIndex = null; // Reset the edit index
+
+        firstNameInput.value = '';
+        middleNameInput.value = '';
+        lastNameInput.value = '';
+        mainContactInput.value = '';
+        secondaryContactInput.value = '';
+        tertiaryContactInput.value = '';
+
+        orAttachmentInput.value = '';
+        crAttachmentInput.value = '';
+        populateFromIndividualCheckbox.checked = false;
     }
 
     // Function to close the vehicle modal

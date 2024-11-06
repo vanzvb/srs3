@@ -252,7 +252,8 @@
                                                             <!-- Close Button with Close Icon -->
                                                             <button type="button" class="btn btn-danger btn-sm btn-remove"
                                                                 data-id="{{ $vehicle->id }}">
-                                                                <i class="fas fa-times"></i>
+                                                                {{-- <i class="fas fa-times"></i> --}}
+                                                                Don't Renew
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -522,7 +523,7 @@
                                         @foreach ($requirements as $requirement)
                                             <div class="mb-4">
                                                 <!-- Requirement description above the file input -->
-                                                <label class="form-label"><b>Upload Valid ID</b></label>
+                                                <label class="form-label"><b>Upload Valid ID with Address</b></label>
                                                 {{-- <label class="form-label"><b>{{ $requirement->description }}</b></label> --}}
                                                 <input class="form-control form-control-sm" type="file"
                                                     accept="image/*" name="{{ $requirement->name }}"

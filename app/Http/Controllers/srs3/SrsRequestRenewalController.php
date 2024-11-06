@@ -64,6 +64,10 @@ class SrsRequestRenewalController extends Controller
     {
         return view('srs3.request.renewal');
     }
+    public function vanz()
+    {
+        return view('srs3.request.vanz');
+    }
 
     public function renewalCheck(Request $request)
     {

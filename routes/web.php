@@ -49,6 +49,9 @@ Route::post('/sticker/request/renewal', [SrsRequestRenewalController::class, 're
 Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->name('request.user-renewal');
 
 Route::prefix('v3')->group(function () {
+    // Test route
+    Route::get('/vanz', [Srs3SrsRequestRenewalController::class, 'vanz']);
+
     // index for renewal
     Route::get('/sticker/renewal', [Srs3SrsRequestRenewalController::class, 'index']);
     // when submit is hit on renewal (this is to make a new renewal request)

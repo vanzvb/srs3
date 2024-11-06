@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resetForm();
             closeModal();
             checkIfTableIsEmpty();
+            populateAddressDropdown();
         }
     });
 
@@ -147,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteAddress(index);
             });
         }
+
+        populateAddressDropdown();
     }
 
     // Function to load an address into the modal for editing
@@ -184,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshAddressTable();
         addressesArrayInput.value = JSON.stringify(addressesArray);
         checkIfTableIsEmpty();
+        populateAddressDropdown();
     }
 
     // Function to refresh the table after deleting an address

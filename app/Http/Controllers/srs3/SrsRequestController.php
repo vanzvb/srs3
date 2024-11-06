@@ -274,9 +274,9 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-
-        $data = $request->validated();
         dd($request);
+        $data = $request->validated();
+        
         // Start a transaction
         DB::beginTransaction();
 

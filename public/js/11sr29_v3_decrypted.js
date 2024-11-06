@@ -23,12 +23,23 @@ $(document).ready(function () {
     let _0x18bd6c = $("#vehicle_tab").find("#v_plate_no_tab").clone().html();
     let _0xe2d04c = $("#vehicle_tab").find("#v_brand_tab").clone().html();
     let _0xd6a312 = $("#vehicle_tab").find("#v_series_tab").clone().html();
-    // let _0x5f3513 = $("#vehicle_tab").find('#v_year_model_tab').clone().html();
+    let _0x5f3513 = $("#vehicle_tab").find('#v_year_model_tab').clone().html();
     let _0x482b28 = $("#vehicle_tab").find('#v_color_tab').clone().html();
     let _0x54376c = $("#vehicle_tab").find("#v_type_tab").clone().html();
     let _0x81c471 = $("#vehicle_tab").find('#v_sticker_no_tab').clone().html();
     let _0x18ed89 = $('#vehicle_tab').find("#v_or_tab").clone().html();
     let _0x392719 = $("#vehicle_tab").find("#v_cr_tab").clone().html();
+
+    // New owner info fields
+    let _0xownerFname = $("#vehicle_tab").find("#v_owner_fname_tab").clone().html();
+    let _0xownerMname = $("#vehicle_tab").find("#v_owner_mname_tab").clone().html();
+    let _0xownerLname = $("#vehicle_tab").find("#v_owner_lname_tab").clone().html();
+    let _0xmainContact = $("#vehicle_tab").find("#v_main_contact_tab").clone().html();
+    let _0xsecondaryContact = $("#vehicle_tab").find("#v_secondary_contact_tab").clone().html();
+    let _0xtertiaryContact = $("#vehicle_tab").find("#v_tertiary_contact_tab").clone().html();
+    let _0xownershipType = $("#vehicle_tab").find("#v_vot_tab").clone().html();
+    let _0xaddressDropdown = $("#vehicle_tab").find("#v_address_tab").clone().html();
+
     function _0x43e60d(_0x3de49b, _0x70ade0) {
       _0x3de49b.prop("disabled", true);
       _0x3de49b.hide();
@@ -74,10 +85,89 @@ $(document).ready(function () {
       _0x5f50b5++;
       let _0x58cdc9 = '';
       for (let _0xd0a980 = 0x0; _0xd0a980 < _0x1fd64f; _0xd0a980++) {
-        _0x58cdc9 += "<div class=\"p-3 p-md-4 card shadow rounded mb-2 mb-md-4\">\n                   <div class=\"card-header text-end\" style=\"background-color: white; border-bottom: 0;\">\n                       <button class=\"btn-close v_remove_btn\"></button>\n                   </div>\n                   <div class=\"row mt-2 g-2\">\n                       <div class=\"col-6 col-md-3\">\n                           " + _0x4f4ff9 + "\n                       </div>\n                   </div>\n                   <div class=\"row mt-2 g-2\">\n                       <div class=\"col-6 col-md\">\n                           " + _0x18bd6c + "\n                       </div>\n                       <div class=\"col-6 col-md\">\n                           " + _0xe2d04c + "\n                       </div>\n                       <div class=\"col-6 col-md\">\n                           " + _0xd6a312 + "\n                       </div>\n                       <div class=\"col-6 col-md\">\n                           " + _0x5f3513 + "\n                       </div>\n                   </div>\n                   <div class=\"row mt-2 g-2 g-md-3\">\n                       <div class=\"col-6 col-md-3\">\n                           " + _0x482b28 + "\n                       </div>\n                       <div class=\"col-6 col-md-3\">\n                           " + _0x54376c + "\n                       </div>\n                       <div class=\"col-6 col-md-3 class-sticker_no\" style=\"display: none;\">\n                           " + _0x81c471 + "\n                       </div>\n                   </div>\n                   <div class=\"row mt-2 g-2 g-md-3\">\n                       <div class=\"col-12 col-md-3\">\n                           " + _0x18ed89 + "\n                       </div>\n                       <div class=\"col-12 col-md-3\">\n                           " + _0x392719 + "\n                       </div>\n                   </div>\n                   </div>";
+          _0x58cdc9 += `
+              <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
+                  <div class="card-header text-end" style="background-color: white; border-bottom: 0;">
+                      <button class="btn-close v_remove_btn"></button>
+                  </div>
+                  <h5>Vehicle Info</h5>
+                  <!--
+                  <div class="row mt-2 g-2">
+                      <div class="col-6 col-md-3">
+                          ${_0x4f4ff9}
+                      </div>
+                  </div>
+                  -->
+                  <div class="row mt-2 g-2">
+                      <div class="col-6 col-md">
+                          ${_0x18bd6c}
+                      </div>
+                      <div class="col-6 col-md">
+                          ${_0xe2d04c}
+                      </div>
+                      <div class="col-6 col-md">
+                          ${_0xd6a312}
+                      </div>
+                      <div class="col-6 col-md">
+                          ${_0x5f3513}
+                      </div>
+                  </div>
+                  <div class="row mt-2 g-2 g-md-3">
+                      <div class="col-6 col-md-3">
+                          ${_0x482b28}
+                      </div>
+                      <div class="col-6 col-md-3">
+                          ${_0x54376c}
+                      </div>
+                      <div class="col-6 col-md-3 class-sticker_no" style="display: none;">
+                          ${_0x81c471}
+                      </div>
+                  </div>
+                  <hr class="ownerinfo">
+                  <h5>Owner Info</h5>
+                  <div class="row mt-2 g-2">
+                      <div id="v_owner_fname_tab" class="col-12 col-md-4">
+                          ${_0xownerFname}
+                      </div>
+                      <div id="v_owner_mname_tab" class="col-12 col-md-4">
+                          ${_0xownerMname}
+                      </div>
+                      <div id="v_owner_lname_tab" class="col-12 col-md-4">
+                          ${_0xownerLname}
+                      </div>
+                  </div>
+                  <div class="row mt-2 g-2 g-md-3">
+                      <div class="col-12 col-md-4">
+                          ${_0xmainContact}
+                      </div>
+                      <div class="col-12 col-md-4">
+                          ${_0xsecondaryContact}
+                      </div>
+                      <div class="col-12 col-md-4">
+                          ${_0xtertiaryContact}
+                      </div>
+                  </div>
+                  <div class="row mt-2 g-2 g-md-3">
+                    <div class="col-12 col-md-4">
+                        ${_0xaddressDropdown}
+                    </div>
+                    <div class="col-12 col-md-4">
+                        ${_0xownershipType}
+                    </div>
+                  </div>
+                  <div class="row mt-2 g-2 g-md-3">
+                      <div class="col-12 col-md-3">
+                          ${_0x18ed89}
+                      </div>
+                      <div class="col-12 col-md-3">
+                          ${_0x392719}
+                      </div>
+                  </div>
+              </div>
+          `;
       }
       $("#vehicles_row").append(_0x58cdc9);
-    };
+  };
     getSubCategories = () => {
       $.ajax({
         'url': "/sticker/request/sub_categories",
