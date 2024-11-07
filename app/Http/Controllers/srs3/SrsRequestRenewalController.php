@@ -180,11 +180,13 @@ class SrsRequestRenewalController extends Controller
 
         // CRMXI
 
-
+        
         $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
             ->where('crm_id', $crmId)
             ->where('email', $email)
             ->firstOrFail();
+
+        // dd($crm);
 
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
@@ -234,6 +236,8 @@ class SrsRequestRenewalController extends Controller
 
     public function processRenewal(Request $request)
     {
+        
+
         // $request->validate([
         //     'vref' => 'required|array',
         //     'v_or' => 'required|array',
@@ -241,7 +245,16 @@ class SrsRequestRenewalController extends Controller
         //     'or.*' => 'file|mimes:jpg,png,jpeg,pdf',
         //     'cr.*' => 'file|mimes:jpg,png,jpeg,pdf',
         // ], [], ['or' => 'OR']);
+        dd($request,'stop');
+        $request->validate([
+            // 'vehicle_owners_input' => 'required|array',
+            'vehicle_owners_input.*' => 'required|not_in:null',
+        ], [
+            'vehicle_owners_input.*.required' => 'There no vehicle to renew',
+            // 'vehicle_owners_input.*.not_in' => 'Owner for vehicle cannot be empty',
+        ]);
 
+        dd($request,'stop');
 
         if (!$request->session()->has('sr_rnw-cid') || !$request->session()->get('sr_rnw-eml')) {
             return back()->withErrors(['error' => 'Please Refresh Page and Try Again']);

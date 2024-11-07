@@ -318,7 +318,7 @@
                             name="second_contact[{{ $loop->index }}]" placeholder="Enter Secondary Contact No.">
                     </div>
                     <div class="col-md-3 p-2">
-                        <label for="tertiary_contact_{{ $loop->index }}" class="form-label"><b>Tertiary Contact No.</b></label>
+                        <label for="tertiary_contact_{{ $loop->index }}" class="form-label"><b>Alternative Email</b></label>
                         <input type="text" class="form-control" id="tertiary_contact_{{ $loop->index }}"
                             name="tertiary_contact[{{ $loop->index }}]" placeholder="Enter Tertiary Contact No.">
                     </div>

@@ -109,7 +109,7 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        <label class="form-label"><b>Tertiary Contact</b></label>
+                                        <label class="form-label"><b>Alternate Email</b></label>
                                         <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}" disabled>
                                     </div>
                                 </div>
@@ -223,12 +223,12 @@
                                             <tbody>
                                                 @foreach ($crm->CRMXIvehicles as $vehicle)
                                                     <tr id="vehicle-row-{{ $vehicle->id }}">
-                                                        <td>{{ $vehicle->plate_no }}</td>
-                                                        <td>{{ $vehicle->brand . ', ' . $vehicle->series }}</td>
+                                                        <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
+                                                        <td>{{ $vehicle->brand ?? 'N/A' }}, {{ $vehicle->series ?? 'N/A' }}</td>
                                                         {{-- <td></td> --}}
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name }}</td>
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name }}</td>
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name }}</td>
+                                                        <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}</td>
+                                                        <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}</td>
+                                                        <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}</td>
 
                                                         {{-- <td></td> --}}
                                                         {{-- <td></td> --}}

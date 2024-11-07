@@ -108,7 +108,7 @@
                                                 onchange="getRequirements()">
                                                 <!-- Options will be populated dynamically -->
                                             </select>
-                                            <label for="account_type">Sub Category</label>
+                                            <label for="sub_category_1">Sub Category</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-12 mt-2" id="hoa_tab">
@@ -119,7 +119,7 @@
                                                         {{ $hoa->name }}</option>
                                                 @endforeach
                                             </select>
-                                            <label for="account_type">HOA</label>
+                                            <label for="hoa_1">HOA</label>
                                         </div>
                                     </div>
                                 </div>
@@ -177,23 +177,25 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- Company Fields (hidden by default) -->
                                         <div class="px-2 px-md-4" id="companyFields" style="display: none;">
                                             <div class="row mt-3">
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-floating">
                                                         <input type="text" class="form-control" id="company_name"
                                                             name="company_name" placeholder="Company Name"
-                                                            value="{{ old('company_name') }}">
+                                                            value="{{ old('company_name') }}" required>
                                                         <label for="company_name" class="form-label"
                                                             style="color: grey;">Company Name</label>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 col-12 mt-2 mt-md-0">
+                                                <div class="col-md-6 col-12">
                                                     <div class="form-floating">
                                                         <input type="text" class="form-control"
                                                             id="company_representative" name="company_representative"
                                                             placeholder="Company Representative"
-                                                            value="{{ old('company_representative') }}">
+                                                            value="{{ old('company_representative') }}" required>
                                                         <label for="company_representative" class="form-label"
                                                             style="color: grey;">Company Representative</label>
                                                     </div>
@@ -274,8 +276,7 @@
                                                         name="tertiary_contact_no" placeholder="Tel. No./Mobile No."
                                                         value="{{ old('tertiary_contact_no') }}">
                                                     <label for="tertiary_contact_no" class="form-label"
-                                                        style="color: grey; font-size: 0.8rem;">Tertiary Contact
-                                                        No.</label>
+                                                        style="color: grey; font-size: 0.8rem;">Alternate Email</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -541,7 +542,7 @@
                                     <div>
                                         <div class="container mt-4">
                                             <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3"
-                                                data-bs-toggle="modal" data-bs-target="#vehicleModal" >Add Vehicle</button>
+                                                data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
 
                                             <table class="table table-bordered">
                                                 <thead>
@@ -690,11 +691,10 @@
                                                                         placeholder="Enter secondary contact number">
                                                                 </div>
                                                                 <div class="col">
-                                                                    <label for="tertiary_contact_no_modal">Tertiary Contact
-                                                                        No</label>
+                                                                    <label for="tertiary_contact_no_modal">Alternate Email</label>
                                                                     <input type="text" class="form-control"
                                                                         id="tertiary_contact_no_modal"
-                                                                        placeholder="Enter tertiary contact number">
+                                                                        placeholder="Enter Alternate Email">
                                                                 </div>
                                                             </div>
 
@@ -1301,6 +1301,48 @@
     <script src="{{ asset('js/srs3/srs3PopulateDropdownWithAddress.js') }}"></script>
     <script src="{{ asset('js/srs3/srs3NewApplicationAddNewVehicle.js') }}"></script>
     {{-- <script src="{{ asset('js/srs3/srs3NewApplicationChangeSubCat.js') }}"></script> --}}
+
+
+    {{-- Toggle Account Type --}}
+
+    <script>
+        function toggleFields() {
+            var accountType = document.getElementById("account_type").value;
+            var individualFields = document.getElementById("individualFields");
+            var companyFields = document.getElementById("companyFields");
+
+            if (accountType === "0") {
+                individualFields.style.display = "block";
+                companyFields.style.display = "none";
+
+                // Add required attribute to individual fields
+                document.getElementById("first_name").setAttribute("required", "required");
+                document.getElementById("last_name").setAttribute("required", "required");
+                document.getElementById("middle_name").setAttribute("required", "required");
+
+                // Remove required attribute from company fields
+                document.getElementById("company_name").removeAttribute("required");
+                document.getElementById("company_representative").removeAttribute("required");
+            } else if (accountType === "1") {
+                individualFields.style.display = "none";
+                companyFields.style.display = "block";
+
+                // Add required attribute to company fields
+                document.getElementById("company_name").setAttribute("required", "required");
+                document.getElementById("company_representative").setAttribute("required", "required");
+
+                // Remove required attribute from individual fields
+                document.getElementById("first_name").removeAttribute("required");
+                document.getElementById("last_name").removeAttribute("required");
+                document.getElementById("middle_name").removeAttribute("required");
+            }
+        }
+
+        // Run toggleFields on page load to set the initial state
+        document.addEventListener("DOMContentLoaded", function() {
+            toggleFields();
+        });
+    </script>
 
     {{-- Pivot of category to sub cat --}}
     <script>

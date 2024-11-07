@@ -5,7 +5,7 @@ namespace App\Http\Controllers\srs3;
 use App\Exports\CrmRedTagExport;
 use App\Exports\SrsRequestsExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SrsRequestRequest;
+use App\Http\Requests\srs3\SrsRequestRequest;
 use App\Mail\RequestApproved;
 use App\Mail\RequestRejected;
 use App\Mail\RequestSubmitted;
@@ -274,42 +274,51 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        dd($request);
+        // dd($request);
         $data = $request->validated();
-        
+        // dd($data);
         // Start a transaction
         DB::beginTransaction();
-
+        
         try {
 
             // (START) srs3_requests saving 
 
             $srsRequest = new SrsRequest();
+            $srsRequest->account_type = $data['account_type'];
             $srsRequest->request_id = $this->getNextId();
             $srsRequest->category_id = $data['category'];
-            $srsRequest->sub_category_id = $data['sub_category'];
-            $srsRequest->first_name = $data['first_name'];
-            $srsRequest->last_name = $data['last_name'];
-            $srsRequest->middle_name = $data['middle_name'];
+            $srsRequest->sub_category_id = $data['sub_category_1'];
+            // if srs3_hoa_id is not null, 
+            $srsRequest->hoa_id = $data['hoa_1'];
+            $srsRequest->account_type = $data['account_type'];
 
-            // Added in srs3
-            $srsRequest->account_type = $request->account_type;
-            $srsRequest->civil_status = $request->civil_status;
-            $srsRequest->nationality = $request->nationality;
-            $srsRequest->tin_no = $request->tin_no;
-            $srsRequest->secondary_contact = $request->secondary_contact_no;
-            $srsRequest->tertiary_contact = $request->tertiary_contact_no;
-    
-            if (isset($data['hoa'])) {
-                if ($srsRequest->category_id == 1) {
-                    $srsRequest->hoa_id = $data['hoa'];
-                } else if ($srsRequest->category_id == 2) {
-                    $srsRequest->nr_hoa_id = $data['hoa'];
-                }
+            if ($data['account_type'] == 0) {
+                $srsRequest->first_name = $data['first_name'];
+                $srsRequest->last_name = $data['last_name'];
+                $srsRequest->middle_name = $data['middle_name'];
+            } else {
+                $srsRequest->company_name = $data['company_name'];
+                $srsRequest->company_representative = $data['company_representative'];
             }
-            // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
+
+            $srsRequest->civil_status = $data['civil_status'];
+            $srsRequest->nationality = $data['nationality'];
+            $srsRequest->tin_no = $data['tin_no'];
             $srsRequest->contact_no = $data['contact_no'];
             $srsRequest->email = $data['email'];
+            $srsRequest->secondary_contact = $data['secondary_contact_no'];
+            $srsRequest->tertiary_contact = $data['tertiary_contact_no'];
+    
+            // if (isset($data['hoa'])) {
+            //     if ($srsRequest->category_id == 1) {
+            //         $srsRequest->hoa_id = $data['hoa'];
+            //     } else if ($srsRequest->category_id == 2) {
+            //         $srsRequest->nr_hoa_id = $data['hoa'];
+            //     }
+            // }
+            // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
+
     
     
             $encoded_image = explode(",", $data['signature'])[1];
@@ -332,6 +341,8 @@ class SrsRequestController extends Controller
 
             // (END) srs3_requests saving
 
+            $srsRequest->save();
+
             $generateRequestID = $srsRequest->request_id;
         
             // (START) crmxi3_temp_address saving
@@ -339,7 +350,7 @@ class SrsRequestController extends Controller
             $addresses = json_decode($request->input('addresses'), true);
             // For Tracking of Newly saved addresses
             $savedAddressIds = [];
-
+            // dd($addresses);
             // Loop through each address and save it
             foreach ($addresses as $addressData) {
                 // Assuming you have an Address model
@@ -352,7 +363,7 @@ class SrsRequestController extends Controller
                 $address->building_name = $addressData['building_name_modal'];
                 $address->subdivision_village = $addressData['subdivision_village_modal'];
                 $address->city = $addressData['city_modal'];
-                $address->zipcode = $addressData['zipcode_modal'];
+                $address->zipcode = !empty($addressData['zipcode_modal']) ? $addressData['zipcode_modal'] : null;
                 $address->category_id = $addressData['category_modal'];
                 $address->sub_category_id = $addressData['sub_category_modal'];
                 $address->hoa = $addressData['HOA_modal'];
@@ -374,6 +385,7 @@ class SrsRequestController extends Controller
 
             throw $e;
         }
+
 
 
         // $count = 0;
