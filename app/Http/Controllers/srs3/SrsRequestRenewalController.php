@@ -180,7 +180,7 @@ class SrsRequestRenewalController extends Controller
 
         // CRMXI
 
-        
+
         $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
             ->where('crm_id', $crmId)
             ->where('email', $email)
@@ -236,7 +236,10 @@ class SrsRequestRenewalController extends Controller
 
     public function processRenewal(Request $request)
     {
-        
+        // Decode JSON string to an array
+        $listOfVehicles = json_decode($request->input('list_of_vehicles'), true);
+
+        $request->merge(['list_of_vehicles' => $listOfVehicles]);
 
         // $request->validate([
         //     'vref' => 'required|array',
@@ -245,16 +248,15 @@ class SrsRequestRenewalController extends Controller
         //     'or.*' => 'file|mimes:jpg,png,jpeg,pdf',
         //     'cr.*' => 'file|mimes:jpg,png,jpeg,pdf',
         // ], [], ['or' => 'OR']);
-        dd($request,'stop');
+
         $request->validate([
-            // 'vehicle_owners_input' => 'required|array',
-            'vehicle_owners_input.*' => 'required|not_in:null',
+            'list_of_vehicles' => 'required|array|min:1',
         ], [
-            'vehicle_owners_input.*.required' => 'There no vehicle to renew',
-            // 'vehicle_owners_input.*.not_in' => 'Owner for vehicle cannot be empty',
+            'list_of_vehicles.required' => 'There are no vehicles to renew.',
+            'list_of_vehicles.min' => 'There must be at least one vehicle to renew.',
         ]);
 
-        dd($request,'stop');
+        // dd($request, 'stop');
 
         if (!$request->session()->has('sr_rnw-cid') || !$request->session()->get('sr_rnw-eml')) {
             return back()->withErrors(['error' => 'Please Refresh Page and Try Again']);
@@ -406,7 +408,7 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->house_no = $crm->house_number ? strip_tags($crm->house_number) : null;
             $srsRequest->street = $crm->street ? strip_tags($crm->street) : null;
             $srsRequest->building_name = $crm->building_name ? strip_tags($crm->building_name) : null;
-            $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags( $crm->subdivision_village) : null;
+            $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags($crm->subdivision_village) : null;
             $srsRequest->city = $crm->city ? strip_tags($crm->city) : null;
             $srsRequest->zipcode = $crm->zipcode ? strip_tags($crm->zipcode) : null;
 
@@ -464,7 +466,7 @@ class SrsRequestRenewalController extends Controller
             $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
             $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
-            $renewVehicles = $crm->vehicles->whereIn('id', $request->vref);
+            $renewVehicles = $crm->vehicles->whereIn('id', $request->list_of_vehicles);
 
             $vehicles = [];
 
@@ -612,7 +614,6 @@ class SrsRequestRenewalController extends Controller
             // }
 
             return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
-
         } catch (Exception $e) {
             // If there's an error, rollback the transaction
             DB::rollBack();

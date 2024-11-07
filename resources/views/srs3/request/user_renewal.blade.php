@@ -54,7 +54,8 @@
                                             <div class="col-md-12">
                                                 <label for="individualName" class="form-label"><b>Name</b></label>
                                                 <input type="text" class="form-control" id="individualName"
-                                                    name="individualName" placeholder="" value="{{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}"
+                                                    name="individualName" placeholder=""
+                                                    value="{{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}"
                                                     disabled>
                                             </div>
                                         </div>
@@ -97,26 +98,29 @@
                                 </div>
 
                                 <div class="row p-2 g-0">
-                                    
+
                                     <div class="col-md-3 me-2">
                                         <label class="form-label"><b>Main Contact</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->main_contact }}" disabled>
+                                        <input type="text" class="form-control" value="{{ $crm->main_contact }}"
+                                            disabled>
                                     </div>
 
                                     <div class="col-md-3 me-2">
                                         <label class="form-label"><b>Secondary Contact</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->secondary_contact }}" disabled>
+                                        <input type="text" class="form-control" value="{{ $crm->secondary_contact }}"
+                                            disabled>
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label"><b>Alternate Email</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}" disabled>
+                                        <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}"
+                                            disabled>
                                     </div>
                                 </div>
 
                                 {{-- <div class="row p-2 g-0"> --}}
-                                    {{-- <div class="col-md-6"> --}}
-                                        {{-- 
+                                {{-- <div class="col-md-6"> --}}
+                                {{-- 
                                         <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="account_type" class="form-label"><b>Account Type</b></label>
@@ -145,7 +149,7 @@
                                         </div> 
                                         --}}
 
-                                        {{-- <div class="row p-2 g-0">
+                                {{-- <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="hoa" class="form-label"><b>HOA</b></label>
                                                 <select class="form-select" name="hoa" id="hoa">
@@ -160,7 +164,7 @@
                                                 </select>
                                             </div>
                                         </div> --}}
-                                        {{-- <div class="row p-2 g-0">
+                                {{-- <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="category" class="form-label"><b>Category</b></label>
                                                 <select class="form-select" name="category" id="category" disabled>
@@ -177,7 +181,7 @@
                                                 <input type="hidden" name="category" value="{{ $crm->CRMXIcategory ? $crm->CRMXIcategory->id : '' }}">
                                             </div>
                                         </div> --}}
-                                        {{-- <div class="row p-2 g-0">
+                                {{-- <div class="row p-2 g-0">
                                             <div class="col-md-12">
                                                 <label for="subcat" class="form-label"><b>Sub Category</b></label>
                                                 <select class="form-select" name="subcat" id="subcat">
@@ -193,7 +197,7 @@
                                                 </select>
                                             </div>
                                         </div> --}}
-                                    {{-- </div> --}}
+                                {{-- </div> --}}
                                 {{-- </div> --}}
                             </div>
 
@@ -224,10 +228,13 @@
                                                 @foreach ($crm->CRMXIvehicles as $vehicle)
                                                     <tr id="vehicle-row-{{ $vehicle->id }}">
                                                         <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
-                                                        <td>{{ $vehicle->brand ?? 'N/A' }}, {{ $vehicle->series ?? 'N/A' }}</td>
+                                                        <td>{{ $vehicle->brand ?? 'N/A' }},
+                                                            {{ $vehicle->series ?? 'N/A' }}</td>
                                                         {{-- <td></td> --}}
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}</td>
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}</td>
+                                                        <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}
+                                                        </td>
+                                                        <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}
+                                                        </td>
                                                         <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}</td>
 
                                                         {{-- <td></td> --}}
@@ -250,7 +257,8 @@
                                                             </button>
 
                                                             <!-- Close Button with Close Icon -->
-                                                            <button type="button" class="btn btn-danger btn-sm btn-remove"
+                                                            <button type="button"
+                                                                class="btn btn-danger btn-sm btn-remove"
                                                                 data-id="{{ $vehicle->id }}">
                                                                 {{-- <i class="fas fa-times"></i> --}}
                                                                 Don't Renew
@@ -550,6 +558,10 @@
                 </div>
             </div>
         </div>
+
+        {{-- For Counting Vehicles --}}
+
+        <input type="hidden" id="list-of-vehicles" name="list_of_vehicles" value="[]">
     @endsection
 
     @section('links_js')
@@ -557,4 +569,34 @@
         <script src="{{ asset('js/12srur0123.js') }}"></script>
         <script src="{{ asset('js/srs3renewal1.js') }}"></script>
         {{-- <script src="{{ asset('js/srs3addvehicle.js') }}"></script> --}}
+        <script>
+            let listOfVehicles = [];
+        
+            @foreach ($crm->CRMXIvehicles as $vehicle)
+                listOfVehicles.push({{ $vehicle->id }});
+            @endforeach
+            
+            // Set the hidden input's value as a JSON string
+            document.getElementById('list-of-vehicles').value = JSON.stringify(listOfVehicles);
+
+        // For Removing Button
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', function() {
+                const vehicleId = this.getAttribute('data-id');
+                const row = document.getElementById('vehicle-row-' + vehicleId);
+
+                // Show a confirmation alert
+                if (confirm('Are you sure you want to remove this vehicle from the list?')) {
+                    if (row) {
+                        row.remove(); // Remove the row from the DOM
+                        listOfVehicles = listOfVehicles.filter(id => id != vehicleId); // Remove the vehicle ID from the array
+                    }
+                }
+                // If the user clicks 'No', the row won't be removed
+
+                // Update the hidden input field with the modified array
+                document.getElementById('list-of-vehicles').value = JSON.stringify(listOfVehicles);
+            });
+        });
+        </script>
     @endsection
