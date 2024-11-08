@@ -7,12 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class RequestApproved extends Mailable
+class RequestRejected extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $request;
-    public $url;
+    public $requestId;
+    public $rejectMessage;
     public $mailFrom;
 
     /**
@@ -20,10 +20,10 @@ class RequestApproved extends Mailable
      *
      * @return void
      */
-    public function __construct($request, $url, $mailFrom = 'bffhai@zn.donotreply.notification.znergee.com')
+    public function __construct($requestId, $rejectMessage, $mailFrom = 'bffhai@zn.donotreply.notification.znergee.com')
     {
-        $this->request = $request;
-        $this->url = $url;
+        $this->requestId = $requestId;
+        $this->rejectMessage = $rejectMessage;
         $this->mailFrom = $mailFrom;
     }
 
@@ -34,8 +34,8 @@ class RequestApproved extends Mailable
      */
     public function build()
     {
-        return $this->subject('SRS #'.$this->request->request_id.' - Approved')
+        return $this->subject('SRS #'.$this->requestId.' - Rejected')
                     ->from($this->mailFrom, 'BFFHAI')
-                    ->markdown('emails.requests3.approved');
+                    ->markdown('emails.requests.rejected');
     }
 }

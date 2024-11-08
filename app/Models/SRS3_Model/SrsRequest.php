@@ -7,6 +7,8 @@ use App\Models\CrmMain;
 use App\Models\CrmVehicle;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXIHoa;
+use App\Models\CRMXI3_Model\CRMXIHoaType;
+use App\Models\CRMXI3_Model\CRMXIMain;
 use App\Models\CRMXI3_Model\CRMXISubcat;
 use App\Models\CRMXI3_Model\CRMXIVehicleOwnershipStatus;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
@@ -31,7 +33,7 @@ class SrsRequest extends Model
     protected $table = 'srs3_requests';
     protected $primaryKey = 'request_id';
     protected $keyType = 'string';
-   
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -66,7 +68,7 @@ class SrsRequest extends Model
     {
         return $this->belongsTo(SPCSubCat::class);
     }
-    
+
     public function appointment()
     {
         return $this->hasOne(SrsAppointment::class, 'srs_request_id');
@@ -96,19 +98,19 @@ class SrsRequest extends Model
     public function statuses()
     {
         return $this->belongsToMany(SrsRequestStatus::class, 'srs_request_status_logs', 'request_id', 'status_id')
-                    ->withPivot('action_by')
-                    ->withTimestamps();
+            ->withPivot('action_by')
+            ->withTimestamps();
     }
 
     public function stats()
     {
         return $this->belongsToMany(SrsRequestStatus::class, 'srs_request_status_logs', 'request_id', 'status_id');
     }
-    
+
     public function customer()
     {
         // return $this->belongsTo(CrmMain::class, 'customer_id', 'customer_id');
-         return $this->belongsTo(CrmMain::class, 'customer_id', 'crm_id');
+        return $this->belongsTo(CrmMain::class, 'customer_id', 'crm_id');
     }
 
     public function invoice()
@@ -146,26 +148,58 @@ class SrsRequest extends Model
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    // SRS 3
+    // ================== SRS Request 3.0 ==================
 
+    /**
+     * Get the hoa record associated with the SrsRequest.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function hoa3()
     {
         return $this->belongsTo(CRMXIHoa::class, 'srs3_hoa_id');
     }
 
+    /**
+     * Get the hoa type record associated with the SrsRequest.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function category3()
     {
         return $this->belongsTo(CRMXICategory::class, 'category_id');
     }
 
+    /**
+     * Get the sub category record associated with the SrsRequest.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function subCategory3()
     {
         return $this->belongsTo(CRMXISubcat::class, 'srs3_sub_category_id');
     }
 
-    public function crmVehicleRequests()
+    /**
+     * Get the vehicle record associated with the SrsRequest.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vehicles3()
     {
         // return $this->hasMany(SrsVehicle::class, 'srs_request_id');
-        return $this->hasMany(CRXMIVehicle::class, 'srs_request_id');
+        return $this->hasMany(CRXMIVehicle::class, 'srs_request_id', 'request_id');
     }
+
+    /**
+     * Get the customer record associated with the SrsRequest.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function customer3()
+    {
+        return $this->belongsTo(CRMXIMain::class, 'customer_id', 'crm_id');
+    }
+
+    // ================== SRS Request 3.0 ==================
 }

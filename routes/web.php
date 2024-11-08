@@ -6,9 +6,11 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
 use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
 use App\Http\Controllers\srs3\SubCategoryController as Srs3SubCategoryController;
+use App\Http\Controllers\SRS_3\HoaApproverController as HoaApprover3Controller;
 use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
+use App\Http\Controllers\SrsUserController;
 use App\Http\Controllers\SubCategoryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -85,7 +87,7 @@ Route::prefix('v3')->group(function () {
     Route::post('/srs/i/requests/', [Srs3RequestController::class, 'getRequest'])->name('getRequest.v3');
     Route::get('/srs/request/{srsRequest}', [Srs3RequestController::class, 'show'])->name('srsRequest.v3.show');
 
-    Route::prefix('sub-categories')->group(function() {
+    Route::prefix('sub-categories')->group(function () {
         Route::get('/', [Srs3SubCategoryController::class, 'index'])->name('v3.sub-categories.index');
         Route::post('/create', [Srs3SubCategoryController::class, 'store'])->name('v3.sub-categories.store');
         Route::get('/list', [Srs3SubCategoryController::class, 'list'])->name('v3.sub-categories.list');
@@ -95,7 +97,7 @@ Route::prefix('v3')->group(function () {
     });
 });
 
-Route::prefix('sub-categories')->group(function() {
+Route::prefix('sub-categories')->group(function () {
     Route::get('/', [SubCategoryController::class, 'index'])->name('sub-categories.index');
     Route::post('/create', [SubCategoryController::class, 'store'])->name('sub-categories.store');
     Route::get('/list', [SubCategoryController::class, 'list'])->name('sub-categories.list');
@@ -150,9 +152,9 @@ Route::post('/save-form', [SrsRequestRenewalController::class, 'saveProgress'])-
 //     Route::post('/admin-login', [SrsUserController::class, 'authenticate']);
 
 
-//     Route::get('/hoa/login', function () {
-//         return view('auth.login2');
-//     })->name('login.hoa');
+    // Route::get('/hoa/login', function () {
+    //     return view('auth.login2');
+    // })->name('login.hoa');
 // });
 // Route::post('/admin-login', [LoginController::class, 'login']);
 Route::group(['middleware' => 'guest'], function () {
@@ -167,6 +169,10 @@ Route::group(['middleware' => 'guest'], function () {
     })->name('login.hoa'); // This name is already unique, so it's fine
 });
 Route::post('/admin-login', [LoginController::class, 'login']);
+
+Route::get('/hoa/login', function () {
+    return view('auth.login2');
+})->name('login.hoa'); // This name is already unique, so it's fine
 Route::get('/sticker/request/status', function () {
     return view('srs.request.status');
 })->name('request.status');
@@ -205,8 +211,10 @@ Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'
 // Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
 
+
+
 Route::group(['middleware' => ['auth', 'isOnline']], function () {
-    // Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
+    Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
 
     // Approvers
     // Route::prefix('/hoa-approvers')->group(function() {
@@ -219,4 +227,18 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
 
     //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
     // });
+
+
+
 });
+        // HOA Presidents/Approvers 3.0
+        Route::prefix('/hoa-approvers3')->group(function () {
+            Route::get('/', [HoaApprover3Controller::class, 'index'])->name('hoa-approvers3.index');
+            Route::get('/list', [HoaApprover3Controller::class, 'list'])->name('hoa-approvers3.list');
+            Route::get('/{request_id}/{type?}/{year?}', [HoaApprover3Controller::class, 'show'])->name('hoa-approvers3.show');
+            Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApprover3Controller::class, 'showFile']);
+    
+            Route::post('sticker/request/hoa_approval', [HoaApprover3Controller::class, 'hoaApproved'])->name('hoa-approvers3.approval');
+    
+            Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
+        });

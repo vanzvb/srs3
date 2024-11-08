@@ -17,6 +17,8 @@ use App\Models\CrmVehicle;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXICivilStatus;
 use App\Models\CRMXI3_Model\CRMXITempAddress;
+use App\Models\CRMXI3_Model\CRXMIVehicle;
+use App\Models\CRMXI3_Model\CRXMIVehicleOwner;
 use App\Models\LogSrsHist;
 use App\Models\SPCCategory;
 use App\Models\SPCSubCat;
@@ -268,9 +270,10 @@ class SrsRequestController extends Controller
 
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId','years','vehicleOwnershipTypes'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId', 'years', 'vehicleOwnershipTypes'));
         // return view('srs.request.create', compact('cities'));
     }
+
 
     public function store(SrsRequestRequest $request)
     {
@@ -279,7 +282,7 @@ class SrsRequestController extends Controller
         // dd($data);
         // Start a transaction
         DB::beginTransaction();
-        
+
         try {
 
             // (START) srs3_requests saving 
@@ -309,7 +312,7 @@ class SrsRequestController extends Controller
             $srsRequest->email = $data['email'];
             $srsRequest->secondary_contact = $data['secondary_contact_no'];
             $srsRequest->tertiary_contact = $data['tertiary_contact_no'];
-    
+
             // if (isset($data['hoa'])) {
             //     if ($srsRequest->category_id == 1) {
             //         $srsRequest->hoa_id = $data['hoa'];
@@ -319,24 +322,24 @@ class SrsRequestController extends Controller
             // }
             // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
 
-    
-    
+
+
             $encoded_image = explode(",", $data['signature'])[1];
             $decoded_image = base64_decode($encoded_image);
             // $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.png';
             $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.webp';
-    
+
             $srsRequest->signature = $signatureFile;
             $signatureImg = Image::make($decoded_image)->encode('webp');
-    
-    
+
+
             $srsRequest->created_at = now();
             $srsRequest->updated_at = now();
-    
+
             // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
             $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
             $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
-    
+
             Storage::put($path . '/' . $srsRequest->signature, $signatureImg);
 
             // (END) srs3_requests saving
@@ -344,9 +347,9 @@ class SrsRequestController extends Controller
             $srsRequest->save();
 
             $generateRequestID = $srsRequest->request_id;
-        
+
             // (START) crmxi3_temp_address saving
-            
+
             $addresses = json_decode($request->input('addresses'), true);
             // For Tracking of Newly saved addresses
             $savedAddressIds = [];
@@ -373,7 +376,48 @@ class SrsRequestController extends Controller
                 // Store the saved address ID
                 $savedAddressIds[] = $address->id;
             }
-            
+
+            $vehicles = json_decode($request->input('vehicles'), true);
+
+            // dd($vehicles, $savedAddressIds);
+
+            foreach ($vehicles as $vehicleData) {
+                $vehicle = new CRXMIVehicle();
+
+                // Get the corresponding address ID based on addressIndex
+                $addressIndex = $vehicleData['addressIndex'];
+                if (isset($savedAddressIds[$addressIndex])) {
+                    $vehicle->address_id = $savedAddressIds[$addressIndex];
+                } else {
+                    // Handle the case where the addressIndex is invalid (optional)
+                    continue;
+                }
+
+                $vehicle->srs_request_id = $generateRequestID;
+                // 0 = New / 1 = Renewal
+                $vehicle->req_type = 0;
+                $vehicle->plate_no = $vehicleData['plateNo'];
+                $vehicle->brand = $vehicleData['brand'];
+                $vehicle->series = $vehicleData['series'];
+                $vehicle->year_model = $vehicleData['year_model'];
+                $vehicle->color = $vehicleData['color'];
+                $vehicle->type = $vehicleData['vehicle_type'];
+                // $vehicle->first_name = $vehicleData['firstName'];
+                // $vehicle->middle_name = $vehicleData['middleName'];
+                // $vehicle->last_name = $vehicleData['lastName'];
+                // $vehicle->main_contact = $vehicleData['mainContact'];
+                // $vehicle->secondary_contact = $vehicleData['secondaryContact'];
+                // $vehicle->tertiary_contact = $vehicleData['tertiaryContact'];
+                // $vehicle->use_individual_fields = $vehicleData['useIndividualFields'];
+                $vehicle->or_path = null;
+                $vehicle->cr_path = null;
+                $vehicle->save();
+
+                $vehicleOwner = new CRXMIVehicleOwner();
+
+                
+            }
+
             // dd($savedAddressIds);
 
             DB::commit();
@@ -450,7 +494,7 @@ class SrsRequestController extends Controller
         //     $vehicles[] = $vehicle;
         // }
 
-        
+
 
         // if ($vehicles) {
         //     $srsRequest->vehicles()->saveMany($vehicles);
@@ -1562,7 +1606,7 @@ class SrsRequestController extends Controller
     {
         $categoryId = $request->query('category_id');
         $subcategories = DB::table('get_subcat')->where('category_id', $categoryId)->get();
-        
+
         return response()->json($subcategories);
     }
 

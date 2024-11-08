@@ -12,6 +12,7 @@ class SrsRequest extends Model
 {
     use SoftDeletes;
 
+    // protected $table = 'srs3_requests';
     protected $primaryKey = 'request_id';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -48,7 +49,7 @@ class SrsRequest extends Model
     {
         return $this->belongsTo(SPCSubCat::class);
     }
-
+    
     public function appointment()
     {
         return $this->hasOne(SrsAppointment::class, 'srs_request_id');
@@ -78,19 +79,19 @@ class SrsRequest extends Model
     public function statuses()
     {
         return $this->belongsToMany(SrsRequestStatus::class, 'srs_request_status_logs', 'request_id', 'status_id')
-            ->withPivot('action_by')
-            ->withTimestamps();
+                    ->withPivot('action_by')
+                    ->withTimestamps();
     }
 
     public function stats()
     {
         return $this->belongsToMany(SrsRequestStatus::class, 'srs_request_status_logs', 'request_id', 'status_id');
     }
-
+    
     public function customer()
     {
         // return $this->belongsTo(CrmMain::class, 'customer_id', 'customer_id');
-        return $this->belongsTo(CrmMain::class, 'customer_id', 'crm_id');
+         return $this->belongsTo(CrmMain::class, 'customer_id', 'crm_id');
     }
 
     public function invoice()

@@ -2,26 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\SPCSubCat;
-use App\Models\SPCCategory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class SrsRequest extends Model
+class SrsRequestsArchive extends Model
 {
     use SoftDeletes;
 
+    protected $table;
     protected $primaryKey = 'request_id';
     protected $keyType = 'string';
     public $incrementing = false;
-
-    protected $fillable = [
-        'hoa_notif_resend',
-        'hoa_renotif_at',
-        'appt_resend',
-        'appt_resend_at'
-    ];
 
     protected $casts = [
         'contact_no' => 'encrypted',
@@ -38,15 +30,35 @@ class SrsRequest extends Model
         'email',
         'signature',
     ];
+     
+
+    public function scopeFromTable($query, $tableName) 
+    {
+        $query->from($tableName);
+        $this->setTable($tableName);
+    }
+
+
+    // public function setTable($tableName)
+    // {
+    //     $this->table = $tableName;
+    // }
+
+    // public function scopeTable($query, $tableName)
+    // {
+    //     $query->getQuery()->from = $tableName;
+    //     return $query;
+    // }
+
 
     public function category()
     {
-        return $this->belongsTo(SPCCategory::class);
+        return $this->belongsTo(SrsCategory::class);
     }
 
     public function subCategory()
     {
-        return $this->belongsTo(SPCSubCat::class);
+        return $this->belongsTo(SrsSubCategory::class);
     }
 
     public function appointment()
@@ -65,11 +77,6 @@ class SrsRequest extends Model
         return $this->belongsTo(SrsHoa::class);
     }
 
-    public function nrHoa()
-    {
-        return $this->belongsTo(SrsNrHoa::class);
-    }
-
     public function files()
     {
         return $this->hasMany(SrsRequirementFile::class, 'srs_request_id');
@@ -78,8 +85,8 @@ class SrsRequest extends Model
     public function statuses()
     {
         return $this->belongsToMany(SrsRequestStatus::class, 'srs_request_status_logs', 'request_id', 'status_id')
-            ->withPivot('action_by')
-            ->withTimestamps();
+                    ->withPivot('action_by')
+                    ->withTimestamps();
     }
 
     public function stats()
@@ -100,7 +107,7 @@ class SrsRequest extends Model
 
     public function crmVehicles()
     {
-        return $this->belongsToMany(CrmVehicle::class, 'request_vehicle', 'request_id', 'vehicle_id')->withTimestamps();
+        return $this->belongsToMany(CrmVehicle::class, 'request_vehicle', 'request_id', 'vehicle_id')->where('assoc_crm', 1)->withTimestamps();
     }
 
     public function appointmentResets()
@@ -121,10 +128,5 @@ class SrsRequest extends Model
     public function latestApptResend()
     {
         return $this->hasOne(SrsApptResend::class, 'request_id')->orderBy('created_at', 'desc');
-    }
-
-    public function fullName()
-    {
-        return $this->first_name . ' ' . $this->last_name;
     }
 }

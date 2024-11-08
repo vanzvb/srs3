@@ -23,4 +23,9 @@ class CRMXIHoa extends Model
     public function vehicle () {
         return $this->belongsTo(CRXMIVehicleOwner::class, 'hoa');
     }
+
+    public function hoaType()
+    {
+        return $this->belongsTo(CRMXIHoaType::class, 'type');
+    }
 }

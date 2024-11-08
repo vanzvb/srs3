@@ -62,17 +62,17 @@
 
                               @if(auth()->user()->role_id == '4' || auth()->user()->role_id == '3' || auth()->user()->email == 'miguel.lacupanto@bffhai.com' || auth()->user()->email == 'floyd.tabuzo@bffhai.com' || auth()->user()->email == 'tirso.sulanguit@bffhai.com' || auth()->user()->email == 'chazt.tanyag@bffhai.com' || auth()->user()->email == 'lawenko.max@bffhai.com' || auth()->user()->email == 'jhun.paculan@bffhai.com')
                                 <li class="nav-link">
-                                    <a href="{{ route('spc.report') }}">
+                                    {{-- <a href="{{ route('spc.report') }}">
                                         <i class='bx bxs-report icon'></i>
                                         <span class="text nav-text">REPORTS</span>
-                                    </a>
+                                    </a> --}}
                                 </li>
 
                                 <li class="nav-link">
-                                    <a href="{{ route('spc-to-gl.index') }}">
+                                    {{-- <a href="{{ route('spc-to-gl.index') }}">
                                         <i class='bx bxs-report icon'></i>
                                         <span class="text nav-text">SPC 2.0 TO GL</span>
-                                    </a>
+                                    </a> --}}
                                 </li>
                                 @endif
                             </ul>
@@ -464,10 +464,10 @@
                     auth()->user()->email == "srsadmin@atomitsoln.com"
                 )
                     <li class="nav-link">
-                        <a href="{{ route('srs-blacklists.index') }}">
+                        {{-- <a href="{{ route('srs-blacklists.index') }}">
                             <i class="bx bx-block icon"></i>
                             <span class="text nav-text">SRS Blacklists</span>
-                        </a>
+                        </a> --}}
                     </li>
                 @endif
 

@@ -34,8 +34,8 @@ class RequestRejected extends Mailable
      */
     public function build()
     {
-        return $this->subject('SRS #'.$this->requestId.' - Rejected')
-                    ->from($this->mailFrom, 'BFFHAI')
-                    ->markdown('emails.requests.rejected');
+        return $this->subject('SRS #' . $this->requestId . ' - Rejected')
+            ->from($this->mailFrom, 'BFFHAI')
+            ->markdown('emails.requests3.rejected');
     }
 }

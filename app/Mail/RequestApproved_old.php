@@ -36,6 +36,6 @@ class RequestApproved extends Mailable
     {
         return $this->subject('SRS #'.$this->request->request_id.' - Approved')
                     ->from($this->mailFrom, 'BFFHAI')
-                    ->markdown('emails.requests3.approved');
+                    ->markdown('emails.requests.approved');
     }
 }
