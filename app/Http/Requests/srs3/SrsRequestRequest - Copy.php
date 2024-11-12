@@ -27,7 +27,7 @@ class SrsRequestRequest extends FormRequest
     public function rules()
     {
         return [
-           // 'g-recaptcha-response' => [
+            // 'g-recaptcha-response' => [
             //     'required',
             //     function ($attribute, $value, $fail) {
             //         $response = $this->validateCaptcha($value);
@@ -48,21 +48,18 @@ class SrsRequestRequest extends FormRequest
             'first_name' => 'nullable|string',
             'last_name' => 'nullable|string',
             'middle_name' => 'nullable|string',
-            'block' => 'nullable|integer',
-            'lot' => 'nullable|integer',
             'civil_status' => 'nullable|string',
             'nationality' => 'nullable|string',
             'tin_no' => 'nullable|string',
-            'house_no' => 'nullable|string',
-            'street' => 'required|string',
+            // 'house_no' => 'required|string',
+            // 'street' => 'required|string',
             'building_name' => 'nullable|string',
             'subdivision_village' => 'nullable|string',
             'city' => 'nullable|string',
-            'zipcode' => 'nullable|integer',
             'hoa' => 'string|exists:srs_hoas,id',
             'contact_no' => 'required|string|min:7|max:30|regex:/^[0-9+() -]*$/',
-            'second_contact_no' => 'nullable|string|min:7|max:30|regex:/^[0-9+() -]*$/',
-            'alt_email' => 'nullable|email',
+            'secondary_contact_no' => 'nullable|string',
+            'tertiary_contact_no' => 'nullable|string',
             'email' => 'required|email',
             'signature' => 'required|string',
             // 'plate_no' => 'required|array',
@@ -85,7 +82,6 @@ class SrsRequestRequest extends FormRequest
             'v_type.*' => 'string',
             'or.*' => 'file|mimes:jpg,png,jpeg|max:5120',
             'cr.*' => 'file|mimes:jpg,png,jpeg|max:5120',
-            'other_req.*' => 'file|mimes:jpg,png,jpeg|max:5120',
             // 'hoa_endorsement' => 'required_if:sub_category,1|file|mimes:jpg,png,jpeg,pdf',
             'lease_contract' => 'required_if:sub_category,2|file|mimes:jpg,png,jpeg|max:5120',
             'tct' => 'required_if:sub_category,4|file|mimes:jpg,png,jpeg|max:5120',
@@ -102,7 +98,6 @@ class SrsRequestRequest extends FormRequest
             // Validation 3.0
 
             
-            
         ];
     }
 
@@ -114,8 +109,7 @@ class SrsRequestRequest extends FormRequest
             'or' => 'OR',
             'cr' => 'CR',
             'or.*' => 'OR',
-            'cr.*' => 'CR',
-            'other_req.*' => 'Other Requirements',
+            'cr.*' => 'CR'
         ];
     }
 
@@ -134,7 +128,6 @@ class SrsRequestRequest extends FormRequest
             'valid_id_other_requirement.required_if' => 'Valid ID or Other Requirement is required',
             'or.*.mimes'    => 'The OR must have a file format of: .JPG, .JPEG, and .PNG',
             'cr.*mimes'     => 'The CR must have a file format of: .JPG, .JPEG, and .PNG',
-            'other_req.*mimes'     => 'The Other Requirements must have a file format of: .JPG, .JPEG, and .PNG',
             'lease_contract.mimes'  => 'The Lease Contract must have a file format of: .JPG, .JPEG, and .PNG',
             'tct.mimes' => 'The TCT must have a file format of: .JPG, .JPEG, and .PNG',
             'business_clearance.mimes' => 'The Business Clearance must have a file format of: .JPG, .JPEG, and .PNG',

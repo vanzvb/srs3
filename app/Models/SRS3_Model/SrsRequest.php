@@ -77,12 +77,13 @@ class SrsRequest extends Model
     public function vehicles()
     {
         // return $this->hasMany(SrsVehicle::class, 'srs_request_id');
-        return $this->hasMany(CrmVehicle::class, 'srs_request_id');
+        return $this->hasMany(CRXMIVehicle::class, 'srs_request_id');
     }
 
     public function hoa()
     {
-        return $this->belongsTo(SrsHoa::class);
+        // return $this->belongsTo(SrsHoa::class);
+        return $this->belongsTo(CRMXIHoa::class);
     }
 
     public function nrHoa()

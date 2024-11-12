@@ -78,6 +78,7 @@ class SendRequestorNotificationJob implements ShouldQueue
             $mailFrom = 'bffhai@zn.donotreply.notification.znergee.com';
 
             Mail::mailer('smtp_2')->to($this->email)->send(new RequestSubmittedRequestor($this->srsRequest, $mailFrom));
+
         } catch(\Throwable $e) {
 
             $backup = Mail::getSwiftMailer();

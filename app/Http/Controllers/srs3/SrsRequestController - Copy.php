@@ -279,179 +279,226 @@ class SrsRequestController extends Controller
     {
         // dd($request);
         $data = $request->validated();
-
-
         // dd($data);
-        // if ($data['category'] == 1) {
-        //     $sub_cats = DB::table('spc_subcat')
-        //     ->where('category_id', 1)
-        //     ->where('status', 1)
-        //     ->get();
+        // Start a transaction
+        DB::beginTransaction();
 
-        //     Validator::make($data, [
-        //         'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
-        //     ])->validate();
-        // } elseif ($data['category'] == 2) {
-        //     $sub_cats = DB::table('spc_subcat')
-        //     ->where('category_id', 2)
-        //     ->where('status', 1)
-        //     ->get();
+        try {
 
-        //     Validator::make($data, [
-        //         'sub_category' => 'in:' . $sub_cats->pluck('id')->implode(',')
-        //     ])->validate();
-        // }
-        // elseif ($data['category'] == 3) {
-        //     Validator::make($data, [
-        //         'sub_category' => 'in:19,20'
-        //     ])->validate();
-        // }
+            // (START) srs3_requests saving 
+
+            $srsRequest = new SrsRequest();
+            $srsRequest->account_type = $data['account_type'];
+            $srsRequest->request_id = $this->getNextId();
+            $srsRequest->category_id = $data['category'];
+            $srsRequest->sub_category_id = $data['sub_category_1'];
+            // if srs3_hoa_id is not null, 
+            $srsRequest->hoa_id = $data['hoa_1'];
+            $srsRequest->account_type = $data['account_type'];
+
+            if ($data['account_type'] == 0) {
+                $srsRequest->first_name = $data['first_name'];
+                $srsRequest->last_name = $data['last_name'];
+                $srsRequest->middle_name = $data['middle_name'];
+            } else {
+                $srsRequest->company_name = $data['company_name'];
+                $srsRequest->company_representative = $data['company_representative'];
+            }
+
+            $srsRequest->civil_status = $data['civil_status'];
+            $srsRequest->nationality = $data['nationality'];
+            $srsRequest->tin_no = $data['tin_no'];
+            $srsRequest->contact_no = $data['contact_no'];
+            $srsRequest->email = $data['email'];
+            $srsRequest->secondary_contact = $data['secondary_contact_no'];
+            $srsRequest->tertiary_contact = $data['tertiary_contact_no'];
+
+            // if (isset($data['hoa'])) {
+            //     if ($srsRequest->category_id == 1) {
+            //         $srsRequest->hoa_id = $data['hoa'];
+            //     } else if ($srsRequest->category_id == 2) {
+            //         $srsRequest->nr_hoa_id = $data['hoa'];
+            //     }
+            // }
+            // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
 
 
-        // if ($data['category'] == 1 && $data['sub_category'] != 8) {
-        //     $validator = Validator::make($data, [
-        //         'hoa' => 'required'
-        //     ]);
-        //     if ($validator->fails()) {
-        //         return back()
-        //             ->withErrors($validator)
-        //             ->withInput();
+
+            $encoded_image = explode(",", $data['signature'])[1];
+            $decoded_image = base64_decode($encoded_image);
+            // $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.png';
+            $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.webp';
+
+            $srsRequest->signature = $signatureFile;
+            $signatureImg = Image::make($decoded_image)->encode('webp');
+
+
+            $srsRequest->created_at = now();
+            $srsRequest->updated_at = now();
+
+            // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+
+            Storage::put($path . '/' . $srsRequest->signature, $signatureImg);
+
+            // (END) srs3_requests saving
+
+            $srsRequest->save();
+
+            $generateRequestID = $srsRequest->request_id;
+
+            // (START) crmxi3_temp_address saving
+
+            $addresses = json_decode($request->input('addresses'), true);
+            // For Tracking of Newly saved addresses
+            $savedAddressIds = [];
+            // dd($addresses);
+            // Loop through each address and save it
+            foreach ($addresses as $addressData) {
+                // Assuming you have an Address model
+                $address = new CRMXITempAddress();
+                $address->request_id = $generateRequestID;
+                $address->block = $addressData['block'];
+                $address->lot = $addressData['lot'];
+                $address->house_number = $addressData['houseNumber'];
+                $address->street = $addressData['street_modal'];
+                $address->building_name = $addressData['building_name_modal'];
+                $address->subdivision_village = $addressData['subdivision_village_modal'];
+                $address->city = $addressData['city_modal'];
+                $address->zipcode = !empty($addressData['zipcode_modal']) ? $addressData['zipcode_modal'] : null;
+                $address->category_id = $addressData['category_modal'];
+                $address->sub_category_id = $addressData['sub_category_modal'];
+                $address->hoa = $addressData['HOA_modal'];
+                $address->hoa_type = $addressData['member_type_modal'];
+                $address->save();
+
+                // Store the saved address ID
+                $savedAddressIds[] = $address->id;
+            }
+
+            $vehicles = json_decode($request->input('vehicles'), true);
+
+            // dd($vehicles, $savedAddressIds);
+
+            foreach ($vehicles as $vehicleData) {
+                $vehicle = new CRXMIVehicle();
+
+                // Get the corresponding address ID based on addressIndex
+                $addressIndex = $vehicleData['addressIndex'];
+                if (isset($savedAddressIds[$addressIndex])) {
+                    $vehicle->address_id = $savedAddressIds[$addressIndex];
+                } else {
+                    // Handle the case where the addressIndex is invalid (optional)
+                    continue;
+                }
+
+                $vehicle->srs_request_id = $generateRequestID;
+                // 0 = New / 1 = Renewal
+                $vehicle->req_type = 0;
+                $vehicle->plate_no = $vehicleData['plateNo'];
+                $vehicle->brand = $vehicleData['brand'];
+                $vehicle->series = $vehicleData['series'];
+                $vehicle->year_model = $vehicleData['year_model'];
+                $vehicle->color = $vehicleData['color'];
+                $vehicle->type = $vehicleData['vehicle_type'];
+                // $vehicle->first_name = $vehicleData['firstName'];
+                // $vehicle->middle_name = $vehicleData['middleName'];
+                // $vehicle->last_name = $vehicleData['lastName'];
+                // $vehicle->main_contact = $vehicleData['mainContact'];
+                // $vehicle->secondary_contact = $vehicleData['secondaryContact'];
+                // $vehicle->tertiary_contact = $vehicleData['tertiaryContact'];
+                // $vehicle->use_individual_fields = $vehicleData['useIndividualFields'];
+                $vehicle->or_path = null;
+                $vehicle->cr_path = null;
+                $vehicle->save();
+
+                $vehicleOwner = new CRXMIVehicleOwner();
+
+                
+            }
+
+            // dd($savedAddressIds);
+
+            DB::commit();
+            // (END) crmxi3_temp_address saving
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            throw $e;
+        }
+
+
+
+        // $count = 0;
+        // $vehicles = [];
+
+        // foreach ($data['plate_no'] as $item1) {
+        //     // $vehicle = new SrsVehicle();
+        //     $vehicle = new CrmVehicle();
+        //     $vehicle->srs_request_id = $srsRequest->request_id;
+        //     $vehicle->req_type = $data['req_type'][$count];
+
+        //     if ($item1) {
+        //         $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
         //     }
+
+        //     if ($data['brand'][$count]) {
+        //         $vehicle->brand = strip_tags($data['brand'][$count]);
+        //     }
+
+        //     if ($data['series'][$count]) {
+        //         $vehicle->series = strip_tags($data['series'][$count]);
+        //     }
+
+        //     if ($data['year_model'][$count]) {
+        //         $vehicle->year_model = strip_tags($data['year_model'][$count]);
+        //     }
+
+        //     if (isset($data['sticker_no'])) {
+        //         if ($data['sticker_no'][$count]) {
+        //             $vehicle->old_sticker_no = strip_tags($data['sticker_no'][$count]);
+        //         }
+        //     }
+
+        //     if ($data['v_color'][$count]) {
+        //         $vehicle->color = strip_tags($data['v_color'][$count]);
+        //     }
+
+        //     if ($data['v_type'][$count]) {
+        //         $vehicle->type = strip_tags($data['v_type'][$count]);
+        //     }
+
+        //     if (isset($data['or'])) {
+        //         if (isset($data['or'][$count])) {
+        //             $vehicle->req1 = $this->storeFile($path, $data['or'][$count]);
+        //             $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
+        //         } else {
+        //             $vehicle->req1 = '';
+        //         }
+        //     }
+
+        //     if (isset($data['cr'])) {
+        //         if (isset($data['cr'][$count])) {
+        //             $vehicle->cr = $this->storeFile($path, $data['cr'][$count]);
+        //             $vehicle->cr_path = $vehicle->cr . '/' . $filePath;
+        //         } else {
+        //             $vehicle->cr = '';
+        //         }
+        //     }
+
+
+        //     $count++;
+        //     $vehicles[] = $vehicle;
         // }
 
-        $srsRequest = new SrsRequest();
-        $srsRequest->request_id = $this->getNextId($request->category, $request->sub_category_1);
-        $srsRequest->category_id = $data['category'];
-        $srsRequest->sub_category_id = $data['sub_category_1'];
-        // $srsRequest->first_name = $data['first_name'];
-        // $srsRequest->last_name = $data['last_name'];
-        // $srsRequest->middle_name = $data['middle_name'];
-        // $srsRequest->house_no = $data['house_no'];
-        // $srsRequest->street = $data['street'];
-        $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['first_name']))));
-        $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['last_name']))));
-        $srsRequest->middle_name = $data['middle_name'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['middle_name'])))) : NULL;
-        $srsRequest->block_no = $data['block'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['block'])))) : NULL;
-        $srsRequest->lot_no = $data['lot'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['lot'])))) : NULL;
-        $srsRequest->house_no = $data['middle_name'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['house_no'])))) : NULL;
-        $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['street']))));
-        $srsRequest->building_name = $data['building_name'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['building_name'])))) : NULL;
-        $srsRequest->subdivision_village = $data['subdivision_village'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['subdivision_village'])))) : NULL;
-        $srsRequest->city = $data['city'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['city'])))) : NULL;
-        $srsRequest->zipcode = $data['zipcode'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['zipcode'])))) : NULL;
-
-        if (isset($data['hoa_1'])) {
-            if ($srsRequest->category_id == 1) {
-                $srsRequest->hoa_id = $data['hoa_1'];
-            } else if ($srsRequest->category_id == 2) {
-                $srsRequest->nr_hoa_id = $data['hoa_1'];
-            }
-        }
-        // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
-        $srsRequest->contact_no = $data['contact_no'];
-        $srsRequest->secondary_contact = $data['second_contact_no'];
-
-        $srsRequest->email = $data['email'];
-        $srsRequest->tertiary_contact = $data['alt_email'];
-
-        $encoded_image = explode(",", $data['signature'])[1];
-        $decoded_image = base64_decode($encoded_image);
-        // $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.png';
-        $signatureFile = date('ymd').'_'.uniqid().'_'.date('His').'.webp';
-
-        $srsRequest->signature = $signatureFile;
-        $signatureImg = Image::make($decoded_image)->encode('webp');
-        
-
-        $srsRequest->created_at = now();
-        $srsRequest->updated_at = now();
-
-        // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
-        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
-
-        Storage::put($path . '/' . $srsRequest->signature, $signatureImg);
-
-        $count = 0;
-        $vehicles = [];
-
-        foreach ($data['plate_no'] as $item1) {
-            // $vehicle = new SrsVehicle();
-            // $vehicle = new CrmVehicle();
-            $vehicle = new CRXMIVehicle();
-
-            // $vehicle->address_id = 
-            
-            $vehicle->srs_request_id = $srsRequest->request_id;
-            $vehicle->req_type = $data['req_type'][$count];
-
-            if ($item1) {
-                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $item1))));
-            }
-
-            if ($data['brand'][$count]) {
-                $vehicle->brand = strip_tags($data['brand'][$count]);
-            }
-
-            if ($data['series'][$count]) {
-                $vehicle->series = strip_tags($data['series'][$count]);
-            }
-
-            if ($data['year_model'][$count]) {
-                $vehicle->year_model = strip_tags($data['year_model'][$count]);
-            }
-
-            if (isset($data['sticker_no'])) {
-                if ($data['sticker_no'][$count]) {
-                    $vehicle->old_sticker_no = strip_tags($data['sticker_no'][$count]);
-                }
-            }
-
-            if ($data['v_color'][$count]) {
-                $vehicle->color = strip_tags($data['v_color'][$count]);
-            }
-
-            if ($data['v_type'][$count]) {
-                $vehicle->type = strip_tags($data['v_type'][$count]);
-            }
-
-            if (isset($data['or'])) {
-                if (isset($data['or'][$count])) {
-                    $vehicle->req1 = $this->storeFile($path, $data['or'][$count]);
-                    $vehicle->or_path = $vehicle->req1 . '/' . $filePath;
-                } else {
-                    $vehicle->req1 = '';
-                }
-            }
-
-            if (isset($data['cr'])) {
-                if (isset($data['cr'][$count])) {
-                    $vehicle->cr = $this->storeFile($path, $data['cr'][$count]);
-                    $vehicle->cr_path = $vehicle->cr . '/' . $filePath;
-                } else {
-                    $vehicle->cr = '';
-                }
-            }
-
-            if (isset($data['other_req'])) {
-                if (isset($data['other_req'][$count])) {
-                    $vehicle->vot = $this->storeFile($path, $data['other_req'][$count]);
-                    $vehicle->vot_path = $vehicle->vot . '/' . $filePath;
-                } else {
-                    $vehicle->vot = '';
-                }
-            }
 
 
-            $count++;
-            $vehicles[] = $vehicle;
-        }
-
-        $srsRequest->save();
-
-        if ($vehicles) {
-            $srsRequest->vehicles()->saveMany($vehicles);
-        }
+        // if ($vehicles) {
+        //     $srsRequest->vehicles()->saveMany($vehicles);
+        // }
 
         $files = [];
 
@@ -521,7 +568,9 @@ class SrsRequestController extends Controller
         // Mail::to($hoa->email)->send(new RequestSubmitted($srsRequest, $url));
 
         // Mail::to($srsRequest->email)->queue(new RequestSubmittedRequestor($srsRequest));
-        dispatch(new \App\Jobs\srs3\SendRequestorNotificationJob($srsRequest, $srsRequest->email));
+
+        // VB Disabled notif for testing
+        // dispatch(new \App\Jobs\SendRequestorNotificationJob($srsRequest, $srsRequest->email));
 
         $srsRequest->load('hoa');
 
@@ -542,23 +591,23 @@ class SrsRequestController extends Controller
             //     Mail::to($hoaEmails)->send(new RequestSubmitted($srsRequest, $url));
             // }
 
-            if ($srsRequest->hoa->emailAdd1) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
+            // if ($srsRequest->hoa->emailAdd1) {
+            //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 
-                // dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
-            }
+            //     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
+            // }
 
-            if ($srsRequest->hoa->emailAdd2) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+            // if ($srsRequest->hoa->emailAdd2) {
+            //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
 
-                // dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
-            }
-            
-            if ($srsRequest->hoa->emailAdd3) {
-                $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+            //     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
+            // }
 
-                // dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
-            }
+            // if ($srsRequest->hoa->emailAdd3) {
+            //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+
+            //     dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
+            // }
         }
 
 

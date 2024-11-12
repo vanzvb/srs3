@@ -3,6 +3,7 @@
 @section('title', 'Sticker Application Request')
 
 @section('content')
+
     <div class="container px-md-5">
         <div class=" px-md-5 mb-3">
             @if ($errors->any())
@@ -36,22 +37,24 @@
             @else
                 <div class="card mt-3 shadow mb-5 bg-body rounded">
                     <div class="card-header text-center bg-primary" style="color: white;">
-                        <img src="{{ asset('images/bflogo.png') }}" height="100" width="100" alt="">
+                        {{-- <img src="{{ asset('images/bflogo.png') }}" height="100" width="100" alt=""> --}}
                         <h5>BFFHAI</h5>
-                        <h5>Sticker Application Form</h5>
+                        <h5>Sticker Application Form Version 3</h5>
+                        {{-- <h5>{{ $tempId }}</h5> --}}
                     </div>
                     <div class="container justify-content-center align-items-center">
                         <div class="p-md-4 mt-1 mb-3">
-                            <form action="/v3/sticker/request" id="sticker_request_form" method="POST"
+                            <form action="{{ route('request.v3.store') }}" id="sticker_request_form" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="row px-2 px-md-0">
+                                    <!-- First Row -->
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="account_type" id="account_type"
                                                 onclick="toggleFields()">
                                                 <option value="0" selected>Individual</option>
-                                                {{-- <option value="1">Company</option> --}}
+                                                <option value="1">Company</option>
                                             </select>
                                             <label for="account_type">Account Type</label>
                                         </div>
@@ -67,6 +70,38 @@
                                         </div>
                                     </div>
 
+                                    {{-- <div class="col-md-6 col-12 mt-2">
+                                        <div class="input-group" style="height: 100%;">
+                                            <label for="" class="input-group-text">Request for</label>
+                                            <select name="category" id="category" class="form-select">
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div> --}}
+
+                                    {{-- Old sub cat, have onload value --}}
+                                    {{-- <div class="col-md-6 col-12 mt-2">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="sub_category" id="sub_category"
+                                                placeholder="Category" onchange="getRequirements()">
+                                            </select>
+                                            <label for="sub_categories">Sub-Category</label>
+                                        </div>
+                                    </div> --}}
+
+                                    {{-- Old Hoa, connected to file attachements --}}
+                                    {{-- <div class="col-md-6 col-12 mt-2" id="hoa_tab">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="hoa" id="hoa" required>
+                                                <!-- Options will be populated here -->
+                                            </select>
+                                            <label for="hoa" class="form-label" id="hoa_label">HOA</label>
+                                        </div>
+                                    </div> --}}
+
+                                    <!-- Second Row -->
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
                                             <select class="form-select" name="sub_category_1" id="sub_category_1"
@@ -87,59 +122,8 @@
                                             <label for="hoa_1">HOA</label>
                                         </div>
                                     </div>
-                                    {{-- <div class="col-12 col-md-4 mt-2 mt-md-0">
-                                <div class="input-group" style="height: 100%;">
-                                    <label for="" class="input-group-text">Request for</label>
-                                    <select name="category" id="category" class="form-select" onchange="changeSubCategories()">
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
-                            </div> --}}
-                                    {{-- <div class="col-md-6 col-12 mt-2">
-                                        <div class="form-floating">
-                                            <select class="form-select" name="sub_category" id="sub_category"
-                                                onchange="getRequirements()">
-                                                <!-- Options will be populated dynamically -->
-                                            </select>
-                                            <label for="sub_category_1">Sub Category</label>
-                                        </div>
-                                    </div> --}}
-                                    {{-- <div class="col-12 col-md-4 mt-2 mt-md-0">
-                                <div class="form-floating">
-                                    <select class="form-select" name="sub_category" id="sub_category" placeholder="Category" onchange="getRequirements()">
-                                    </select>
-                                    <label for="sub_categories">Sub-Category</label>
-                                </div>
-                            </div> --}}
-                                    {{-- <div class="col-md-6 col-12 mt-2" id="hoa_tab">
-                                        <div class="form-floating">
-                                            <select class="form-select" name="hoa_1" id="hoa_1" required>
-                                                @foreach ($hoas as $hoa)
-                                                    <option value="{{ $hoa->id }}">
-                                                        {{ $hoa->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <label for="hoa_1">HOA</label>
-                                        </div>
-                                    </div> --}}
 
-                                    {{-- <div class="col-md-4 col-12 mt-md-0" id="hoa_tab">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="hoa" name="hoa" placeholder="HOA" required>
-                                        <label for="hoa" class="form-label">HOA</label>
-                                            <select class="form-select" name="hoa" id="hoa" required>
-                                            <option disabled selected style="color: grey;">Please select HOA</option>
-                                            @foreach ($hoas as $hoa)
-                                                <option value="{{ $hoa->id }}">{{ $hoa->name }}</option>                            
-                                            @endforeach
-                                        </select>
-                                        <label for="" class="form-label" id="hoa_label">HOA</label>
-                                    </div>
-                                </div> --}}
-
-                                </div>
 
                                 <div id="dos_msg" class="col-12 text-center mt-3" style="display: none;">
                                     <p style="color: red;"><b>For Deed of Sale, kindly secure application form with
@@ -157,36 +141,11 @@
                                 <div id="srs_tab">
                                     <div class="px-2 px-md-0 mb-4 mt-5">
                                         <strong>
-                                            <h5>Owner's Information</h5>
+                                            <h5>Owner Information</h5>
                                         </strong>
                                     </div>
                                     <div>
-                                        <!-- Company Fields (hidden by default) -->
-                                        <div class="px-2 px-md-4" id="companyFields" style="display: none;">
-                                            <div class="row mt-3">
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" id="company_name"
-                                                            name="company_name" placeholder="Company Name"
-                                                            value="{{ old('company_name') }}" required>
-                                                        <label for="company_name" class="form-label"
-                                                            style="color: grey;">Company Name</label>
-                                                    </div>
-                                                </div>
-                                                {{-- <div class="col-md-6 col-12">
-                                                                            <div class="form-floating">
-                                                                                <input type="text" class="form-control"
-                                                                                    id="company_representative" name="company_representative"
-                                                                                    placeholder="Company Representative"
-                                                                                    value="{{ old('company_representative') }}" required>
-                                                                                <label for="company_representative" class="form-label"
-                                                                                    style="color: grey;">Company Representative</label>
-                                                                            </div>
-                                                                        </div> --}}
-                                            </div>
-                                            <br>
-                                            <h5>Representative / Assigned To</h5>
-                                        </div>
+                                        {{-- Connected to account_type Toggle --}}
                                         <div class="px-2 px-md-4" id="individualFields">
                                             <div class="row mt-3">
                                                 <div class="col-md-4 col-6">
@@ -203,8 +162,7 @@
                                                         <input type="text" class="form-control" id="last_name"
                                                             name="last_name" placeholder="Last Name"
                                                             value="{{ old('last_name') }}" required>
-                                                        <label for="last_name" class="form-label"
-                                                            style="color: grey;">Last
+                                                        <label for="last_name" class="form-label" style="color: grey;">Last
                                                             Name</label>
                                                     </div>
                                                 </div>
@@ -212,7 +170,7 @@
                                                     <div class="form-floating">
                                                         <input type="text" class="form-control" id="middle_name"
                                                             name="middle_name" placeholder="Middle Name"
-                                                            value="{{ old('middle_name') }}">
+                                                            value="{{ old('middle_name') }}" required>
                                                         <label for="middle_name" class="form-label"
                                                             style="color: grey;">Middle Name</label>
                                                     </div>
@@ -220,31 +178,308 @@
                                             </div>
                                         </div>
 
-
+                                        <!-- Company Fields (hidden by default) -->
+                                        <div class="px-2 px-md-4" id="companyFields" style="display: none;">
+                                            <div class="row mt-3">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-floating">
+                                                        <input type="text" class="form-control" id="company_name"
+                                                            name="company_name" placeholder="Company Name"
+                                                            value="{{ old('company_name') }}" required>
+                                                        <label for="company_name" class="form-label"
+                                                            style="color: grey;">Company Name</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-floating">
+                                                        <input type="text" class="form-control"
+                                                            id="company_representative" name="company_representative"
+                                                            placeholder="Company Representative"
+                                                            value="{{ old('company_representative') }}" required>
+                                                        <label for="company_representative" class="form-label"
+                                                            style="color: grey;">Company Representative</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{-- Connected to account_type Toggle  End --}}
                                         <div class="row px-2 px-md-4 mt-3">
-                                            <div class="col-md-2 col-3">
+                                            <div class="col-md-4">
                                                 <div class="form-floating">
-                                                    <input type="number" class="form-control" id="block"
-                                                        name="block" placeholder="Block"
-                                                        value="{{ old('block') }}" min="1">
-                                                    <label for="block" class="form-label" style="color: grey;">Block</label>
+                                                    <select name="civil_status" id="civil_status" class="form-control"
+                                                        placeholder="Select Civil Status">
+                                                        <option value="">-----</option>
+                                                        @foreach ($civilStatus as $status)
+                                                            <option value="{{ $status->id }}">{{ $status->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="civil_status">Civil Status</label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2 col-3">
+                                            <div class="col-md-4">
                                                 <div class="form-floating">
-                                                    <input type="number" class="form-control" id="lot"
-                                                        name="lot" placeholder="Lot"
-                                                        value="{{ old('lot') }}" min="1">
-                                                    <label for="lot" class="form-label" style="color: grey;">Lot</label>
+                                                    <select name="nationality" id="nationality" class="form-control"
+                                                        placeholder="Select Nationality">
+                                                        <option value="">-----</option>
+                                                        @foreach ($nationalities as $nationality)
+                                                            <option value="{{ $nationality->id }}">
+                                                                {{ $nationality->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <label for="nationality">Nationality</label>
                                                 </div>
                                             </div>
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="tin_no"
+                                                        name="tin_no" placeholder="Middle Name"
+                                                        value="{{ old('tin_no') }}" required>
+                                                    <label for="tin_no" class="form-label" style="color: grey;">TIN
+                                                        NO</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row px-2 px-md-4 mt-3">
+                                            {{-- <p style="font-weight: bold; font-size: 12px;">Note: Enter active email. Request confirmation and appointment booking link will be sent by email.</p> --}}
+                                            <div class="col-md-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="email"
+                                                        name="email" placeholder="Email Address"
+                                                        value="{{ old('email') }}" required>
+                                                    <label for="email" class="form-label" style="color: grey;">Email
+                                                        Address</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="contact_no"
+                                                        name="contact_no" placeholder="Tel. No./Mobile No."
+                                                        value="{{ old('contact_no') }}" required>
+                                                    <label for="contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Main Contact No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="secondary_contact_no"
+                                                        name="secondary_contact_no" placeholder="Tel. No./Mobile No."
+                                                        value="{{ old('secondary_contact_no') }}">
+                                                    <label for="secondary_contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Secondary Contact
+                                                        No.</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="tertiary_contact_no"
+                                                        name="tertiary_contact_no" placeholder="Tel. No./Mobile No."
+                                                        value="{{ old('tertiary_contact_no') }}">
+                                                    <label for="tertiary_contact_no" class="form-label"
+                                                        style="color: grey; font-size: 0.8rem;">Alternate Email</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="px-2 px-md-0 mb-4 mt-5">
+                                        <strong>
+                                            <h5>Address</h5>
+                                        </strong>
+                                    </div>
+                                    {{-- START TEST --}}
+                                    <div class="container mt-4">
+                                        <!-- Button to trigger modal -->
+                                        <button type="button" id="addAddressBtn" class="btn btn-primary mb-3"
+                                            data-bs-toggle="modal" data-bs-target="#addressModal">Add Address</button>
+
+                                        <!-- Table to show added addresses -->
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Category/Sub Category</th>
+                                                    <th>HOA/Member Type</th>
+                                                    <th>Address</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="addressesTable">
+                                                <!-- Addresses will appear here -->
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No Address</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Hidden input to store addresses array -->
+                                    <input type="hidden" id="addressesArray" name="addresses">
+
+                                    <div class="modal fade" id="addressModal" tabindex="-1"
+                                        aria-labelledby="addressModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="addressForm" novalidate>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="category_modal"
+                                                                    class="form-label">Category</label>
+                                                                <select name="category_modal" id="category_modal"
+                                                                    class="form-select" class="form-select">
+                                                                    {{-- <option value="">---</option> --}}
+                                                                    @foreach ($categories as $category)
+                                                                        <option value="{{ $category->id }}"
+                                                                            data-name="{{ $category->name }}">
+                                                                            {{ $category->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="sub_category_modal" class="form-label">Sub
+                                                                    Category</label>
+                                                                <select class="form-select" name="sub_category_modal"
+                                                                    class="form-select" id="sub_category_modal">
+                                                                    @foreach ($subcats as $subcat)
+                                                                        <option value="{{ $subcat->id }}"
+                                                                            data-name="{{ $subcat->name }}">
+                                                                            {{ $subcat->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="HOA_modal" class="form-label">HOA</label>
+                                                                <select class="form-select" name="HOA_modal"
+                                                                    id="HOA_modal">
+                                                                    @foreach ($hoas as $hoa)
+                                                                        <option value="{{ $hoa->id }}"
+                                                                            data-name="{{ $hoa->name }}">
+                                                                            {{ $hoa->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="member_type_modal" class="form-label">Member
+                                                                    Type</label>
+                                                                <select class="form-select" name="member_type_modal"
+                                                                    id="member_type_modal">
+                                                                    @foreach ($hoatypes as $hoatype)
+                                                                        <option value="{{ $hoatype->id }}"
+                                                                            data-name="{{ $hoatype->name }}">
+                                                                            {{ $hoatype->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-2 mb-3">
+                                                                <label for="block" class="form-label">Block</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="block">
+                                                                <div class="invalid-feedback">Please enter a valid block
+                                                                    number.</div>
+                                                            </div>
+                                                            <div class="col-md-2 mb-3">
+                                                                <label for="lot" class="form-label">Lot</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="lot">
+                                                                <div class="invalid-feedback">Please enter a valid lot
+                                                                    number.
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="houseNumber" class="form-label">House
+                                                                    Number</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="houseNumber">
+                                                                <div class="invalid-feedback">Please enter a valid house
+                                                                    number.</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="street_modal"
+                                                                    class="form-label">Street</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="street_modal">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="building_name_modal"
+                                                                    class="form-label">Building / Apartment / Condo</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="building_name_modal">
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="subdivision_village_modal"
+                                                                    class="form-label">Subdivision / Village</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="subdivision_village_modal">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="city_modal" class="form-label">City</label>
+                                                                <select class="form-select" name="city_modal"
+                                                                    id="city_modal">
+                                                                    <option value =''>---</option>
+                                                                    @foreach ($cities as $city)
+                                                                        <option value="{{ $city->bl_id }}"
+                                                                            data-name="{{ $city->description }}">
+                                                                            {{ $city->description }}</option>
+                                                                    @endforeach
+                                                                    <!-- Options will be populated here -->
+
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="zipcode_modal"
+                                                                    class="form-label">Zipcode</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="zipcode_modal">
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" id="saveAddressBtn"
+                                                        class="btn btn-primary">Save Address</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    {{-- END TEST --}}
+                                    <!-- Dropdown to show addresses -->
+                                    {{-- <div class="container mt-4">
+                                        <label for="addressDropdown" class="form-label">Select Address</label>
+                                        <select id="addressDropdown" class="form-select">
+                                            <option value="">-- Select Address --</option>
+                                        </select>
+                                    </div> --}}
+
+                                    <!-- Button to trigger dropdown population -->
+                                    {{-- <button id="populateDropdownBtn" class="btn btn-info mt-3" type="button"
+                                        onclick="populateAddressDropdown()">Populate Dropdown</button> --}}
+
+                                    {{-- <div>
+                                        <div class="row px-2 px-md-4 mt-3">
                                             <div class="col-md-4 col-6">
                                                 <div class="form-floating">
-                                                    <input type="number" class="form-control" id="house_no"
-                                                        name="house_no" placeholder="House No" value="{{ old('house_no') }}" 
-                                                        min="1">
-                                                    <label for="house_no" class="form-label"
-                                                        style="color: grey;">House No.</label>
+                                                    <input type="text" class="form-control" id="house_no"
+                                                        name="house_no" placeholder="House No."
+                                                        value="{{ old('house_no') }}" required>
+                                                    <label for="house_no" class="form-label" style="color: grey;">House
+                                                        No. / Block Lot</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-6">
@@ -256,22 +491,22 @@
                                                         style="color: grey;">Street</label>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row px-2 px-md-4 mt-3">
                                             <div class="col-md-4 col-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="building_name"
                                                         name="building_name" placeholder="Bulding / Apartment / Condo"
-                                                        value="{{ old('building_name') }}" required>
+                                                        value="{{ old('building_name') }}">
                                                     <label for="building_name" class="form-label"
                                                         style="color: grey;">Bulding / Apartment / Condo</label>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="row px-2 px-md-4 mt-3">
                                             <div class="col-md-4 col-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="subdivision_village"
                                                         name="subdivision_village" placeholder="Subdivision / Village"
-                                                        value="{{ old('subdivision_village') }}" required>
+                                                        value="{{ old('subdivision_village') }}">
                                                     <label for="subdivision_village" class="form-label"
                                                         style="color: grey;">Subdivision / Village</label>
                                                 </div>
@@ -295,62 +530,243 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row px-2 px-md-4 mt-3">
-                                            <div class="col-md-2">
-                                                <div class="form-floating">
-                                                    <input type="number" class="form-control" id="zipcode"
-                                                        name="zipcode" placeholder="Zipcode"
-                                                        value="{{ old('zipcode') }}" required>
-                                                    <label for="zipcode" class="form-label" style="color: grey;">Zipcode</label>
-                                                </div>
-                                            </div>
-                                            {{-- <p style="font-weight: bold; font-size: 12px;">Note: Enter active email. Request confirmation and appointment booking link will be sent by email.</p> --}}
-                                            <div class="col-md-4">
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" id="email"
-                                                        name="email" placeholder="Email Address"
-                                                        value="{{ old('email') }}" required>
-                                                    <label for="email" class="form-label" style="color: grey;">Email
-                                                        Address</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 col-6">
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" id="contact_no"
-                                                        name="contact_no" placeholder="Tel. No./Mobile No."
-                                                        value="{{ old('contact_no') }}" required>
-                                                    <label for="contact_no" class="form-label" style="color: grey;">Contact No.</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 col-6">
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" id="second_contact_no"
-                                                        name="second_contact_no" placeholder="Tel. No./Mobile No."
-                                                        value="{{ old('second_contact_no') }}">
-                                                    <label for="second_contact_no" class="form-label" style="color: grey;">Secondary Contact No.</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row px-2 px-md-4 mt-3">
-                                            <div class="col-md-3 col-6">
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" id="alt_email"
-                                                        name="alt_email" placeholder="Tel. No./Mobile No."
-                                                        value="{{ old('alt_email') }}">
-                                                    <label for="alt_email" class="form-label" style="color: grey;">Alternate Email</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                                    </div> --}}
+
                                     <div class="px-2 px-md-0 mb-4 mt-5">
                                         <strong>
                                             <h5>Vehicle Information</h5>
                                         </strong>
                                     </div>
+                                    {{-- TEST --}}
                                     <div>
+                                        <div class="container mt-4">
+                                            <button type="button" id="addVehicleBtn" class="btn btn-primary mb-3"
+                                                data-bs-toggle="modal" data-bs-target="#vehicleModal">Add Vehicle</button>
+
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Plate No.</th>
+                                                        <th>Brand</th>
+                                                        <th>Series</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vehiclesTable">
+                                                    <tr>
+                                                        <td colspan="5" class="text-center">No Vehicle</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <input type="hidden" id="vehiclesArrayInput" name="vehicles">
+
+                                        <div class="modal fade" id="vehicleModal" tabindex="-1"
+                                            aria-labelledby="vehicleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-xl">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="vehicleForm" novalidate>
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="plateNo" class="form-label">Plate
+                                                                        No.</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="plateNo" name="plateNo"
+                                                                        placeholder="Enter Plate No." required>
+                                                                    <div class="invalid-feedback">Please enter a plate
+                                                                        number.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="year_model"
+                                                                        class="form-label">Year/Model</label>
+                                                                    <select class="form-select" id="year_model"
+                                                                        name="year_model" required>
+                                                                        <option value="" disabled selected>Select
+                                                                            Year</option>
+                                                                        @foreach ($years as $year)
+                                                                            <option value="{{ $year }}">
+                                                                                {{ $year }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="series"
+                                                                        class="form-label">Series</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="series" name="series"
+                                                                        placeholder="Enter Series" required>
+                                                                    <div class="invalid-feedback">Please enter a series.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 mb-3">
+                                                                    <label for="vehicle_type"
+                                                                        class="form-label">Type</label>
+                                                                    <select class="form-select" id="vehicle_type"
+                                                                        required>
+                                                                        <option value="">Select Type</option>
+                                                                        <option value="Car">Car</option>
+                                                                        <option value="Motorcycle">Motorcycle</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="brand" class="form-label">Brand</label>
+                                                                    <select class="form-select" id="brand" required>
+                                                                        <option disabled selected value=""
+                                                                            style="color: grey;">Select brand</option>
+                                                                        <option value="Abarth">Abarth</option>
+                                                                        <option value="Alfa Romeo">Alfa Romeo</option>
+                                                                        <option value="Aprilia">Aprilia</option>
+                                                                        <option value="Aston Martin">Aston Martin</option>
+                                                                    </select>
+                                                                    <div class="invalid-feedback">Please select a brand.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="color" class="form-label">Color</label>
+                                                                    <select class="form-select" id="color" required>
+                                                                        <option disabled selected value=""
+                                                                            style="color: grey;">Select color</option>
+                                                                        <option value="Red">Red</option>
+                                                                        <option value="Blue">Blue</option>
+                                                                        <option value="Green">Green</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <h5>Onwer Infomation</h5>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="populateFromIndividual" />
+                                                                <label class="form-check-label"
+                                                                    for="populateFromIndividual">Same as Account</label>
+                                                            </div>
+
+                                                            <div class="row mb-3">
+                                                                <div class="col">
+                                                                    <label for="first_name_modal">First Name</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="first_name_modal"
+                                                                        placeholder="Enter first name">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="middle_name_modal">Middle Name</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="middle_name_modal"
+                                                                        placeholder="Enter middle name">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="last_name_modal">Last Name</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="last_name_modal"
+                                                                        placeholder="Enter last name">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row mb-3">
+                                                                <div class="col">
+                                                                    <label for="main_contact_no_modal">Main Contact
+                                                                        No</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="main_contact_no_modal"
+                                                                        placeholder="Enter main contact number">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="secondary_contact_no_modal">Secondary
+                                                                        Contact No</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="secondary_contact_no_modal"
+                                                                        placeholder="Enter secondary contact number">
+                                                                </div>
+                                                                <div class="col">
+                                                                    <label for="tertiary_contact_no_modal">Alternate Email</label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="tertiary_contact_no_modal"
+                                                                        placeholder="Enter Alternate Email">
+                                                                </div>
+                                                            </div>
+
+                                                            <br>
+                                                            <div class="row">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="addressDropdown" class="form-label">Select
+                                                                        Address</label>
+                                                                    <select class="form-select" id="addressDropdown"
+                                                                        required>
+                                                                        <option value="">-- Select Address --
+                                                                        </option>
+                                                                    </select>
+                                                                    <div class="invalid-feedback">Please select an address.
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="vehicle_ownership_type_modal"
+                                                                        class="form-label">Vehicle Ownership Type</label>
+                                                                    <select class="form-select"
+                                                                        id="vehicle_ownership_type_modal"
+                                                                        name="vehicle_ownership_type_modal" required>
+                                                                        <option value="" disabled selected>Select
+                                                                            Here...</option>
+                                                                        @foreach ($vehicleOwnershipTypes as $type)
+                                                                            <option value="{{ $type->id }}">
+                                                                                {{ $type->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row mt-3">
+                                                                <div class="col-md-6 mb-3">
+                                                                    <label for="orAttachment"
+                                                                        class="form-label">OR</label>
+                                                                    <input type="file" class="form-control"
+                                                                        id="orAttachment" name="orAttachment"
+                                                                        accept=".pdf, .jpg, .jpeg, .png" required>
+                                                                    <div class="invalid-feedback">Please attach the
+                                                                        Official Receipt (OR).</div>
+                                                                </div>
+                                                                <div class="col-md-6 mb-3">
+                                                                    <label for="crAttachment"
+                                                                        class="form-label">CR</label>
+                                                                    <input type="file" class="form-control"
+                                                                        id="crAttachment" name="crAttachment"
+                                                                        accept=".pdf, .jpg, .jpeg, .png" required>
+                                                                    <div class="invalid-feedback">Please attach the
+                                                                        Certificate of Registration (CR).</div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" id="saveVehicleBtn"
+                                                            class="btn btn-primary">Save Vehicle</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    {{-- TEST --}}
+
+
+                                    {{-- <div>
                                         <div id="vehicle_tab" class="px-md-3">
                                             <div class="p-3 p-md-4 card shadow rounded mb-2 mb-md-4">
-                                                {{-- <p>Vehicle</p> --}}
+                                                <h5>Vehicle Info</h5>
                                                 <div class="row mt-2">
                                                     <div id="v_req_type_tab" class="col-12 col-md-3">
                                                         <div class="form-floating">
@@ -469,10 +885,13 @@
                                                                 name="year_model[]" placeholder="Year/Model" required>
                                                                 <option disabled selected value=""
                                                                     style="color: grey;">Select Year/Model</option>
+                                                                    @foreach ($years as $year)
+                                                                    <option value="{{ $year }}">
+                                                                        {{ $year }}</option>
+                                                                    @endforeach
                                                             </select>
+                                                           
                                                             <label for="" class="form-label">Year/Model</label>
-                                                            {{-- <input type="text" class="form-control" id="year_model" name="year_model[]" placeholder="Year/Model" required>
-                                                    <label for="year_model" class="form-label" style="color: grey;">Year/Model</label> --}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -507,8 +926,6 @@
                                                     </div>
                                                     <div id="v_type_tab" class="col-6 col-md-3">
                                                         <div class="form-floating">
-                                                            {{-- <input type="text" class="form-control" id="v_type" list="v-types" name="v_type[]" placeholder="Type" autocomplete="off" required>
-                                                    <label for="v_type" class="form-label" style="color: grey;">Type</label> --}}
                                                             <select class="form-select" id="v_type" name="v_type[]"
                                                                 placeholder="Type" required>
                                                                 <option disabled selected value=""
@@ -529,24 +946,58 @@
                                                                 style="color: grey;">Sticker No.</label>
                                                         </div>
                                                     </div>
-                                                    <div id="v_vot_tab" class="col-6 col-md-6">
-                                                        <div class="form-floating">
-                                                            {{-- <input type="text" class="form-control" id="v_type" list="v-types" name="v_type[]" placeholder="Type" autocomplete="off" required>
-                                                    <label for="v_type" class="form-label" style="color: grey;">Type</label> --}}
-                                                            <select class="form-select" id="vot" name="vot[]"
-                                                                placeholder="Type" required>
-                                                                <option disabled selected value=""
-                                                                    style="color: grey;">Select Type</option>
-                                                                @foreach ($vehicleOwnershipTypes as $type)
-                                                                    <option value="{{ $type->id }}">
-                                                                        {{ $type->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            <label for="" class="form-label"
-                                                                style="color: grey;">Vehicle Ownership Type</label>
-                                                        </div>
+                                                </div>
+                                                <hr>
+                                                <h5>Owner Info</h5>
+                                                <div class="row mt-2 g-2 g-md-3">
+                                                    <div id="v_owner_fname_tab" class="col-12 col-md-4">
+                                                        <label class="form-label">First Name</label>
+                                                        <input type="text" class="form-control form-control-sm" name="owner_fname[]" required>
+                                                    </div>
+                                                    <div id="v_owner_mname_tab" class="col-12 col-md-4">
+                                                        <label class="form-label">Middle Name</label>
+                                                        <input type="text" class="form-control form-control-sm" name="owner_mname[]" required>
+                                                    </div>
+                                                    <div id="v_owner_lname_tab" class="col-12 col-md-4">
+                                                        <label class="form-label">Last Name</label>
+                                                        <input type="text" class="form-control form-control-sm" name="owner_lname[]" required>
                                                     </div>
                                                 </div>
+                                                <div class="row mt-2 g-2 g-md-3">
+                                                    <div class="col-12 col-md-4" id="v_main_contact_tab">
+                                                        <label class="form-label">Main Contact No</label>
+                                                        <input type="text" class="form-control form-control-sm" name="main_contact_no[]" required>
+                                                    </div>
+                                                    <div class="col-12 col-md-4" id="v_secondary_contact_tab">
+                                                        <label class="form-label">Secondary Contact No</label>
+                                                        <input type="text" class="form-control form-control-sm" name="secondary_contact_no[]">
+                                                    </div>
+                                                    <div class="col-12 col-md-4" id="v_tertiary_contact_tab">
+                                                        <label class="form-label">Tertiary Contact No</label>
+                                                        <input type="text" class="form-control form-control-sm" name="tertiary_contact_no[]">
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mt-2 g-2 g-md-3">
+                                                    <div class="col-12 col-md-4" id="v_address_tab">
+                                                        <label for="addressDropdown" class="form-label">Select Address</label>
+                                                        <select class="form-select" id="addressDropdown" name="address_id[]" required>
+                                                            <option value="">-- Select Address --</option>
+                                                            <!-- Options will be populated here dynamically -->
+                                                        </select>
+                                                        <div class="invalid-feedback">Please select an address.</div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4" id="v_vot_tab">
+                                                        <label for="vehicle_ownership_type" class="form-label">Vehicle Ownership Type</label>
+                                                        <select class="form-select" id="vehicle_ownership_type" name="vehicle_ownership_type[]" required>
+                                                            <option value="" disabled selected>Select Here...</option>
+                                                            @foreach ($vehicleOwnershipTypes as $type)
+                                                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+
                                                 <div class="row mt-2 g-2 g-md-3">
                                                     <div id="v_or_tab" class="col-12 col-md-4">
                                                         <label class="form-label">OR</label>
@@ -558,11 +1009,6 @@
                                                         <input type="file" accept="image/*"
                                                             class="form-control form-control-sm" name="cr[]" required>
                                                     </div>
-                                                    <div id="v_otherReq_tab" class="col-12 col-md-4">
-                                                        <label class="form-label">Other Requirements</label>
-                                                        <input type="file" accept="image/*"
-                                                            class="form-control form-control-sm" name="other_req[]" required>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -573,7 +1019,7 @@
                                             <button type="button" class="btn btn-sm btn-info" onclick="addVehicle()"
                                                 style="color: white;">Add vehicle</button>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
 
                                     <div class="row justify-content-center">
@@ -587,13 +1033,13 @@
                                             border-radius: 0.25rem;
                                             border-left-color: #f0ad4e;
                                             font-size: 14px;">
-                                                <strong>Note: File uploads are accepting file formats in .JPG, .JPEG, and
-                                                    .PNG</strong>
+                                                <strong>Note:</strong><br>
+                                                <strong>File uploads are accepting file formats in .JPG, .JPEG, and
+                                                    .PNG</strong><br>
+                                                <strong>Valid ID's must contain your address</strong>
                                             </div>
                                         </div>
                                     </div>
-
-
                                     <div class="px-2 mt-5">
                                         <div id="requirements_table" class="table-responsive" style="display: none;">
                                             <table class="table table-bordered">
@@ -608,6 +1054,7 @@
                                             </table>
                                         </div>
                                     </div>
+
                                     <div id="rules_regulation" class="px-2 px-md-0 mb-3 mt-4">
                                         <strong>
                                             <h3>Rules and Regulations</h3>
@@ -825,7 +1272,8 @@
                                         <div>
                                             <div class="mt-5 text-center">
                                                 <div class="d-flex justify-content-center">
-                                                    {{-- <div id="g-recaptcha" class="g-recaptcha mt-3" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div> --}}
+                                                    <div id="g-recaptcha" class="g-recaptcha mt-3"
+                                                        data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
                                                 </div>
 
                                                 <button type="submit" id="request_submit_btn"
@@ -844,18 +1292,27 @@
 @endsection
 
 @section('links_js')
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
     <script src="{{ asset('js/signature_pad.umd.min.js') }}"></script>
     {{-- <script src="{{ asset('js/11sr29.js') }}"></script> --}}
-    <script src="{{ asset('js/srs3/11sr29_decrypted.js') }}"></script>
+    <script src="{{ asset('js/11sr29_v3_decrypted.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3NewApplication.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3NewApplicationAddNewAddress.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3PopulateDropdownWithAddress.js') }}"></script>
+    <script src="{{ asset('js/srs3/srs3NewApplicationAddNewVehicle.js') }}"></script>
+    {{-- <script src="{{ asset('js/srs3/srs3NewApplicationChangeSubCat.js') }}"></script> --}}
+
+
+    {{-- Toggle Account Type --}}
+
     <script>
         function toggleFields() {
             var accountType = document.getElementById("account_type").value;
-            // var individualFields = document.getElementById("individualFields");
+            var individualFields = document.getElementById("individualFields");
             var companyFields = document.getElementById("companyFields");
 
             if (accountType === "0") {
-                // individualFields.style.display = "block";
+                individualFields.style.display = "block";
                 companyFields.style.display = "none";
 
                 // Add required attribute to individual fields
@@ -865,14 +1322,14 @@
 
                 // Remove required attribute from company fields
                 document.getElementById("company_name").removeAttribute("required");
-                // document.getElementById("company_representative").removeAttribute("required");
+                document.getElementById("company_representative").removeAttribute("required");
             } else if (accountType === "1") {
-                // individualFields.style.display = "none";
+                individualFields.style.display = "none";
                 companyFields.style.display = "block";
 
                 // Add required attribute to company fields
                 document.getElementById("company_name").setAttribute("required", "required");
-                // document.getElementById("company_representative").setAttribute("required", "required");
+                document.getElementById("company_representative").setAttribute("required", "required");
 
                 // Remove required attribute from individual fields
                 document.getElementById("first_name").removeAttribute("required");
@@ -887,7 +1344,7 @@
         });
     </script>
 
-{{-- Pivot of category to sub cat --}}
+    {{-- Pivot of category to sub cat --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Trigger the fetch when the page loads with the current category value
@@ -937,4 +1394,27 @@
             }
         }
     </script>
+
+    {{--  --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let categoryModalSelect = document.getElementById('category_modal');
+            categoryModalSelect.addEventListener('change', handleModalCategoryChange);
+            handleModalCategoryChange(); // Check on modal load
+        });
+
+        function handleModalCategoryChange() {
+            let categoryModalSelect = document.getElementById('category_modal');
+            let hoaModalSelect = document.getElementById('HOA_modal');
+
+            if (categoryModalSelect.value == '2') {
+                hoaModalSelect.disabled = true;
+                hoaModalSelect.value = ''; // Clear selection if disabled
+            } else {
+                hoaModalSelect.disabled = false;
+            }
+        }
+    </script>
+
 @endsection

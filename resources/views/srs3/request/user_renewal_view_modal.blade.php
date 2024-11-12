@@ -241,7 +241,7 @@
                         
                         <label for="member_type_{{ $loop->index }}" class="form-label"><b>Member Type</b></label>
                         <input type="text" class="form-control"
-                            value="{{ $vehicle->vehicleAddress->CRMXIhoaType->name ?? '' }}" disabled>   
+                            value="{{ $vehicle->vehicleAddress->CRMXIHoaType->name ?? '' }}" disabled>   
                     </div>
                     <div class="col-md-3 p-2">
                         <label for="block_{{ $loop->index }}" class="form-label"><b>Block</b></label>

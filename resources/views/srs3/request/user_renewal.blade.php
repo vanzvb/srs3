@@ -225,22 +225,28 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($crm->CRMXIvehicles as $vehicle)
-                                                    <tr id="vehicle-row-{{ $vehicle->id }}">
-                                                        <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
-                                                        <td>{{ $vehicle->brand ?? 'N/A' }},
-                                                            {{ $vehicle->series ?? 'N/A' }}</td>
-                                                        {{-- <td></td> --}}
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}
-                                                        </td>
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}
-                                                        </td>
-                                                        <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}</td>
+                                                @if ($crm->CRMXIvehicles->isEmpty())
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No vehicles available</td>
+                                                    </tr>
+                                                @else
+                                                    @foreach ($crm->CRMXIvehicles as $vehicle)
+                                                        <tr id="vehicle-row-{{ $vehicle->id }}">
+                                                            <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->brand ?? 'N/A' }},
+                                                                {{ $vehicle->series ?? 'N/A' }}</td>
+                                                            {{-- <td></td> --}}
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}
+                                                            </td>
 
-                                                        {{-- <td></td> --}}
-                                                        {{-- <td></td> --}}
-                                                        <td style="white-space: nowrap;">
-                                                            {{-- <button type="button" class="btn btn-primary"
+                                                            {{-- <td></td> --}}
+                                                            {{-- <td></td> --}}
+                                                            <td style="white-space: nowrap;">
+                                                                {{-- <button type="button" class="btn btn-primary"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
                                                                 View/Update Details
@@ -249,23 +255,24 @@
                                                                 data-id="{{ $vehicle->id }}">
                                                                 X
                                                             </button> --}}
-                                                            <!-- View/Update Details Button with Edit Icon -->
-                                                            <button type="button" class="btn btn-primary btn-sm"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
+                                                                <!-- View/Update Details Button with Edit Icon -->
+                                                                <button type="button" class="btn btn-primary btn-sm"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
 
-                                                            <!-- Close Button with Close Icon -->
-                                                            <button type="button"
-                                                                class="btn btn-danger btn-sm btn-remove"
-                                                                data-id="{{ $vehicle->id }}">
-                                                                {{-- <i class="fas fa-times"></i> --}}
-                                                                Don't Renew
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
+                                                                <!-- Close Button with Close Icon -->
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-sm btn-remove"
+                                                                    data-id="{{ $vehicle->id }}">
+                                                                    {{-- <i class="fas fa-times"></i> --}}
+                                                                    Don't Renew
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
                                             </tbody>
                                         </table>
                                     </div>
@@ -571,32 +578,33 @@
         {{-- <script src="{{ asset('js/srs3addvehicle.js') }}"></script> --}}
         <script>
             let listOfVehicles = [];
-        
+
             @foreach ($crm->CRMXIvehicles as $vehicle)
                 listOfVehicles.push({{ $vehicle->id }});
             @endforeach
-            
+
             // Set the hidden input's value as a JSON string
             document.getElementById('list-of-vehicles').value = JSON.stringify(listOfVehicles);
 
-        // For Removing Button
-        document.querySelectorAll('.btn-remove').forEach(button => {
-            button.addEventListener('click', function() {
-                const vehicleId = this.getAttribute('data-id');
-                const row = document.getElementById('vehicle-row-' + vehicleId);
+            // For Removing Button
+            document.querySelectorAll('.btn-remove').forEach(button => {
+                button.addEventListener('click', function() {
+                    const vehicleId = this.getAttribute('data-id');
+                    const row = document.getElementById('vehicle-row-' + vehicleId);
 
-                // Show a confirmation alert
-                if (confirm('Are you sure you want to remove this vehicle from the list?')) {
-                    if (row) {
-                        row.remove(); // Remove the row from the DOM
-                        listOfVehicles = listOfVehicles.filter(id => id != vehicleId); // Remove the vehicle ID from the array
+                    // Show a confirmation alert
+                    if (confirm('Are you sure you want to remove this vehicle from the list?')) {
+                        if (row) {
+                            row.remove(); // Remove the row from the DOM
+                            listOfVehicles = listOfVehicles.filter(id => id !=
+                                vehicleId); // Remove the vehicle ID from the array
+                        }
                     }
-                }
-                // If the user clicks 'No', the row won't be removed
+                    // If the user clicks 'No', the row won't be removed
 
-                // Update the hidden input field with the modified array
-                document.getElementById('list-of-vehicles').value = JSON.stringify(listOfVehicles);
+                    // Update the hidden input field with the modified array
+                    document.getElementById('list-of-vehicles').value = JSON.stringify(listOfVehicles);
+                });
             });
-        });
         </script>
     @endsection

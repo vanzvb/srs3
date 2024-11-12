@@ -34,6 +34,6 @@ class CRMXIAddress extends Model
 
     public function CRMXIhoaType()
     {
-        return $this->belongsTo(CRMXIhoaType::class, 'hoa_type');
+        return $this->belongsTo(CRMXIHoaType::class, 'hoa_type');
     }
 }

@@ -19,11 +19,11 @@ Please be reminded that the approval of requests will take approximately 5-8 wor
         </tr>
         <tr>
             <th style="text-align: left;">HOA</th>
-            <td>{{ $request->hoa3->name ?? '' }}</td>
+            <td>{{ $request->hoa3->name ?? $request->hoa->name ?? '' }}</td>
         </tr>
         <tr>
             <th style="text-align: left;">Vehicle Count</th>
-            <td>{{ $request->crmVehicleRequests->count() }}</td>
+            <td>{{ $request->vehicles->count() ?? ''}}</td>
         </tr>
     </tbody>
 </table>
