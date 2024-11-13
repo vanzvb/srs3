@@ -355,7 +355,7 @@
 										<thead style=""> 
 											<tr style="font-size: 13px;">
 												<th style="text-align: center;background: #b1b7b9;color: white;">ROUTE</th>
-												<th style="text-align: center;background: #b1b7b9;color: white;">WHO</th>
+												{{-- <th style="text-align: center;background: #b1b7b9;color: white;">WHO</th> --}}
 												<th style="text-align: center;background: #b1b7b9;color: white;">DATE</th>
 												<th style="text-align: center;background: #b1b7b9;color: white;">REMARKS/REASON</th>
 											</tr> 

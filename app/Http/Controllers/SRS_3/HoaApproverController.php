@@ -600,4 +600,11 @@ class HoaApproverController extends Controller
         // Send the approved email
         dispatch(new SendApprovedNotificationJob($srsRequest, $srsRequest->email, $url));
     }
+
+    public function transmittal()
+    {   
+        // dd('Hello');
+        return view('hoa_approvers3.hoa_approvers_transmittal');
+    }
+
 }

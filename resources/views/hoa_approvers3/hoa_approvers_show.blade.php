@@ -295,7 +295,7 @@
                                         <table class="table table-sm table-bordered ">
                                             <thead>
                                                 <tr>
-                                                    <th></th>
+                                                    <th>Approve ?</th>
                                                     <th>#</th>
                                                     <th>Request Type</th>
                                                     <th>Sticker No.</th>
@@ -305,6 +305,7 @@
                                                     <th>Series</th>
                                                     <th>Color</th>
                                                     <th>OR/CR</th>
+                                                    <th>Rejection Remarks</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

@@ -357,18 +357,18 @@ class SrsRequestController extends Controller
         $encoded_image = explode(",", $data['signature'])[1];
         $decoded_image = base64_decode($encoded_image);
         // $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.png';
-        $signatureFile = date('ymd').'_'.uniqid().'_'.date('His').'.webp';
+        $signatureFile = date('ymd') . '_' . uniqid() . '_' . date('His') . '.webp';
 
         $srsRequest->signature = $signatureFile;
         $signatureImg = Image::make($decoded_image)->encode('webp');
-        
+
 
         $srsRequest->created_at = now();
         $srsRequest->updated_at = now();
 
         // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . $srsRequest->first_name . '_' . $srsRequest->last_name;
-        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name.'_'.$srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $this->getCategoryName($srsRequest->category_id) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
         Storage::put($path . '/' . $srsRequest->signature, $signatureImg);
 
@@ -381,12 +381,12 @@ class SrsRequestController extends Controller
             $vehicle = new CRXMIVehicle();
 
             // $vehicle->address_id = 
-            
+
             $vehicle->srs_request_id = $srsRequest->request_id;
             $vehicle->req_type = $data['req_type'][$count];
 
             if ($item1) {
-                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/','', $item1))));
+                $vehicle->plate_no = strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $item1))));
             }
 
             if ($data['brand'][$count]) {
@@ -553,7 +553,7 @@ class SrsRequestController extends Controller
 
                 // dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
             }
-            
+
             if ($srsRequest->hoa->emailAdd3) {
                 $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(5), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
 
@@ -644,7 +644,7 @@ class SrsRequestController extends Controller
         // foreach($srsRequest->vehicles as $vehicle) {
         //     $vehicles[] = $vehicle->plate_no.', '.$vehicle->type.', '.$vehicle->brand.', '.$vehicle->series.', '.$vehicle->year_model.', '.$vehicle->color;
         // }
-
+        // dd($srsRequest->vehicles);
         $vehicles = [];
         foreach ($srsRequest->vehicles as $key => $vehicle) {
             $vehicles[] = '<tr>
@@ -657,13 +657,25 @@ class SrsRequestController extends Controller
                               <td>' . htmlspecialchars($vehicle->series) . '</td>
                               <td>' . htmlspecialchars($vehicle->year_model) . '</td>
                               <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
-                              <td align="center">
-                                <a data-value="/srs/uploads/' . $vehicle->or_path . '" data-type="' . (explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>
-                                <br>
-                                <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>
-                              </td>
+                                <td align="center">
+                                    <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
+                                    data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
+                                    href="' . ($vehicle->or_path ? '#' : 'javascript:void(0);') . '" 
+                                    class="modal_img">OR</a>
+                                    <br>
+                                    <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
+                                    data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
+                                    href="#" class="modal_img">CR</a>
+                                </td>
                           </tr>';
         }
+        // Old OR Path
+        //     <td align="center">
+        //     <a data-value="/srs/uploads/' . $vehicle->or_path . '" data-type="' . (explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>
+        //     <br>
+        //     <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>
+        //   </td>
+
 
         // $hoaApproval = $srsRequest->statuses->where('status_id', 2)->first();
         // $adminApproval = $srsRequest->statuses->where('pivot_status_id', 1)->first();
@@ -684,11 +696,21 @@ class SrsRequestController extends Controller
         $routes = [
             '<tr>
                         <td style="background: #f2f7f9; color: #1e3237;text-align: left;min-width: 150px !important;"><label>Initiated</label></td>
-                        <td style="background: #f2f7f9; color: #1e3237;min-width: 150px !important;text-align: left;">' . htmlspecialchars($srsRequest->first_name . ' ' . $srsRequest->last_name) . '</td>
                         <td style="background: #f2f7f9; color: #1e3237;max-width: 100px !important;">' . $srsRequest->created_at->format('m/d/Y h:i A') . '</td>
                         <td style="background: #f2f7f9; color: #1e3237;max-width: 200px !important;text-align: left;"></td>
                     </tr>'
         ];
+
+        // OLD
+
+        // $routes = [
+        //     '<tr>
+        //                 <td style="background: #f2f7f9; color: #1e3237;text-align: left;min-width: 150px !important;"><label>Initiated</label></td>
+        //                 <td style="background: #f2f7f9; color: #1e3237;min-width: 150px !important;text-align: left;">' . htmlspecialchars($srsRequest->first_name . ' ' . $srsRequest->last_name) . '</td>
+        //                 <td style="background: #f2f7f9; color: #1e3237;max-width: 100px !important;">' . $srsRequest->created_at->format('m/d/Y h:i A') . '</td>
+        //                 <td style="background: #f2f7f9; color: #1e3237;max-width: 200px !important;text-align: left;"></td>
+        //             </tr>'
+        // ];
 
         foreach ($statuses as $status) {
             $row = '<tr>

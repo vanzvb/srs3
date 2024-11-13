@@ -2,6 +2,11 @@
 
 @section('title', 'Sticker Application Request - Renewal')
 
+@section('head')
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+@endsection
+
 @section('content')
     <div class="container px-md-10">
         <div class=" px-md-5 mb-3">
@@ -205,6 +210,8 @@
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-4">
                                     <h5>For Renewal</h5>
+
+                                    <h6><b>Note : Uncheck if you do not wish to renew the vehicle.</b></h6>
                                 </div>
                                 <div class="row p-2 g-0">
                                     <div class="col-md-12">
@@ -213,6 +220,9 @@
                                         <table class="table table-bordered table-hover mt-2">
                                             <thead>
                                                 <tr>
+                                                    <th>
+                                                        
+                                                    </th>
                                                     <th>Plate Number</th>
                                                     <th>Brand, Series</th>
                                                     {{-- <th>Status</th> --}}
@@ -232,6 +242,9 @@
                                                 @else
                                                     @foreach ($crm->CRMXIvehicles as $vehicle)
                                                         <tr id="vehicle-row-{{ $vehicle->id }}">
+                                                            <td>
+                                                                <input type="checkbox" name="renewalVehicles[]" value="{{ $vehicle->id }}" checked>
+                                                            </td>
                                                             <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
                                                             <td>{{ $vehicle->brand ?? 'N/A' }},
                                                                 {{ $vehicle->series ?? 'N/A' }}</td>
@@ -259,7 +272,7 @@
                                                                 <button type="button" class="btn btn-primary btn-sm"
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
-                                                                    <i class="fas fa-edit"></i>
+                                                                    <i class="fas fa-pencil-alt"></i>
                                                                 </button>
 
                                                                 <!-- Close Button with Close Icon -->
@@ -538,7 +551,7 @@
                                         @foreach ($requirements as $requirement)
                                             <div class="mb-4">
                                                 <!-- Requirement description above the file input -->
-                                                <label class="form-label"><b>Upload Valid ID with Address</b></label>
+                                                <label class="form-label"><b>Upload Valid Goverment ID with Address</b></label>
                                                 {{-- <label class="form-label"><b>{{ $requirement->description }}</b></label> --}}
                                                 <input class="form-control form-control-sm" type="file"
                                                     accept="image/*" name="{{ $requirement->name }}"
@@ -607,4 +620,11 @@
                 });
             });
         </script>
+
+        {{-- <script>
+            // JavaScript to toggle all checkboxes
+            $('#checkAll').on('click', function() {
+                $('input[name="renewalVehicles[]"]').prop('checked', this.checked);
+            });
+        </script>    --}}
     @endsection

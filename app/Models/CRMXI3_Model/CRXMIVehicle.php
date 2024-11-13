@@ -17,6 +17,12 @@ class CRXMIVehicle extends Model
     protected $table = 'crmxi3_vehicles';
     protected $primaryKey = 'id';
 
+    // protected $fillable = [
+    //     'srs_request_id', 'req_type', 'plate_no', 'brand', 'series', 'year_model', 'crm_id',
+    //     'old_sticker_no', 'color', 'type', 'cr_from_crm', 'plate_no_remarks',
+    //     'color_remarks', 'account_id', 'address_id', 'red_tag', 'vehicle_ownership_status_id',
+    // ];
+
     public function crmxiAccount()
     {
         return $this->belongsTo(CRMXIMain::class, 'account_id');

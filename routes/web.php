@@ -12,6 +12,7 @@ use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
 use App\Http\Controllers\SrsUserController;
 use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\TransmittalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -105,6 +106,8 @@ Route::prefix('sub-categories')->group(function () {
     Route::put('/{subCategory}', [SubCategoryController::class, 'edit'])->name('sub-categories.edit');
     Route::delete('/{subCategory}', [SubCategoryController::class, 'destroy'])->name('sub-categories.destroy');
 });
+
+
 
 // index for new
 Route::get('/sticker/new', [SrsRequestController::class, 'create']);
@@ -221,7 +224,7 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
     //     Route::get('/', [HoaApproverController::class, 'index'])->name('hoa-approvers.index');
     //     Route::get('/list', [HoaApproverController::class, 'list'])->name('hoa-approvers.list');
     //     Route::get('/{request_id}/{type?}/{year?}', [HoaApproverController::class, 'show'])->name('hoa-approvers.show');
-    //     Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
+        // Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
 
     //     Route::post('sticker/request/hoa_approval', [HoaApproverController::class, 'hoaApproved'])->name('hoa-approvers.approval');
 
@@ -231,14 +234,17 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
 
 
 });
-        // HOA Presidents/Approvers 3.0
-        Route::prefix('/hoa-approvers3')->group(function () {
-            Route::get('/', [HoaApprover3Controller::class, 'index'])->name('hoa-approvers3.index');
-            Route::get('/list', [HoaApprover3Controller::class, 'list'])->name('hoa-approvers3.list');
-            Route::get('/{request_id}/{type?}/{year?}', [HoaApprover3Controller::class, 'show'])->name('hoa-approvers3.show');
-            Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApprover3Controller::class, 'showFile']);
-    
-            Route::post('sticker/request/hoa_approval', [HoaApprover3Controller::class, 'hoaApproved'])->name('hoa-approvers3.approval');
-    
-            Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
-        });
+    // HOA Presidents/Approvers 3.0
+    Route::prefix('/hoa-approvers3')->group(function () {
+        Route::get('/transmittal', [HoaApprover3Controller::class, 'transmittal'])->name('hoa-approvers3.transmittal');
+
+        Route::get('/', [HoaApprover3Controller::class, 'index'])->name('hoa-approvers3.index');
+        Route::get('/list', [HoaApprover3Controller::class, 'list'])->name('hoa-approvers3.list');
+        Route::get('/{request_id}/{type?}/{year?}', [HoaApprover3Controller::class, 'show'])->name('hoa-approvers3.show');
+        Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApprover3Controller::class, 'showFile']);
+
+        Route::post('sticker/request/hoa_approval', [HoaApprover3Controller::class, 'hoaApproved'])->name('hoa-approvers3.approval');
+
+        Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
+        // TRANSMITTAL
+    });

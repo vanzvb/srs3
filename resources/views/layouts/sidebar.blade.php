@@ -248,6 +248,13 @@
                     </li>
                 {{-- @endcan --}}
 
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-clipboard icon'></i>
+                        <span class="text nav-text">Transmittal Report</span>
+                    </a>
+                </li>
+
                 @can('access', \App\Models\CrmMain::class)
                     <li class="nav-link">
                         <a href="/crm">
