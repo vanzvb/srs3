@@ -42,15 +42,15 @@
 
         /* Caption of Modal Image */
         /* #caption {
-                    margin: auto;
-                    display: block;
-                    width: 80%;
-                    max-width: 700px;
-                    text-align: center;
-                    color: #ccc;
-                    padding: 10px 0;
-                    height: 150px;
-                  } */
+                        margin: auto;
+                        display: block;
+                        width: 80%;
+                        max-width: 700px;
+                        text-align: center;
+                        color: #ccc;
+                        padding: 10px 0;
+                        height: 150px;
+                      } */
 
         /* Add Animation */
         .img-modal-content,
@@ -105,6 +105,9 @@
                 width: 100%;
             }
         }
+
+
+        /* Adjust as needed */
     </style>
 @endsection
 
@@ -219,6 +222,14 @@
                                 </p>
                             </div>
                         </div>
+                        <br>
+                        <div
+                            style="border-left: 4px solid #007bff; background-color: #f1f7ff; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+                            <h6 style="font-weight: bold; color: #007bff; margin: 0;">Note:</h6>
+                            <p style="margin: 4px 0 0;">Under the <strong>"Vehicles"</strong> tab on your right, <b
+                                    style="color: green;">Check</b> if you want to renew the vehicle. <br><b
+                                    style="color: red;">Uncheck</b> if you want to reject the vehicle.</p>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card">
@@ -295,8 +306,9 @@
                                         <table class="table table-sm table-bordered ">
                                             <thead>
                                                 <tr>
-                                                    <th>Approve ?</th>
-                                                    <th>#</th>
+                                                    <th style="width: 5%;">Approve ?</th>
+                                                    <th style="width: 20%;">Rejection Remarks</th>
+                                                    <th style="width: 5%;">#</th>
                                                     <th>Request Type</th>
                                                     <th>Sticker No.</th>
                                                     <th>Type</th>
@@ -305,14 +317,21 @@
                                                     <th>Series</th>
                                                     <th>Color</th>
                                                     <th>OR/CR</th>
-                                                    <th>Rejection Remarks</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @forelse ($vehicles as $vehicle)
                                                     <tr>
                                                         <td>
-                                                            <input type="checkbox" name="selectedVehicles[]" value="{{ $vehicle['key'] }}">
+                                                            <center>
+                                                                <input type="checkbox" name="selectedVehicles[]"
+                                                                    value="{{ $vehicle['vehicle_id'] }}" checked
+                                                                    class="approve-checkbox" checked>
+                                                            </center>
+                                                        </td>
+                                                        <td>
+                                                            <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                placeholder="Please provide a reason for rejection" disabled></textarea>
                                                         </td>
                                                         <td>{{ $vehicle['key'] }}</td>
                                                         <td>{{ $vehicle['req_type'] }}</td>
@@ -326,7 +345,8 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="9" class="text-center text-danger">No data available</td>
+                                                        <td colspan="9" class="text-center text-danger">No data
+                                                            available</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -352,12 +372,12 @@
                     </div>
                 </div>
 
-                @if ($status == 'Pending Approval' || $status == 'Approved by Admin')
+                @if ($status == 'Pending Endorsement' || $status == 'Approved by Admin')
                     <div class="mt-5 d-flex justify-content-center gap-3" id="request_btns">
-                        {{-- <button class="btn btn-success" id="approve_btn">APPROVE</button>
-                        <button class="btn btn-danger" id="reject_btn" data-bs-toggle="modal"
+                        {{-- <button class="btn btn-success" id="approve_btn">APPROVE</button> --}}
+                        {{-- <button class="btn btn-danger" id="reject_btn" data-bs-toggle="modal"
                             data-bs-target="#rejectRequestModal">REJECT</button> --}}
-                            <button type="submit" class="btn btn-primary" id="submit_btn">SUBMIT</button>
+                        <button type="submit" class="btn btn-primary" id="approve_btn">SUBMIT</button>
                     </div>
                 @endif
             </div>
@@ -409,7 +429,8 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/11hps3.js') }}"></script>
+    {{-- <script src="{{ asset('js/11hps3.js') }}"></script> --}}
+    <script src="{{ asset('js/srs3/11hpi3_decrypted.js') }}"></script>
 
     @if (session('success'))
         <script>
@@ -423,4 +444,22 @@
             });
         </script>
     @endif
+
+
+    <script>
+        // Toggle required attribute on rejection input when checkbox is checked/unchecked
+        document.querySelectorAll('.approve-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                let rejectionInput = this.closest('tr').querySelector('.rejection-remarks');
+                if (this.checked) {
+                    rejectionInput.disabled = true;
+                    rejectionInput.required = false;
+                    rejectionInput.value = ''; // Clear input when checkbox is checked
+                } else {
+                    rejectionInput.disabled = false;
+                    rejectionInput.required = true;
+                }
+            });
+        });
+    </script>
 @endsection

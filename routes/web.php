@@ -246,5 +246,5 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
         Route::post('sticker/request/hoa_approval', [HoaApprover3Controller::class, 'hoaApproved'])->name('hoa-approvers3.approval');
 
         Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
-        // TRANSMITTAL
+
     });

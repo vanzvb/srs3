@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\SRS_3;
 
 use App\Models\SrsRequest;
 use App\Mail\RequestRejected;

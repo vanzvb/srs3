@@ -2,12 +2,9 @@
 
 @section('title', 'Sticker Application Request - Renewal')
 
-@section('head')
-    <!-- Font Awesome CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-@endsection
-
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <div class="container px-md-10">
         <div class=" px-md-5 mb-3">
             @if ($errors->any())
@@ -272,7 +269,7 @@
                                                                 <button type="button" class="btn btn-primary btn-sm"
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
-                                                                    <i class="fas fa-pencil-alt"></i>
+                                                                    <i class="fa fa-eye"></i>
                                                                 </button>
 
                                                                 <!-- Close Button with Close Icon -->
@@ -628,3 +625,5 @@
             });
         </script>    --}}
     @endsection
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js" integrity="sha512-6sSYJqDreZRZGkJ3b+YfdhB3MzmuP9R7X1QZ6g5aIXhRvR1Y/N/P47jmnkENm7YL3oqsmI6AK+V6AD99uWDnIw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
