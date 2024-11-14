@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\srs3;
 
+use \App\Jobs\srs3\SendHoaNotificationJob;
 use \App\Jobs\srs3\SendRequestorNotificationJob;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\srs3\SrsRequestController;
@@ -26,11 +27,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 
 // Changed in SRS3
 // use App\Models\SrsRequest;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -256,8 +257,6 @@ class SrsRequestRenewalController extends Controller
             'list_of_vehicles.min' => 'There must be at least one vehicle to renew.',
         ]);
 
-        // dd($request, 'stop');
-
         if (!$request->session()->has('sr_rnw-cid') || !$request->session()->get('sr_rnw-eml')) {
             return back()->withErrors(['error' => 'Please Refresh Page and Try Again']);
         }
@@ -366,211 +365,201 @@ class SrsRequestRenewalController extends Controller
         //     'general_information_sheet' => 'General Information Sheet',
         // ]);
 
-        // DB::beginTransaction(); // Start the transaction
+        DB::beginTransaction(); // Start the transaction
 
-        // try {
+        try {
 
 
-        $crm = CRMXIMain::with(['CRMXIvehicles'])
-            ->where('crm_id', $crmId)
-            ->where('email', $crmEmail)
-            ->firstOrFail();
+            $crm = CRMXIMain::with(['CRMXIvehicles'])
+                ->where('crm_id', $crmId)
+                ->where('email', $crmEmail)
+                ->firstOrFail();
 
-        // $crm = CrmMain::with(['vehicles'])
-        //     ->where('crm_id', $crmId)
-        //     ->where('email', $crmEmail)
-        //     ->firstOrFail();
+            // $crm = CrmMain::with(['vehicles'])
+            //     ->where('crm_id', $crmId)
+            //     ->where('email', $crmEmail)
+            //     ->firstOrFail();
 
-        // dd($crm);
+            // dd($crm);
 
-        $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-            ->where('email', $crm->email)
-            ->where('token', $reqToken)
-            ->where('status', 0)
-            ->firstOrFail();
+            $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
+                ->where('email', $crm->email)
+                ->where('token', $reqToken)
+                ->where('status', 0)
+                ->firstOrFail();
 
-        // Changed namespace to srs 3
-        $srsRequestController = new SrsRequestController();
+            // Changed namespace to srs 3
+            $srsRequestController = new SrsRequestController();
 
-        $srsRequest = new SrsRequest();
+            $srsRequest = new SrsRequest();
 
-        // Generate requests_id
-        $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
-        $srsRequest->category_id = $crm->category_id;
-        $srsRequest->sub_category_id = $crm->sub_category_id;
-        $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
-        $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
-        $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
+            // Generate requests_id
+            $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
+            $srsRequest->category_id = $crm->category_id;
+            $srsRequest->sub_category_id = $crm->sub_category_id;
+            $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
+            $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
+            $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
 
-        // SRS3 New Address Format
-        $srsRequest->block_no = $crm->block ? strip_tags($crm->block) : null;
-        $srsRequest->lot_no = $crm->lot ? strip_tags($crm->lot) : null;
-        $srsRequest->house_no = $crm->house_number ? strip_tags($crm->house_number) : null;
-        $srsRequest->street = $crm->street ? strip_tags($crm->street) : null;
-        $srsRequest->building_name = $crm->building_name ? strip_tags($crm->building_name) : null;
-        $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags($crm->subdivision_village) : null;
-        $srsRequest->city = $crm->city ? strip_tags($crm->city) : null;
-        $srsRequest->zipcode = $crm->zipcode ? strip_tags($crm->zipcode) : null;
+            // SRS3 New Address Format
+            $srsRequest->block_no = $crm->block ? strip_tags($crm->block) : null;
+            $srsRequest->lot_no = $crm->lot ? strip_tags($crm->lot) : null;
+            $srsRequest->house_no = $crm->house_number ? strip_tags($crm->house_number) : null;
+            $srsRequest->street = $crm->street ? strip_tags($crm->street) : null;
+            $srsRequest->building_name = $crm->building_name ? strip_tags($crm->building_name) : null;
+            $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags($crm->subdivision_village) : null;
+            $srsRequest->city = $crm->city ? strip_tags($crm->city) : null;
+            $srsRequest->zipcode = $crm->zipcode ? strip_tags($crm->zipcode) : null;
 
-        // $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
-        // $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
-        // $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
-        // $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
-        // $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
-        // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
-        $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
+            // $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
+            // $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
+            // $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
+            // $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
+            // $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
+            // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
+            $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
 
-        // Not saving 2nd, 3rd contact
-        $srsRequest->contact_no = $crm->main_contact;
+            // Not saving 2nd, 3rd contact
+            $srsRequest->contact_no = $crm->main_contact;
 
-        $srsRequest->email = $crm->email;
+            $srsRequest->email = $crm->email;
 
-        $srsRequest->created_at = now();
-        $srsRequest->updated_at = now();
+            $srsRequest->created_at = now();
+            $srsRequest->updated_at = now();
 
-        $srsRequest->load(['category' => function ($query) {
-            $query->select('id', 'name');
-        }, 'hoa']);
+            $srsRequest->load(['category' => function ($query) {
+                $query->select('id', 'name');
+            }, 'hoa']);
 
-        // Newly Added Columns in srs3
+            // Newly Added Columns in srs3
 
-        // membership_type - HOA TYPE (migrated accounts is null) this is crmxi3_mains.hoa_type
-        $srsRequest->membership_type = $crm->hoa_type;
+            // membership_type - HOA TYPE (migrated accounts is null) this is crmxi3_mains.hoa_type
+            $srsRequest->membership_type = $crm->hoa_type;
 
-        // block_no (migrated accounts is null) this is crmxi3_mains.block
-        $srsRequest->block_no = $crm->block;
+            // block_no (migrated accounts is null) this is crmxi3_mains.block
+            $srsRequest->block_no = $crm->block;
 
-        // lot_no (migrated accounts is null) this is crmxi3_mains.lot
-        $srsRequest->lot_no = $crm->lot;
+            // lot_no (migrated accounts is null) this is crmxi3_mains.lot
+            $srsRequest->lot_no = $crm->lot;
 
-        // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
-        // $srsRequest->srs3_sub_category_id = $srsRequest->category_id;
+            // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
+            // $srsRequest->srs3_sub_category_id = $srsRequest->category_id;
 
-        // account_type - (0 = Individual, 1 = Company)
-        $srsRequest->account_type = $crm->account_type;
+            // account_type - (0 = Individual, 1 = Company)
+            $srsRequest->account_type = $crm->account_type;
 
-        // company_name - "if account_type = 0, then null ,else this should be stored in crmxi3_mains.firstname"
-        $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
+            // company_name - "if account_type = 0, then null ,else this should be stored in crmxi3_mains.firstname"
+            $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
 
-        // company_representative - "if account_type = 0, then null, else this should be stored in crmxi3_mains.name"
-        $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
+            // company_representative - "if account_type = 0, then null, else this should be stored in crmxi3_mains.name"
+            $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
 
-        // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
-        $srsRequest->srs3_hoa_id = $crm->hoa;
+            // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
+            $srsRequest->srs3_hoa_id = $crm->hoa;
 
-        // OR / CR on vehicle is removed in renewal
-        // Pending
-        // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
-        $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
-        $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
+            // OR / CR on vehicle is removed in renewal
+            // Pending
+            // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
-        $renewVehicles = $crm->vehicles->whereIn('id', $request->list_of_vehicles);
+            $renewVehicles = $crm->vehicles->whereIn('id', $request->list_of_vehicles);
 
-        // Prepare data for insertion
-        $vehiclesData = [];
-        // dd($renewVehicles);
-        foreach ($renewVehicles as $renewVehicle) {
-            // Only include vehicles that are in the renewal list
-            if (!in_array($renewVehicle->id, $request->renewalVehicles)) {
-                continue; // Skip vehicles that should not be included
+            // Prepare data for insertion
+            $vehiclesData = [];
+            // dd($renewVehicles);
+            foreach ($renewVehicles as $renewVehicle) {
+                // Only include vehicles that are in the renewal list
+                if (!in_array($renewVehicle->id, $request->renewalVehicles)) {
+                    continue; // Skip vehicles that should not be included
+                }
+
+                // Build the data array
+                $vehiclesData[] = [
+                    'srs_request_id' => $srsRequest->request_id,
+                    'vehicle_id' => $renewVehicle->id,
+                    'crm_id' =>  $renewVehicle->account_id,
+                    'req_type' => 1,
+                    'plate_no' => strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no)))),
+                    'brand' => strip_tags($renewVehicle->brand),
+                    'series' => strip_tags($renewVehicle->series),
+                    'year_model' => strip_tags($renewVehicle->year_model),
+                    'old_sticker_no' => strip_tags($renewVehicle->new_sticker_no),
+                    'color' => strip_tags($renewVehicle->color),
+                    'type' => strip_tags($renewVehicle->type),
+                    'cr_from_crm' => !$renewVehicle->srs_request_id ? 1 : null,
+                    'plate_no_remarks' => isset($request->new_plate_no_chk[$renewVehicle->id]) ? strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $request->new_plate_no[$renewVehicle->id])))) : null,
+                    'color_remarks' => isset($request->new_color_chk[$renewVehicle->id]) ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $request->new_color[$renewVehicle->id])))) : null,
+                    'account_id' => $renewVehicle->account_id,
+                    'address_id' => strip_tags($renewVehicle->address_id),
+                    'red_tag' => $renewVehicle->red_tag,
+                    'vehicle_ownership_status_id' => $renewVehicle->vehicle_ownership_status_id,
+                ];
             }
 
-            // Build the data array
-            $vehiclesData[] = [
-                'srs_request_id' => $srsRequest->request_id,
-                'vehicle_id' => $renewVehicle->id,
-                'crm_id' =>  $renewVehicle->account_id,
-                'req_type' => 1,
-                'plate_no' => strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no)))),
-                'brand' => strip_tags($renewVehicle->brand),
-                'series' => strip_tags($renewVehicle->series),
-                'year_model' => strip_tags($renewVehicle->year_model),
-                'old_sticker_no' => strip_tags($renewVehicle->new_sticker_no),
-                'color' => strip_tags($renewVehicle->color),
-                'type' => strip_tags($renewVehicle->type),
-                'cr_from_crm' => !$renewVehicle->srs_request_id ? 1 : null,
-                'plate_no_remarks' => isset($request->new_plate_no_chk[$renewVehicle->id]) ? strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $request->new_plate_no[$renewVehicle->id])))) : null,
-                'color_remarks' => isset($request->new_color_chk[$renewVehicle->id]) ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $request->new_color[$renewVehicle->id])))) : null,
-                'account_id' => $renewVehicle->account_id,
-                'address_id' => strip_tags($renewVehicle->address_id),
-                'red_tag' => $renewVehicle->red_tag,
-                'vehicle_ownership_status_id' => $renewVehicle->vehicle_ownership_status_id,
-            ];
+            // Perform the bulk insert
+            CRXMIVehicle::insert($vehiclesData);
+
+            $files = [];
+
+            if ($request->has('valid_id_other_requirement')) {
+                $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
+            }
+
+            $srn = Crypt::encrypt($srsRequest->request_id);
+
+            $srsRequest->save();
+
+            // $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
+            $crm->save();
+
+            if ($files) {
+                $srsRequest->files()->saveMany($files);
+            }
+
+            $renewalRequest->status = 1;
+            $renewalRequest->save();
+
+
+            DB::commit();
+
+            // For Requestor
+            dispatch(new SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
+
+            if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
+
+                // if ($srsRequest->hoa->emailAdd1) {
+                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
+
+                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
+                // }
+
+                // if ($srsRequest->hoa->emailAdd2) {
+                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+
+                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
+                // }
+
+                // if ($srsRequest->hoa->emailAdd3) {
+                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+
+                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
+                // }
+            }
+
+            return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
+
+        } catch (Exception $e) {
+            // If there's an error, rollback the transaction
+            DB::rollBack();
+
+            // Handle the error (e.g., log it or return an error response)
+            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
         }
-
-        // Perform the bulk insert
-        CRXMIVehicle::insert($vehiclesData);
-
-        $files = [];
-
-        if ($request->has('valid_id_other_requirement')) {
-            $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
-        }
-
-        // dd($files);
-
-        $srn = Crypt::encrypt($srsRequest->request_id);
-
-        $srsRequest->save();
-
-        // $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
-        $crm->save();
-
-
-
-        // if ($vehicles) {
-        // dd($vehicles);
-        // $srsRequest->crmVehicleRequests()->saveMany($vehicles);
-        // $srsRequest->vehicles()->saveMany($vehicles);
-        // }
-        if ($files) {
-            $srsRequest->files()->saveMany($files);
-        }
-
-        $renewalRequest->status = 1;
-        $renewalRequest->save();
-
-
-        // DB::commit();
-
-        // For Requestor
-        dispatch(new SendRequestorNotificationJob($srsRequest, $srsRequest->email, 'renewal'));
-
-        // if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
-
-        //     if ($srsRequest->hoa->emailAdd1) {
-        //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
-
-        //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
-        //     }
-
-        //     if ($srsRequest->hoa->emailAdd2) {
-        //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
-
-        //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
-        //     }
-
-        //     if ($srsRequest->hoa->emailAdd3) {
-        //         $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
-
-        //         dispatch(new \App\Jobs\SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
-        //     }
-        // }
-
-        return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
-
-        // } catch (Exception $e) {
-        //     // If there's an error, rollback the transaction
-        //     DB::rollBack();
-
-        //     // Handle the error (e.g., log it or return an error response)
-        //     return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
-        // }
     }
 
     public function saveProgress(Request $request)
     {
-        dd('Here Submit');
         foreach ($request->except('_token') as $key => $value) {
             session([$key => $value]); // Store each input value in the session
         }
