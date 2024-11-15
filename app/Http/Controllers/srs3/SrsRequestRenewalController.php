@@ -165,6 +165,7 @@ class SrsRequestRenewalController extends Controller
     public function userRenewal(Request $request)
     {
 
+
         if (!$request->hasValidSignature()) {
             abort(404, 'Link is already expired');
         }
@@ -181,7 +182,6 @@ class SrsRequestRenewalController extends Controller
             abort(404);
         }
 
-        // CRMXI
 
 
         $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
@@ -195,15 +195,28 @@ class SrsRequestRenewalController extends Controller
         $crmxiSubCategories = CRMXISubcat::all();
         $crmxiHoas = CRMXIHoa::all();
 
+        // CRMXI
+        // Get all vehicles on pending request
+        // 
 
-        // dd($crm);
-        // TEST
-        // $crm = CrmMain::with(['vehicles', 'category', 'subCategory'])
-        //                 ->where('crm_id', $crmId)
-        //                 ->where('email', $email)
-        //                 ->firstOrFail();
+        // $pendingRequests = SrsRequest::where('account_id', '0140-00100-014192')
+        //         ->whereIn('status', [0, 1, 2, 3])->get();
+
+        // dd($pendingRequests);
+
+        // $pendingRequestVehicles = CRXMIVehicle::where('account_id', $crm->account_id)->get();
+        // dd($crm->account_id);
 
 
+        // ONGOING Checking if vehicle existed
+        // $ExistingVehicleOnRequests = DB::table('crmxi3_vehicles as a')
+        //     ->join('srs3_requests as b', 'b.request_id', '=', 'a.srs_request_id')
+        //     ->where('a.account_id', $crm->account_id)
+        //     ->where('a.assoc_crm', 0)
+        //     ->whereIn('b.status', [0, 1, 2, 3])
+        //     ->get();
+
+        // dd($ExistingVehicleOnRequests);
         // no changes in 3.0
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
             ->where('email', $crm->email)
@@ -394,6 +407,7 @@ class SrsRequestRenewalController extends Controller
             $srsRequest = new SrsRequest();
 
             // Generate requests_id
+            $srsRequest->account_id = $crm->account_id;
             $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
             $srsRequest->category_id = $crm->category_id;
             $srsRequest->sub_category_id = $crm->sub_category_id;
@@ -548,7 +562,6 @@ class SrsRequestRenewalController extends Controller
             }
 
             return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
-
         } catch (Exception $e) {
             // If there's an error, rollback the transaction
             DB::rollBack();

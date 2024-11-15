@@ -60,7 +60,7 @@ Route::prefix('v3')->group(function () {
     // when submit is hit on renewal (this is to make a new renewal request)
     Route::post('/sticker/request/renewal', [Srs3SrsRequestRenewalController::class, 'renewalCheck']);
 
-    // For Generating an Email Link sent to renewal requestor
+    // For Generating an Email Link sent to renewal requestor (index for renewal link)
     Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
 
     // when "Submit Renewal" is clicked
