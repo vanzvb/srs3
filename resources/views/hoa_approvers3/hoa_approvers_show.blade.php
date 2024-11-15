@@ -156,7 +156,7 @@
 
                 <div class="row gx-3">
                     <div class="col-md-6">
-                        <div class="row" style="text-align: left;">
+                        {{-- <div class="row" style="text-align: left;">
                             <div class="col-md-3 col-sm-4 col-xs-5">
                                 <label>Account Type :</label>
                             </div>
@@ -171,7 +171,7 @@
                                     </span>
                                 </p>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="row mt-2" style="text-align: left;">
                             <div class="col-md-3 col-sm-4 col-xs-5">
@@ -308,11 +308,11 @@
                                                 <tr>
                                                     <th style="width: 5%;">Approve ?</th>
                                                     <th style="width: 20%;">Rejection Remarks</th>
+                                                    <th>Plate No.</th>
                                                     <th style="width: 5%;">#</th>
                                                     <th>Request Type</th>
                                                     <th>Sticker No.</th>
                                                     <th>Type</th>
-                                                    <th>Plate No.</th>
                                                     <th>Brand</th>
                                                     <th>Series</th>
                                                     <th>Color</th>
@@ -333,11 +333,11 @@
                                                             <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
                                                                 placeholder="Please provide a reason for rejection" disabled></textarea>
                                                         </td>
+                                                        <td>{{ $vehicle['plate_no'] }}</td>
                                                         <td>{{ $vehicle['key'] }}</td>
                                                         <td>{{ $vehicle['req_type'] }}</td>
                                                         <td>{{ $vehicle['old_sticker_no'] }}</td>
                                                         <td>{{ $vehicle['type'] }}</td>
-                                                        <td>{{ $vehicle['plate_no'] }}</td>
                                                         <td>{{ $vehicle['brand'] }}</td>
                                                         <td>{{ $vehicle['series'] }}</td>
                                                         <td>{{ $vehicle['color'] }}</td>
