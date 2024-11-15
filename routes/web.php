@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
 use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
 use App\Http\Controllers\srs3\SubCategoryController as Srs3SubCategoryController;
@@ -11,10 +12,13 @@ use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
 use App\Http\Controllers\SrsUserController;
+use App\Http\Controllers\StickerController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TransmittalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 
@@ -248,3 +252,28 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
         Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
 
     });
+
+        //Invoice
+        Route::post('/cancelOr', [InvoiceController::class, 'cancelOr'])->name('cancelOr');
+        Route::post('/cancel_or_display', [InvoiceController::class, 'get_or'])->name('get_or');
+        Route::post('/invoice-process', [InvoiceController::class, 'invoice_process'])->name('invoice');
+        Route::post('/edit-billing', [InvoiceController::class, 'edit_billing'])->name('edit_billing');
+        Route::get('/invoice/{crm_id}/{invoice_no}', [InvoiceController::class, 'index']);
+        Route::get('/invoice_with_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'with_vat_index']);
+        Route::get('/invoice_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'vat']);
+        // Route::post('/crm/export', [InvoiceController::class, 'crm_export']);
+        Route::post('/sticker_report', [InvoiceController::class, 'sticker_report']);
+        Route::post('/sticker_report_cashier', [InvoiceController::class, 'sticker_report_cashier']);
+        Route::post('/invoice_export', [InvoiceController::class, 'invoice_export']);
+        Route::get('/invoice_access_report', [InvoiceController::class, 'filter_export_invoice']);
+        Route::get('/crm_access_report', [InvoiceController::class, 'crm_export']);
+
+        Route::get('/invoice_report_filter', [InvoiceController::class, 'invoice_report_export']);
+
+        Route::post('/sticker_export_excel', [StickerController::class, 'sticker_export_excel']);
+
+        // DO THIS
+        Route::post('/sticker_export_excel_2', [StickerController::class, 'sticker_export_excel_2']);
+        // Route::post('/sticker_export_excel_2', [StickerController::class, 'sticker_export_pdf']);
+        Route::get('/sticker_access_report_cv', [StickerController::class, 'export_sticker_cv']);
+        //End Invoice

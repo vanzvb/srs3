@@ -1577,6 +1577,7 @@ class SrsRequestController extends Controller
 
     public function getSubCategoriesV3(Request $request)
     {
+        // dd($request);
         $categoryId = $request->query('category_id');
         $subcategories = DB::table('get_subcat')->where('category_id', $categoryId)->get();
 

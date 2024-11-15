@@ -925,11 +925,22 @@
             handleCategoryChange(); // Check on page load
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            let subCategorySelect = document.getElementById('sub_category_1');
+            subCategorySelect.addEventListener('change', handleCategoryChange);
+            handleCategoryChange(); // Check on page load
+        });
+
         function handleCategoryChange() {
             let categorySelect = document.getElementById('category');
             let hoaSelect = document.getElementById('hoa_1');
+            let subcatSelect = document.getElementById('sub_category_1');
 
-            if (categorySelect.value == '2') {
+            if (subcatSelect.value == '48') {
+                
+                hoaSelect.disabled = false;
+
+            } else if(categorySelect.value == '2') {
                 hoaSelect.disabled = true;
                 hoaSelect.value = ''; // Clear selection if disabled
             } else {
