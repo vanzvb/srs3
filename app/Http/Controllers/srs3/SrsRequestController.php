@@ -265,21 +265,41 @@ class SrsRequestController extends Controller
 
         // Vehicle
 
+        // HOA if Subcat = 1, 2, 3, 4
+        // $hoas1 = DB::table('crmxi3_hoas')
+        //     ->whereBetween('id', [1, 70]) // Get IDs from 1 to 70
+        //     ->orWhereIn('id', [95, 96])  // Also include 95 and 96
+        //     ->get();
+        $hoas1 = DB::table('crmxi3_hoas')
+            ->whereBetween('type', [0, 1])
+            ->get();
+
+        // HOA if Subcat = 48
+        // $hoas2 = DB::table('crmxi3_hoas')
+        //     ->whereBetween('id', [75, 93])
+        //     ->orWhereIn('id',[97])
+        //     ->get();
+
+            $hoas2 = DB::table('crmxi3_hoas')
+            ->whereBetween('type', [3, 7])
+            ->get();
+
+
+
         $currentYear = date('Y');
         $years = range($currentYear, 1975);
 
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId', 'years', 'vehicleOwnershipTypes'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId', 'years', 'vehicleOwnershipTypes', 'hoas1', 'hoas2'));
         // return view('srs.request.create', compact('cities'));
     }
 
 
     public function store(SrsRequestRequest $request)
     {
-        // dd($request);
+        
         $data = $request->validated();
-
 
         // dd($data);
         // if ($data['category'] == 1) {
@@ -323,6 +343,7 @@ class SrsRequestController extends Controller
         $srsRequest->request_id = $this->getNextId($request->category, $request->sub_category_1);
         $srsRequest->category_id = $data['category'];
         $srsRequest->sub_category_id = $data['sub_category_1'];
+        $srsRequest->hoa_type = $data['hoa_types'];
         // $srsRequest->first_name = $data['first_name'];
         // $srsRequest->last_name = $data['last_name'];
         // $srsRequest->middle_name = $data['middle_name'];
@@ -347,6 +368,8 @@ class SrsRequestController extends Controller
                 $srsRequest->nr_hoa_id = $data['hoa_1'];
             }
         }
+
+        
         // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
         $srsRequest->contact_no = $data['contact_no'];
         $srsRequest->secondary_contact = $data['second_contact_no'];
@@ -1573,6 +1596,20 @@ class SrsRequestController extends Controller
         $subCategories = SPCSubCat::where('status', 1)->select('id', 'category_id', 'name')->get();
 
         return $subCategories;
+    }
+
+    public function getHoaTypes(Request $request)
+    {
+        $subcategoryId = $request->query('sub_category_id');
+
+        // Fetch HOA types based on the subcategory ID
+        $hoaTypes = DB::table('crmxi3_subcat_hoatypes_relations')
+            ->join('crmxi3_hoa_types', 'crmxi3_hoa_types.id', '=', 'crmxi3_subcat_hoatypes_relations.hoa_type_id')
+            ->where('crmxi3_subcat_hoatypes_relations.sub_category_id', $subcategoryId)
+            ->select('crmxi3_hoa_types.id', 'crmxi3_hoa_types.name')
+            ->get();
+
+        return response()->json($hoaTypes);
     }
 
     public function getSubCategoriesV3(Request $request)

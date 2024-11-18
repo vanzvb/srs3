@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers\SRS_3;
 
+use App\Exports\TransmittalExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendRejectedNotificationJob as JobsSendRejectedNotificationJob;
 use App\Jobs\SRS_3\SendApprovedNotificationJob;
 use App\Jobs\SRS_3\SendRejectedNotificationJob;
-use Carbon\Carbon;
-use App\Models\SRS3_Model\SrsRequest;
-use App\Models\LogHoaHist;
-use Illuminate\Http\Request;
-use App\Models\SrsAppointment;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
+use App\Models\LogHoaHist;
+use App\Models\SRS3_Model\SrsRequest;
 use App\Models\SRS3_Model\SrsRequestStatus;
+use App\Models\SrsAppointment;
 use App\Models\SrsRequestsArchive;
-use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
+use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class HoaApproverController extends Controller
 {
@@ -769,7 +771,17 @@ class HoaApproverController extends Controller
 
     public function transmittal()
     {
-        // dd('Hello');
         return view('hoa_approvers3.hoa_approvers_transmittal');
+    }
+
+    public function exportTransmittal(Request $request)
+    {
+        // Retrieve filters from the request
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $hoaId = $request->input('hoa_id');
+
+        // Pass filters to the export class
+        return Excel::download(new TransmittalExport($startDate, $endDate, $hoaId), 'transmittal_report.xlsx');
     }
 }

@@ -43,6 +43,7 @@ class SrsRequestRequest extends FormRequest
             'category' => 'required|integer',
             'sub_category_1' => 'required|integer',
             'hoa_1' => 'nullable',
+            'hoa_types' => 'required|integer',
             'company_name' => 'nullable|string',
             'company_representative' => 'nullable|string',
             'first_name' => 'nullable|string',

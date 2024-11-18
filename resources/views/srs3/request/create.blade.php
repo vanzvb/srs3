@@ -79,12 +79,20 @@
                                     <div class="col-md-6 col-12 mt-2" id="hoa_tab">
                                         <div class="form-floating">
                                             <select class="form-select" name="hoa_1" id="hoa_1" required>
-                                                @foreach ($hoas as $hoa)
+                                                @foreach ($hoas1 as $hoa)
                                                     <option value="{{ $hoa->id }}">
                                                         {{ $hoa->name }}</option>
                                                 @endforeach
                                             </select>
                                             <label for="hoa_1">HOA</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="hoa_types" id="hoa_types" onchange="">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                            <label for="hoa_types">Membership Type</label>
                                         </div>
                                     </div>
                                     {{-- <div class="col-12 col-md-4 mt-2 mt-md-0">
@@ -225,26 +233,28 @@
                                             <div class="col-md-2 col-3">
                                                 <div class="form-floating">
                                                     <input type="number" class="form-control" id="block"
-                                                        name="block" placeholder="Block"
-                                                        value="{{ old('block') }}" min="1">
-                                                    <label for="block" class="form-label" style="color: grey;">Block</label>
+                                                        name="block" placeholder="Block" value="{{ old('block') }}"
+                                                        min="1">
+                                                    <label for="block" class="form-label"
+                                                        style="color: grey;">Block</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-2 col-3">
                                                 <div class="form-floating">
                                                     <input type="number" class="form-control" id="lot"
-                                                        name="lot" placeholder="Lot"
-                                                        value="{{ old('lot') }}" min="1">
-                                                    <label for="lot" class="form-label" style="color: grey;">Lot</label>
+                                                        name="lot" placeholder="Lot" value="{{ old('lot') }}"
+                                                        min="1">
+                                                    <label for="lot" class="form-label"
+                                                        style="color: grey;">Lot</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-6">
                                                 <div class="form-floating">
                                                     <input type="number" class="form-control" id="house_no"
-                                                        name="house_no" placeholder="House No" value="{{ old('house_no') }}" 
-                                                        min="1">
-                                                    <label for="house_no" class="form-label"
-                                                        style="color: grey;">House No.</label>
+                                                        name="house_no" placeholder="House No"
+                                                        value="{{ old('house_no') }}" min="1">
+                                                    <label for="house_no" class="form-label" style="color: grey;">House
+                                                        No.</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-6">
@@ -301,7 +311,8 @@
                                                     <input type="number" class="form-control" id="zipcode"
                                                         name="zipcode" placeholder="Zipcode"
                                                         value="{{ old('zipcode') }}" required>
-                                                    <label for="zipcode" class="form-label" style="color: grey;">Zipcode</label>
+                                                    <label for="zipcode" class="form-label"
+                                                        style="color: grey;">Zipcode</label>
                                                 </div>
                                             </div>
                                             {{-- <p style="font-weight: bold; font-size: 12px;">Note: Enter active email. Request confirmation and appointment booking link will be sent by email.</p> --}}
@@ -319,7 +330,8 @@
                                                     <input type="text" class="form-control" id="contact_no"
                                                         name="contact_no" placeholder="Tel. No./Mobile No."
                                                         value="{{ old('contact_no') }}" required>
-                                                    <label for="contact_no" class="form-label" style="color: grey;">Contact No.</label>
+                                                    <label for="contact_no" class="form-label"
+                                                        style="color: grey;">Contact No.</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 col-6">
@@ -327,7 +339,8 @@
                                                     <input type="text" class="form-control" id="second_contact_no"
                                                         name="second_contact_no" placeholder="Tel. No./Mobile No."
                                                         value="{{ old('second_contact_no') }}">
-                                                    <label for="second_contact_no" class="form-label" style="color: grey;">Secondary Contact No.</label>
+                                                    <label for="second_contact_no" class="form-label"
+                                                        style="color: grey;">Secondary Contact No.</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -337,7 +350,8 @@
                                                     <input type="text" class="form-control" id="alt_email"
                                                         name="alt_email" placeholder="Tel. No./Mobile No."
                                                         value="{{ old('alt_email') }}">
-                                                    <label for="alt_email" class="form-label" style="color: grey;">Alternate Email</label>
+                                                    <label for="alt_email" class="form-label"
+                                                        style="color: grey;">Alternate Email</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -561,7 +575,8 @@
                                                     <div id="v_otherReq_tab" class="col-12 col-md-4">
                                                         <label class="form-label">Other Requirements</label>
                                                         <input type="file" accept="image/*"
-                                                            class="form-control form-control-sm" name="other_req[]" required>
+                                                            class="form-control form-control-sm" name="other_req[]"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -887,47 +902,75 @@
         });
     </script>
 
-{{-- Pivot of category to sub cat --}}
+    {{-- Pivot of category to sub cat --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Trigger the fetch when the page loads with the current category value
+            // Trigger fetching subcategories and HOA types on page load
             let categoryId = document.getElementById('category').value;
-            fetchSubCategories(categoryId);
+            fetchSubCategories(categoryId, true); // Fetch subcategories and HOA types for the first subcategory
         });
-
+    
         document.getElementById('category').addEventListener('change', function() {
-            fetchSubCategories(this.value);
+            fetchSubCategories(this.value, true); // Fetch subcategories and automatically repopulate HOA types
         });
-
-        function fetchSubCategories(categoryId) {
+    
+        document.getElementById('sub_category_1').addEventListener('change', function() {
+            fetchHoaTypes(this.value); // Fetch HOA types whenever a subcategory is selected
+        });
+    
+        function fetchSubCategories(categoryId, autoSelectFirstSubcategory) {
             fetch(`/v3/sticker/request/sub_categories?category_id=${categoryId}`)
                 .then(response => response.json())
                 .then(data => {
                     let subCategorySelect = document.getElementById('sub_category_1');
                     subCategorySelect.innerHTML = ''; // Clear current options
-
+    
                     data.forEach(subcat => {
                         let option = document.createElement('option');
                         option.value = subcat.id;
                         option.text = subcat.name;
                         subCategorySelect.add(option);
                     });
+    
+                    // Automatically fetch HOA types for the first subcategory if required
+                    if (autoSelectFirstSubcategory && data.length > 0) {
+                        subCategorySelect.value = data[0].id; // Select the first subcategory
+                        fetchHoaTypes(data[0].id); // Fetch HOA types for the first subcategory
+                    } else {
+                        document.getElementById('hoa_types').innerHTML = ''; // Clear HOA types if no subcategory
+                    }
                 })
                 .catch(error => console.error('Error fetching subcategories:', error));
         }
+    
+        function fetchHoaTypes(subCategoryId) {
+            fetch(`/v3/sticker/request/hoa_types?sub_category_id=${subCategoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let hoaTypesSelect = document.getElementById('hoa_types');
+                    hoaTypesSelect.innerHTML = ''; // Clear current options
+    
+                    data.forEach(hoaType => {
+                        let option = document.createElement('option');
+                        option.value = hoaType.id;
+                        option.text = hoaType.name;
+                        hoaTypesSelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching HOA types:', error));
+        }
     </script>
+    
 
-    {{-- Disable HOA if category is (2) NON-RESIDENT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for category and subcategory dropdowns
             let categorySelect = document.getElementById('category');
-            categorySelect.addEventListener('change', handleCategoryChange);
-            handleCategoryChange(); // Check on page load
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
             let subCategorySelect = document.getElementById('sub_category_1');
+
+            categorySelect.addEventListener('change', handleCategoryChange);
             subCategorySelect.addEventListener('change', handleCategoryChange);
+
             handleCategoryChange(); // Check on page load
         });
 
@@ -936,16 +979,43 @@
             let hoaSelect = document.getElementById('hoa_1');
             let subcatSelect = document.getElementById('sub_category_1');
 
-            if (subcatSelect.value == '48') {
-                
-                hoaSelect.disabled = false;
+            // Example: Data for hoas1 and hoas2
+            const hoas1 = @json($hoas1); // Ensure $hoas1 is passed from the controller
+            const hoas2 = @json($hoas2); // Ensure $hoas2 is passed from the controller
 
-            } else if(categorySelect.value == '2') {
-                hoaSelect.disabled = true;
-                hoaSelect.value = ''; // Clear selection if disabled
+            // Reset HOA dropdown to $hoas1 by default
+            hoaSelect.innerHTML = ''; // Clear current options
+            hoas1.forEach(hoa => {
+                const option = document.createElement('option');
+                option.value = hoa.id;
+                option.textContent = hoa.name;
+                hoaSelect.appendChild(option);
+            });
+
+            // Disable HOA dropdown if category is 2
+            if (categorySelect.value == '2') {
+                if (subcatSelect.value == '48') {
+                    // If subcategory is 48, populate HOA with $hoas2 and enable it
+                    hoaSelect.innerHTML = ''; // Clear current options
+                    hoas2.forEach(hoa => {
+                        const option = document.createElement('option');
+                        option.value = hoa.id;
+                        option.textContent = hoa.name;
+                        hoaSelect.appendChild(option);
+                    });
+                    hoaSelect.disabled = false; // Enable HOA dropdown
+                } else {
+                    // Disable HOA dropdown for all other subcategories
+                    hoaSelect.disabled = true;
+                    hoaSelect.value = ''; // Clear selection if disabled
+                }
             } else {
+                // Enable HOA dropdown for other categories (default to $hoas1)
                 hoaSelect.disabled = false;
             }
+
+            // console.log(`Category: ${categorySelect.value}, Subcategory: ${subcatSelect.value}`);
         }
     </script>
+
 @endsection

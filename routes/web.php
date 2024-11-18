@@ -6,13 +6,13 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
 use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
+use App\Http\Controllers\srs3\StickerController as Srs3StickerController;
 use App\Http\Controllers\srs3\SubCategoryController as Srs3SubCategoryController;
 use App\Http\Controllers\SRS_3\HoaApproverController as HoaApprover3Controller;
 use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
 use App\Http\Controllers\SrsUserController;
-use App\Http\Controllers\StickerController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TransmittalController;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +81,8 @@ Route::prefix('v3')->group(function () {
     // for generating sub category onload (in new)
     Route::get('/sticker/request/sub_categories', [Srs3RequestController::class, 'getSubCategoriesV3'])->name('getSubCategoriesV3');
 
+    Route::get('/sticker/request/hoa_types', [Srs3RequestController::class, 'getHoaTypes'])->name('getHoaTypes');
+
     // SRS Inbox
     Route::get('/requests', [Srs3RequestController::class, 'list'])->name('requests.v3');
     // Route::get('/requests/report', [Srs3RequestController::class, 'report'])->name('requests.report');
@@ -100,6 +102,10 @@ Route::prefix('v3')->group(function () {
         Route::put('/{subCategory}', [Srs3SubCategoryController::class, 'edit'])->name('v3.sub-categories.edit');
         Route::delete('/{subCategory}', [Srs3SubCategoryController::class, 'destroy'])->name('v3.sub-categories.destroy');
     });
+
+    // Transmittal Report
+
+    Route::post('/sticker_export_excel_2', [Srs3StickerController::class, 'sticker_export_excel_2']);
 });
 
 Route::prefix('sub-categories')->group(function () {
@@ -241,6 +247,7 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
     // HOA Presidents/Approvers 3.0
     Route::prefix('/hoa-approvers3')->group(function () {
         Route::get('/transmittal', [HoaApprover3Controller::class, 'transmittal'])->name('hoa-approvers3.transmittal');
+        Route::get('/export-transmittal', [HoaApprover3Controller::class, 'exportTransmittal'])->name('export.transmittal');
 
         Route::get('/', [HoaApprover3Controller::class, 'index'])->name('hoa-approvers3.index');
         Route::get('/list', [HoaApprover3Controller::class, 'list'])->name('hoa-approvers3.list');
@@ -253,27 +260,27 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
 
     });
 
-        //Invoice
-        Route::post('/cancelOr', [InvoiceController::class, 'cancelOr'])->name('cancelOr');
-        Route::post('/cancel_or_display', [InvoiceController::class, 'get_or'])->name('get_or');
-        Route::post('/invoice-process', [InvoiceController::class, 'invoice_process'])->name('invoice');
-        Route::post('/edit-billing', [InvoiceController::class, 'edit_billing'])->name('edit_billing');
-        Route::get('/invoice/{crm_id}/{invoice_no}', [InvoiceController::class, 'index']);
-        Route::get('/invoice_with_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'with_vat_index']);
-        Route::get('/invoice_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'vat']);
-        // Route::post('/crm/export', [InvoiceController::class, 'crm_export']);
-        Route::post('/sticker_report', [InvoiceController::class, 'sticker_report']);
-        Route::post('/sticker_report_cashier', [InvoiceController::class, 'sticker_report_cashier']);
-        Route::post('/invoice_export', [InvoiceController::class, 'invoice_export']);
-        Route::get('/invoice_access_report', [InvoiceController::class, 'filter_export_invoice']);
-        Route::get('/crm_access_report', [InvoiceController::class, 'crm_export']);
+    //Invoice
+    Route::post('/cancelOr', [InvoiceController::class, 'cancelOr'])->name('cancelOr');
+    Route::post('/cancel_or_display', [InvoiceController::class, 'get_or'])->name('get_or');
+    Route::post('/invoice-process', [InvoiceController::class, 'invoice_process'])->name('invoice');
+    Route::post('/edit-billing', [InvoiceController::class, 'edit_billing'])->name('edit_billing');
+    Route::get('/invoice/{crm_id}/{invoice_no}', [InvoiceController::class, 'index']);
+    Route::get('/invoice_with_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'with_vat_index']);
+    Route::get('/invoice_vat/{crm_id}/{invoice_no}', [InvoiceController::class, 'vat']);
+    // Route::post('/crm/export', [InvoiceController::class, 'crm_export']);
+    Route::post('/sticker_report', [InvoiceController::class, 'sticker_report']);
+    Route::post('/sticker_report_cashier', [InvoiceController::class, 'sticker_report_cashier']);
+    Route::post('/invoice_export', [InvoiceController::class, 'invoice_export']);
+    Route::get('/invoice_access_report', [InvoiceController::class, 'filter_export_invoice']);
+    Route::get('/crm_access_report', [InvoiceController::class, 'crm_export']);
 
-        Route::get('/invoice_report_filter', [InvoiceController::class, 'invoice_report_export']);
+    Route::get('/invoice_report_filter', [InvoiceController::class, 'invoice_report_export']);
 
-        Route::post('/sticker_export_excel', [StickerController::class, 'sticker_export_excel']);
+    // Route::post('/sticker_export_excel', [Srs3StickerController::class, 'sticker_export_excel']);
 
-        // DO THIS
-        Route::post('/sticker_export_excel_2', [StickerController::class, 'sticker_export_excel_2']);
-        // Route::post('/sticker_export_excel_2', [StickerController::class, 'sticker_export_pdf']);
-        Route::get('/sticker_access_report_cv', [StickerController::class, 'export_sticker_cv']);
-        //End Invoice
+    // DO THIS
+    // Route::post('/sticker_export_excel_2', [Srs3StickerController::class, 'sticker_export_excel_2']);
+    // Route::post('/sticker_export_excel_2', [StickerController::class, 'sticker_export_pdf']);
+    // Route::get('/sticker_access_report_cv', [Srs3StickerController::class, 'export_sticker_cv']);
+    //End Invoice
