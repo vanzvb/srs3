@@ -264,34 +264,30 @@ class SrsRequestController extends Controller
         $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
 
         // Vehicle
-
-        // HOA if Subcat = 1, 2, 3, 4
-        // $hoas1 = DB::table('crmxi3_hoas')
-        //     ->whereBetween('id', [1, 70]) // Get IDs from 1 to 70
-        //     ->orWhereIn('id', [95, 96])  // Also include 95 and 96
-        //     ->get();
+        // ALL HOAS
         $hoas1 = DB::table('crmxi3_hoas')
             ->whereBetween('type', [0, 1])
+            ->where('name', 'not like', '%BF COMMERCE%')
+            ->where('name', '!=', 'Test Hoa')
             ->get();
 
-        // HOA if Subcat = 48
-        // $hoas2 = DB::table('crmxi3_hoas')
-        //     ->whereBetween('id', [75, 93])
-        //     ->orWhereIn('id',[97])
-        //     ->get();
+        $hoas2 = DB::table('crmxi3_hoas')
+        ->whereBetween('type', [3, 7])
+        ->where('name', '!=', 'Test Hoa')
+        ->get();
 
-            $hoas2 = DB::table('crmxi3_hoas')
-            ->whereBetween('type', [3, 7])
-            ->get();
-
-
+        
+        $hoas3 = DB::table('crmxi3_hoas')
+        ->whereBetween('type', [0, 1])
+        ->where('name', '!=', 'Test Hoa')
+        ->get();
 
         $currentYear = date('Y');
         $years = range($currentYear, 1975);
 
         $tempId = date('Y-m-d-H-i-s') . '-' . sprintf('%03d', (int)(microtime(true) * 1000) % 1000);
 
-        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId', 'years', 'vehicleOwnershipTypes', 'hoas1', 'hoas2'));
+        return view('srs3.request.create', compact('categories', 'subcats', 'hoatypes', 'cities', 'hoas', 'civilStatus', 'nationalities', 'tempId', 'years', 'vehicleOwnershipTypes', 'hoas1', 'hoas2', 'hoas3'));
         // return view('srs.request.create', compact('cities'));
     }
 

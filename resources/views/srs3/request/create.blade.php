@@ -87,7 +87,7 @@
                                             <label for="hoa_1">HOA</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-12 mt-2">
+                                    <div class="col-md-6 col-12 mt-2" style="display: none;">
                                         <div class="form-floating">
                                             <select class="form-select" name="hoa_types" id="hoa_types" onchange="">
                                                 <!-- Options will be populated dynamically -->
@@ -909,29 +909,29 @@
             let categoryId = document.getElementById('category').value;
             fetchSubCategories(categoryId, true); // Fetch subcategories and HOA types for the first subcategory
         });
-    
+
         document.getElementById('category').addEventListener('change', function() {
             fetchSubCategories(this.value, true); // Fetch subcategories and automatically repopulate HOA types
         });
-    
+
         document.getElementById('sub_category_1').addEventListener('change', function() {
             fetchHoaTypes(this.value); // Fetch HOA types whenever a subcategory is selected
         });
-    
+
         function fetchSubCategories(categoryId, autoSelectFirstSubcategory) {
             fetch(`/v3/sticker/request/sub_categories?category_id=${categoryId}`)
                 .then(response => response.json())
                 .then(data => {
                     let subCategorySelect = document.getElementById('sub_category_1');
                     subCategorySelect.innerHTML = ''; // Clear current options
-    
+
                     data.forEach(subcat => {
                         let option = document.createElement('option');
                         option.value = subcat.id;
                         option.text = subcat.name;
                         subCategorySelect.add(option);
                     });
-    
+
                     // Automatically fetch HOA types for the first subcategory if required
                     if (autoSelectFirstSubcategory && data.length > 0) {
                         subCategorySelect.value = data[0].id; // Select the first subcategory
@@ -942,14 +942,14 @@
                 })
                 .catch(error => console.error('Error fetching subcategories:', error));
         }
-    
+
         function fetchHoaTypes(subCategoryId) {
             fetch(`/v3/sticker/request/hoa_types?sub_category_id=${subCategoryId}`)
                 .then(response => response.json())
                 .then(data => {
                     let hoaTypesSelect = document.getElementById('hoa_types');
                     hoaTypesSelect.innerHTML = ''; // Clear current options
-    
+
                     data.forEach(hoaType => {
                         let option = document.createElement('option');
                         option.value = hoaType.id;
@@ -960,7 +960,7 @@
                 .catch(error => console.error('Error fetching HOA types:', error));
         }
     </script>
-    
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -982,6 +982,7 @@
             // Example: Data for hoas1 and hoas2
             const hoas1 = @json($hoas1); // Ensure $hoas1 is passed from the controller
             const hoas2 = @json($hoas2); // Ensure $hoas2 is passed from the controller
+            const hoas3 = @json($hoas3);
 
             // Reset HOA dropdown to $hoas1 by default
             hoaSelect.innerHTML = ''; // Clear current options
@@ -1010,8 +1011,22 @@
                     hoaSelect.value = ''; // Clear selection if disabled
                 }
             } else {
-                // Enable HOA dropdown for other categories (default to $hoas1)
-                hoaSelect.disabled = false;
+
+                if (subcatSelect.value == '3') {
+                    // If subcategory is 48, populate HOA with $hoas2 and enable it
+                    hoaSelect.innerHTML = ''; // Clear current options
+                    hoas3.forEach(hoa => {
+                        const option = document.createElement('option');
+                        option.value = hoa.id;
+                        option.textContent = hoa.name;
+                        hoaSelect.appendChild(option);
+                    });
+                    hoaSelect.disabled = false; // Enable HOA dropdown
+                } else {
+                    // Enable HOA dropdown for other categories (default to $hoas1)
+                    hoaSelect.disabled = false;
+                }
+
             }
 
             // console.log(`Category: ${categorySelect.value}, Subcategory: ${subcatSelect.value}`);
