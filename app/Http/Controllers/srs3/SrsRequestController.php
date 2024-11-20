@@ -22,6 +22,7 @@ use App\Models\CRMXI3_Model\CRXMIVehicleOwner;
 use App\Models\LogSrsHist;
 use App\Models\SPCCategory;
 use App\Models\SPCSubCat;
+use App\Models\SRS3_Model\SRS3Requirement;
 use App\Models\SrsAppointment;
 use App\Models\SrsApptTimeslot;
 use App\Models\SrsCategory;
@@ -247,7 +248,9 @@ class SrsRequestController extends Controller
     {
         // $categories = SPCCategory::where('status', 1)->get();
         // Account Info
-        $categories = CRMXICategory::select('id', 'name')->get();
+        // $categories = CRMXICategory::select('id', 'name')->get();
+
+        $categories = DB::select('SELECT * FROM crmxi3_categories');
 
         $hoas = DB::select('SELECT * FROM crmxi3_hoas');
 
@@ -1627,14 +1630,14 @@ class SrsRequestController extends Controller
 
         $data = $request->validate([
             // 'sub_category' => 'required|int|exists:spc_subcat,id'
-            'sub_category_1' => 'required|int'
+            'sub_category_1' => 'nullable|int'
         ]);
 
-        $requirements = SrsRequirement::with(['subCategories' => function ($query) {
-            $query->select('spc_subcat.id');
+        $requirements = SRS3Requirement::with(['subCategories' => function ($query) {
+            $query->select('spc3_subcat.id');
         }])
             ->whereHas('subCategories', function ($query) use ($data) {
-                $query->where('spc_subcat.id', $data['sub_category_1']);
+                $query->where('spc3_subcat.id', $data['sub_category_1']);
             })
             ->select('id', 'name', 'description', 'required')
             ->get();

@@ -172,7 +172,7 @@ $(document).ready(function () {
       $.ajax({
         'url': '/v3/sticker/request/requirements',
         'data': {
-          'sub_category_1': $("#sub_category_1").val()
+          'sub_category_1': $("#sub_category_id1").val()
         },
         'success': function (_0x45dc6d) {
           var _0x5cdd0e = '';
@@ -187,8 +187,10 @@ $(document).ready(function () {
             $('#requirements_tbody').html(_0x5cdd0e);
             $("#requirements_table").show();
           } else {
+        // If no requirements, show a "No File Attachment Available" row
+            _0x5cdd0e = "<tr><td colspan='2' class='text-center'>No File Attachment Available</td></tr>";
             $("#requirements_tbody").html(_0x5cdd0e);
-            $("#requirements_table").hide();
+            $("#requirements_table").show();
           }
         }
       });
