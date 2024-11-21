@@ -68,50 +68,40 @@
 
                                     <br>
                                     {{-- current id of address --}}
-                                    <input style="border: 1px solid black;" type="hidden" id="current_id1"
-                                        name="toPass[0][current_id]" class="form-control">
+                                    <input style="border: 1px solid black;" type="hidden" id="current_id1" name="current_id" class="form-control">
+
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="mb-1">
                                             <div class="form-floating">
-                                                <select style="border: 1px solid black;" id="category_id1"
-                                                    name="toPass[0][category_id]" onchange="categoryChange($(this).val(),1)"
-                                                    class="form-select " aria-label=" example" required>
+                                                <select style="border: 1px solid black;" id="category_id1" name="category_id" onchange="categoryChange($(this).val(),1)" class="form-select" aria-label="example" required>
                                                     <option value="">---</option>
                                                     @foreach ($categories as $category)
-                                                        <option value="<?= $category->id ?>">{{ $category->name }}
-                                                        </option>
+                                                        <option value="<?= $category->id ?>">{{ $category->name }}</option>
                                                     @endforeach
                                                 </select>
                                                 <label class="form-label mb-2">Category</label>
                                             </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="mb-1">
                                             <div class="form-floating">
-                                                <select style="border: 1px solid black;" name="toPass[0][sub_category]"
-                                                    id="sub_category_id1"
-                                                    onchange="sub_categoryChange($(this).val(),1); getRequirements();"
-                                                    class="form-select " aria-label="Default select example" disabled
-                                                    required>
-                                                    {{-- <select style="border: 1px solid black;" name="toPass[0][sub_category]"  id="sub_category_id1"  class="form-select " aria-label="Default select example" disabled required> --}}
+                                                <select style="border: 1px solid black;" name="sub_category" id="sub_category_id1" onchange="sub_categoryChange($(this).val(),1);" class="form-select" aria-label="Default select example" disabled required>
                                                     <option value="">---</option>
                                                     @foreach ($subcats as $subcat)
                                                         <option value="<?= $subcat->id ?>">{{ $subcat->name }}</option>
                                                     @endforeach
-
                                                 </select>
                                                 <label class="form-label mb-2">Sub Category : </label>
                                             </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="mb-1">
                                             <div class="form-floating">
-                                                <select style="border: 1px solid black;" id="hoa1"
-                                                    name="toPass[0][hoa]" class="form-select"
-                                                    aria-label="Default select example"
-                                                    onchange="hoaChange($(this).val(),1)" disabled required>
+                                                <select style="border: 1px solid black;" id="hoa1" name="hoa" class="form-select" aria-label="Default select example" onchange="hoaChange($(this).val(),1)" disabled required>
                                                     <option value="">---</option>
                                                     @foreach ($hoas as $hoa)
                                                         <option value="<?= $hoa->id ?>">{{ $hoa->name }}</option>
@@ -121,25 +111,21 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="mb-1">
                                             <div class="form-floating">
-                                                <select style="border: 1px solid black;" id="hoa_type1"
-                                                    name="toPass[0][hoa_type]" class="form-select"
-                                                    aria-label="Default select example" disabled required>
+                                                <select style="border: 1px solid black;" id="hoa_type1" name="hoa_type" class="form-select" aria-label="Default select example" disabled required>
                                                     <option value="">---</option>
                                                     @foreach ($hoatypes as $hoatype)
-                                                        <option value="<?= "$hoatype->id" ?>">{{ $hoatype->name }}
-                                                        </option>
+                                                        <option value="<?= "$hoatype->id" ?>">{{ $hoatype->name }}</option>
                                                     @endforeach
                                                 </select>
-                                                <input type="hidden" id="hoa_type_hidden1" name="toPass[0][hoa_type]"
-                                                    value="">
+                                                <input type="hidden" id="hoa_type_hidden1" name="hoa_type" value="">
                                                 <label class="form-label mb-2">Member Type : </label>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
                                 <div id="dos_msg" class="col-12 text-center mt-3" style="display: none;">
                                     <p style="color: red;"><b>For Deed of Sale, kindly secure application form with
@@ -894,200 +880,149 @@
         });
     </script>
 
-    <script>
-        let addressCount = 1;
-        var subcats = {!! json_encode($subcats) !!};
-        var hoatypes = {!! json_encode($hoatypes) !!};
-        var hoas = {!! json_encode($hoas) !!};
+<script>
+    let addressCount = 1;
+    var subcats = {!! json_encode($subcats) !!};
+    var hoatypes = {!! json_encode($hoatypes) !!};
+    var hoas = {!! json_encode($hoas) !!};
 
-        function categoryChange(id, counter, selectedSubCategoryId = null) {
-            $(`#hoa${counter == addressCount ? addressCount : counter} option[value=""]`)
-                .prop('selected', true)
-            $('#subdivision' + counter).prop('disabled', false);
-            $('#hoa' + counter).prop('disabled', true);
-            let toCheckSelected = $(`#sub_category_id${counter == addressCount ? addressCount : counter}`).val()
-            let toCheckSelectedHoa = $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val()
-            if (toCheckSelected) {
-                $(`#sub_category_id${counter == addressCount ? addressCount : counter}`).val('')
-            }
-            if (toCheckSelectedHoa) {
-                $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val('')
-            }
+    function categoryChange(id, counter, selectedSubCategoryId = null) {
+        // Set the correct option to be selected based on the category
+        let effectiveCounter = counter == addressCount ? addressCount : counter;
+        
+        $(`#hoa${effectiveCounter} option[value=""]`).prop('selected', true);
+        $('#subdivision' + effectiveCounter).prop('disabled', false);
+        $('#hoa' + effectiveCounter).prop('disabled', true);
 
-            if (counter == addressCount) {
-                $('#sub_category_id' + addressCount).prop('disabled', false);
+        let toCheckSelected = $(`#sub_category_id${effectiveCounter}`).val();
+        let toCheckSelectedHoa = $(`#hoa_type${effectiveCounter}`).val();
+
+        if (toCheckSelected) {
+            $(`#sub_category_id${effectiveCounter}`).val('');
+        }
+        if (toCheckSelectedHoa) {
+            $(`#hoa_type${effectiveCounter}`).val('');
+        }
+
+        $('#sub_category_id' + effectiveCounter).prop('disabled', false);
+
+        subcats.forEach(data => {
+            if (+data.category_id == id) {
+                $(`#sub_category_id${effectiveCounter} option[value="${data.id}"]`).show();
             } else {
-                $('#sub_category_id' + counter).prop('disabled', false);
+                $(`#sub_category_id${effectiveCounter} option[value="${data.id}"]`).hide();
             }
+        });
 
-            subcats.forEach(data => {
-                if (+data.category_id == id) {
-                    $(`#sub_category_id${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .show();
-                } else {
-                    $(`#sub_category_id${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .hide();
-                }
-            })
-            // $(`#hoa${counter == addressCount ? addressCount : counter}`).prop('disabled', true)
+        if (selectedSubCategoryId) {
+            $(`#sub_category_id${effectiveCounter}`).val(selectedSubCategoryId);
+        }
+    }
 
-            if (selectedSubCategoryId) {
-                $('#sub_category_id' + counter).val(selectedSubCategoryId);
-            }
-        };
+    function sub_categoryChange(id, counter, selectedHoaTypeId = null) {
+        let effectiveCounter = counter == addressCount ? addressCount : counter;
 
-        function sub_categoryChange(id, counter, selectedHoaTypeId = null) {
-            $(`#hoa${counter == addressCount ? addressCount : counter} option[value=""]`)
-                .prop('selected', true)
-            if (!selectedHoaTypeId) {
-                $('#hoa' + counter).prop('disabled', false);
-            }
-            let toCheckSelected = $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val()
+        // Reset selected options
+        $(`#hoa${effectiveCounter} option[value=""]`).prop('selected', true);
+        if (!selectedHoaTypeId) {
+            $('#hoa' + effectiveCounter).prop('disabled', false);
+        }
 
-            if (toCheckSelected) {
-                $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val('')
+        let toCheckSelected = $(`#hoa_type${effectiveCounter}`).val();
+        if (toCheckSelected) {
+            $(`#hoa_type${effectiveCounter}`).val('');
+        }
 
-            }
+        let getCat = $(`#category_id${effectiveCounter}`).val();
+        let getHoa = $(`#hoa${effectiveCounter}`).val();
+        let filHoa = hoas.filter(rec => rec.id == getHoa)[0]?.type;
 
-            if (counter == addressCount) {
-                // $('#hoa_type' + addressCount).prop('disabled', false);
-                // $('#hoa' + addressCount).prop('disabled', false);
+        if (getCat == 2) {
+            if (id == 48) {
+                $(`#hoa${effectiveCounter}`).prop('disabled', false);
             } else {
-                // $('#hoa_type' + counter).prop('disabled', false);
-                // $('#hoa' + counter).prop('disabled', false);
+                $(`#hoa${effectiveCounter}`).prop('disabled', true);
             }
-            let getCat = $(`#category_id${counter == addressCount ? addressCount : counter}`).val();
-            let getHoa = $(`#hoa${counter == addressCount ? addressCount : counter}`).val();
-            let filHoa = hoas.filter(rec => {
-                return rec.id == getHoa
-            })[0]?.type
-            if (getCat == 2) {
-                if (id == 48) {
-                    $(`#hoa${counter == addressCount ? addressCount : counter}`).prop('disabled', false);
+        } else {
+            $(`#hoa_slot${effectiveCounter}`).prop('disabled', false);
+        }
+
+        if (getHoa == -1 && !(id == 48)) {
+            $(`#hoa_type${effectiveCounter} option[value="2"]`).prop('selected', true);
+        }
+
+        hoas.forEach(rec => {
+            let getCat = $(`#category_id${effectiveCounter}`).val();
+            let getSubCat = $(`#sub_category_id${effectiveCounter}`).val();
+
+            if (rec.id == 95) {
+                // Show HOA 95 only if category is 1 and sub-category is 3
+                if (getCat == 1 && getSubCat == 3) {
+                    $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).show();
                 } else {
-                    $(`#hoa${counter == addressCount ? addressCount : counter}`).prop('disabled', true);
+                    $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).hide();
+                }
+            } else if (rec.type == 0 || rec.type == 1) {
+                // For other HOAs with type 0 or 1, show only if category is 1
+                getCat == 1 ? $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).show() : $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).hide();
+            } else {
+                // For other HOAs with different types, show only if category is 2
+                getCat == 2 ? $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).show() : $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).hide();
+            }
+        });
+
+        hoatypes.forEach(data => {
+            let idx = hoatypes.indexOf(data);
+            if (data.sub_category_id == id) {
+                $(`#hoa_type${effectiveCounter} option:eq(${idx + 1})`).show();
+                if (id == 40 || id == 44 || id == 50) {
+                    $(`#hoa_type${effectiveCounter} option[value="${data.id}"]`).prop('selected', true);
+                    $(`#hoa_type_hidden${effectiveCounter}`).val(data.id);
                 }
             } else {
-                $(`#hoa_slot${counter == addressCount ? addressCount : counter}`).prop('disabled', false)
-
-            }
-            // if non-res and neighboring village
-            if (getHoa == -1 && !(id == 48)) {
-                $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="2"]`)
-                    .prop('selected', true)
-            }
-            hoas.map(rec => {
-
-                // OLD
-                // if (rec.type == 0 || rec.type == 1) {
-                //     getCat == 1 ? $(
-                //             `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                //         .show() :
-                //         $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                //         .hide()
-
-                // } else {
-                //     getCat == 2 ? $(
-                //             `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                //         .show() :
-                //         $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                //         .hide()
-                // }
-
-                // Logic for HOA options (added special case on BF Commerce (because this hoa will only show in subcat is 3(BUSINESS OWNER)))
-                let getCat = $(`#category_id${counter == addressCount ? addressCount : counter}`).val();
-                let getSubCat = $(`#sub_category_id${counter == addressCount ? addressCount : counter}`).val();
-
-                if (rec.id == 95) {
-                    // Show HOA 95 only if category is 1 and sub-category is 3
-                    if (getCat == 1 && getSubCat == 3) {
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .show();
-                    } else {
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .hide();
-                    }
-                } else if (rec.type == 0 || rec.type == 1) {
-                    // For other HOAs with type 0 or 1, show only if category is 1
-                    getCat == 1 ?
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .show() :
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .hide();
-                } else {
-                    // For other HOAs with different types, show only if category is 2
-                    getCat == 2 ?
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .show() :
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .hide();
-                }
-
-            })
-            hoatypes.map(data => {
-                let idx = hoatypes.indexOf(data)
-                if (data.sub_category_id == id) {
-                    $(`#hoa_type${counter == addressCount ? addressCount : counter} option:eq(${idx + 1})`)
-                        .show();
-                    if (id == 40 || id == 44 || id == 50) {
-                        $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                            .prop('selected', true);
-                        $(`#hoa_type_hidden${counter}`).val(data.id);
-                    }
-
-                } else {
-                    $(`#hoa_type${counter == addressCount ? addressCount : counter} option:eq(${idx + 1})`)
-                        .hide();
-                }
-                if (data.id == selectedHoaTypeId) {
-                    $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .prop('selected', true);
-                    $(`#hoa_type_hidden${counter}`).val(data.id);
-                }
-            })
-
-        };
-
-        function hoaChange(id, counter, selectedHoa = null) {
-            $(`#subdivision${counter == addressCount ? addressCount : counter}`).val('')
-            let toCheckSelected = $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val()
-
-            if (toCheckSelected) {
-                $(`#hoa_type${counter == addressCount ? addressCount : counter}`).val('')
+                $(`#hoa_type${effectiveCounter} option:eq(${idx + 1})`).hide();
             }
 
-            if (counter == addressCount) {
-                // $('#hoa_type' + addressCount).prop('disabled', false);
+            if (data.id == selectedHoaTypeId) {
+                $(`#hoa_type${effectiveCounter} option[value="${data.id}"]`).prop('selected', true);
+                $(`#hoa_type_hidden${effectiveCounter}`).val(data.id);
+            }
+        });
+    }
+
+    function hoaChange(id, counter, selectedHoa = null) {
+        let effectiveCounter = counter == addressCount ? addressCount : counter;
+
+        $(`#subdivision${effectiveCounter}`).val('');
+        let toCheckSelected = $(`#hoa_type${effectiveCounter}`).val();
+
+        if (toCheckSelected) {
+            $(`#hoa_type${effectiveCounter}`).val('');
+        }
+
+        let filHoa = hoas.filter(rec => rec.id == id)[0]?.type;
+
+        hoatypes.forEach(data => {
+            let idx = hoatypes.indexOf(data);
+            if (!(id == -1)) {
+                $('#subdivision' + effectiveCounter).prop('disabled', true);
             } else {
-                // $('#hoa_type' + counter).prop('disabled', false);
+                $('#subdivision' + effectiveCounter).prop('disabled', false);
             }
-            // let getHoa = $(`#hoa${counter == addressCount ? addressCount : counter}`).val();
-            let filHoa = hoas.filter(rec => {
-                return rec.id == id
-            })[0]?.type
-            hoatypes.map(data => {
-                let idx = hoatypes.indexOf(data)
-                if (!(id == -1)) {
-                    $('#subdivision' + counter).prop('disabled', true);
-                } else {
-                    $('#subdivision' + counter).prop('disabled', false);
-                }
-                if (id == -1) {
-                    $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="2"]`)
-                        .prop('selected', true);
-                    $(`#hoa_type_hidden${counter}`).val(data.id);
-                    return
-                }
-                if (filHoa == data.id) {
-                    $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .prop('selected', true);
-                    $(`#hoa_type_hidden${counter}`).val(data.id);
-                }
 
+            if (id == -1) {
+                $(`#hoa_type${effectiveCounter} option[value="2"]`).prop('selected', true);
+                $(`#hoa_type_hidden${effectiveCounter}`).val(data.id);
+                return;
+            }
 
-            })
+            if (filHoa == data.id) {
+                $(`#hoa_type${effectiveCounter} option[value="${data.id}"]`).prop('selected', true);
+                $(`#hoa_type_hidden${effectiveCounter}`).val(data.id);
+            }
+        });
+    }
+</script>
 
-        };
-    </script>
 
 @endsection
