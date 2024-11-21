@@ -59,95 +59,86 @@
 
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control" id="account_type_display" value="Individual" disabled>
+                                            <input type="text" class="form-control" id="account_type_display"
+                                                value="Individual" disabled>
                                             <input type="hidden" name="account_type" id="account_type" value="0">
                                             <label for="account_type_display">Account Type</label>
                                         </div>
                                     </div>
 
-                                    {{-- <div class="mb-2"> --}}
-                                        <br>
-                                        {{-- current id of address --}}
-                                        <input style="border: 1px solid black;" type="hidden" id="current_id1"
-                                            name="toPass[0][current_id]" class="form-control">
-                                        {{-- <div class="row ms-0"> --}}
-                                        {{-- <div class="col-md-4 mb-3"> --}}
-                                        <div class="col-md-6 col-12 mt-2">
-                                            <div class="mb-1">
-                                                <div class="form-floating">
-                                                    <select style="border: 1px solid black;" id="category_id1"
-                                                        name="toPass[0][category_id]" onchange="categoryChange($(this).val(),1)"
-                                                        class="form-select " aria-label=" example" required>
-                                                        <option value="">---</option>
-                                                        @foreach ($categories as $category)
-                                                            <option value="<?= $category->id ?>">{{ $category->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <label class="form-label mb-2">Category</label>
-                                                </div>
+                                    <br>
+                                    {{-- current id of address --}}
+                                    <input style="border: 1px solid black;" type="hidden" id="current_id1"
+                                        name="toPass[0][current_id]" class="form-control">
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="mb-1">
+                                            <div class="form-floating">
+                                                <select style="border: 1px solid black;" id="category_id1"
+                                                    name="toPass[0][category_id]" onchange="categoryChange($(this).val(),1)"
+                                                    class="form-select " aria-label=" example" required>
+                                                    <option value="">---</option>
+                                                    @foreach ($categories as $category)
+                                                        <option value="<?= $category->id ?>">{{ $category->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <label class="form-label mb-2">Category</label>
                                             </div>
                                         </div>
-                                        {{-- </div> --}}
-                                        {{-- <div class="col-md-4 mb-3"> --}}
-                                        <div class="col-md-6 col-12 mt-2">
-                                            <div class="mb-1">
-                                                {{-- <label class="form-label mb-2">Sub Category : </label> --}}
-                                                <div class="form-floating">
-                                                    <select style="border: 1px solid black;" name="toPass[0][sub_category]"
-                                                        id="sub_category_id1" onchange="sub_categoryChange($(this).val(),1); getRequirements();"
-                                                        class="form-select " aria-label="Default select example" disabled
-                                                        required>
-                                                        {{-- <select style="border: 1px solid black;" name="toPass[0][sub_category]"  id="sub_category_id1"  class="form-select " aria-label="Default select example" disabled required> --}}
-                                                        <option value="">---</option>
-                                                        @foreach ($subcats as $subcat)
-                                                            <option value="<?= $subcat->id ?>">{{ $subcat->name }}</option>
-                                                        @endforeach
-                                                        
-                                                    </select>
-                                                    <label class="form-label mb-2">Sub Category : </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- </div> --}}
-                                        {{-- <div class="col-md-4 mb-3" id="hoa_slot1"> --}}
-                                        <div class="col-md-6 col-12 mt-2">
-                                            <div class="mb-1">
-                                                <div class="form-floating">
-                                                    <select style="border: 1px solid black;" id="hoa1"
-                                                        name="toPass[0][hoa]" class="form-select"
-                                                        aria-label="Default select example"
-                                                        onchange="hoaChange($(this).val(),1)" disabled required>
-                                                        <option value="-1">---</option>
-                                                        @foreach ($hoas as $hoa)
-                                                            <option value="<?= $hoa->id ?>">{{ $hoa->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <label class="form-label mb-2">HOA : </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- <div class="col-md-3 mb-3"> --}}
-                                        <div class="col-md-6 col-12 mt-2">
-                                            <div class="mb-1">
-                                                <div class="form-floating">
-                                                    <select style="border: 1px solid black;" id="hoa_type1"
-                                                        name="toPass[0][hoa_type]" class="form-select"
-                                                        aria-label="Default select example" disabled required>
-                                                        <option value="">---</option>
-                                                        @foreach ($hoatypes as $hoatype)
-                                                            <option value="<?= "$hoatype->id" ?>">{{ $hoatype->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <input type="hidden" id="hoa_type_hidden1" name="toPass[0][hoa_type]" value="">
-                                                    <label class="form-label mb-2">Member Type : </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- </div> --}}
-                                    {{-- </div> --}}
+                                    </div>
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="mb-1">
+                                            <div class="form-floating">
+                                                <select style="border: 1px solid black;" name="toPass[0][sub_category]"
+                                                    id="sub_category_id1"
+                                                    onchange="sub_categoryChange($(this).val(),1); getRequirements();"
+                                                    class="form-select " aria-label="Default select example" disabled
+                                                    required>
+                                                    {{-- <select style="border: 1px solid black;" name="toPass[0][sub_category]"  id="sub_category_id1"  class="form-select " aria-label="Default select example" disabled required> --}}
+                                                    <option value="">---</option>
+                                                    @foreach ($subcats as $subcat)
+                                                        <option value="<?= $subcat->id ?>">{{ $subcat->name }}</option>
+                                                    @endforeach
 
+                                                </select>
+                                                <label class="form-label mb-2">Sub Category : </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="mb-1">
+                                            <div class="form-floating">
+                                                <select style="border: 1px solid black;" id="hoa1"
+                                                    name="toPass[0][hoa]" class="form-select"
+                                                    aria-label="Default select example"
+                                                    onchange="hoaChange($(this).val(),1)" disabled required>
+                                                    <option value="">---</option>
+                                                    @foreach ($hoas as $hoa)
+                                                        <option value="<?= $hoa->id ?>">{{ $hoa->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <label class="form-label mb-2">HOA : </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12 mt-2">
+                                        <div class="mb-1">
+                                            <div class="form-floating">
+                                                <select style="border: 1px solid black;" id="hoa_type1"
+                                                    name="toPass[0][hoa_type]" class="form-select"
+                                                    aria-label="Default select example" disabled required>
+                                                    <option value="">---</option>
+                                                    @foreach ($hoatypes as $hoatype)
+                                                        <option value="<?= "$hoatype->id" ?>">{{ $hoatype->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" id="hoa_type_hidden1" name="toPass[0][hoa_type]"
+                                                    value="">
+                                                <label class="form-label mb-2">Member Type : </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div id="dos_msg" class="col-12 text-center mt-3" style="display: none;">
@@ -910,7 +901,7 @@
         var hoas = {!! json_encode($hoas) !!};
 
         function categoryChange(id, counter, selectedSubCategoryId = null) {
-            $(`#hoa${counter == addressCount ? addressCount : counter} option[value="-1"]`)
+            $(`#hoa${counter == addressCount ? addressCount : counter} option[value=""]`)
                 .prop('selected', true)
             $('#subdivision' + counter).prop('disabled', false);
             $('#hoa' + counter).prop('disabled', true);
@@ -946,7 +937,7 @@
         };
 
         function sub_categoryChange(id, counter, selectedHoaTypeId = null) {
-            $(`#hoa${counter == addressCount ? addressCount : counter} option[value="-1"]`)
+            $(`#hoa${counter == addressCount ? addressCount : counter} option[value=""]`)
                 .prop('selected', true)
             if (!selectedHoaTypeId) {
                 $('#hoa' + counter).prop('disabled', false);
@@ -980,25 +971,58 @@
                 $(`#hoa_slot${counter == addressCount ? addressCount : counter}`).prop('disabled', false)
 
             }
+            // if non-res and neighboring village
             if (getHoa == -1 && !(id == 48)) {
                 $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="2"]`)
                     .prop('selected', true)
             }
             hoas.map(rec => {
-                if (rec.type == 0 || rec.type == 1) {
-                    getCat == 1 ? $(
-                            `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .show() :
-                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .hide()
 
-                } else {
-                    getCat == 2 ? $(
-                            `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                // OLD
+                // if (rec.type == 0 || rec.type == 1) {
+                //     getCat == 1 ? $(
+                //             `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                //         .show() :
+                //         $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                //         .hide()
+
+                // } else {
+                //     getCat == 2 ? $(
+                //             `#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                //         .show() :
+                //         $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                //         .hide()
+                // }
+
+                // Logic for HOA options (added special case on BF Commerce (because this hoa will only show in subcat is 3(BUSINESS OWNER)))
+                let getCat = $(`#category_id${counter == addressCount ? addressCount : counter}`).val();
+                let getSubCat = $(`#sub_category_id${counter == addressCount ? addressCount : counter}`).val();
+
+                if (rec.id == 95) {
+                    // Show HOA 95 only if category is 1 and sub-category is 3
+                    if (getCat == 1 && getSubCat == 3) {
+                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                        .show();
+                    } else {
+                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                        .hide();
+                    }
+                } else if (rec.type == 0 || rec.type == 1) {
+                    // For other HOAs with type 0 or 1, show only if category is 1
+                    getCat == 1 ?
+                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
                         .show() :
                         $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
-                        .hide()
+                        .hide();
+                } else {
+                    // For other HOAs with different types, show only if category is 2
+                    getCat == 2 ?
+                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                        .show() :
+                        $(`#hoa${counter == addressCount ? addressCount : counter} option[value="${rec.id}"]`)
+                        .hide();
                 }
+
             })
             hoatypes.map(data => {
                 let idx = hoatypes.indexOf(data)
