@@ -87,7 +87,7 @@
                                     <div class="col-md-6 col-12 mt-2">
                                         <div class="mb-1">
                                             <div class="form-floating">
-                                                <select style="border: 1px solid black;" name="sub_category" id="sub_category_id1" onchange="sub_categoryChange($(this).val(),1);" class="form-select" aria-label="Default select example" disabled required>
+                                                <select style="border: 1px solid black;" name="sub_category" id="sub_category_id1" onchange="sub_categoryChange($(this).val(),1); getRequirements();" class="form-select" aria-label="Default select example" disabled required>
                                                     <option value="">---</option>
                                                     @foreach ($subcats as $subcat)
                                                         <option value="<?= $subcat->id ?>">{{ $subcat->name }}</option>

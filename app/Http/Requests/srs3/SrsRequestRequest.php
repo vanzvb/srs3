@@ -40,14 +40,13 @@ class SrsRequestRequest extends FormRequest
             // 'category' => 'required|integer|exists:spc_categories,id',
             // 'sub_category' => 'required|integer|exists:spc_subcat,id',
             // Validate the entire toPass array
-            'toPass' => 'required|array',
 
             // Validate each item in the toPass array
-            'toPass.*.current_id' => 'nullable|integer',
-            'toPass.*.category_id' => 'required|integer|exists:crmxi3_categories,id',
-            'toPass.*.sub_category' => 'required|integer|exists:crmxi3_subcat,id',
-            'toPass.*.hoa' => 'nullable|integer|exists:crmxi3_hoas,id',
-            'toPass.*.hoa_type' => 'required|integer|exists:crmxi3_hoa_types,id',
+
+            'category_id' => 'required|integer|exists:crmxi3_categories,id',
+            'sub_category' => 'required|integer|exists:crmxi3_subcat,id',
+            'hoa' => 'nullable|integer|exists:crmxi3_hoas,id',
+            'hoa_type' => 'required|integer|exists:crmxi3_hoa_types,id',
 
             'account_type' => 'required',
             // 'category' => 'required|integer',
@@ -70,7 +69,6 @@ class SrsRequestRequest extends FormRequest
             'subdivision_village' => 'nullable|string',
             'city' => 'nullable|string',
             'zipcode' => 'nullable|integer',
-            'hoa' => 'string|exists:srs_hoas,id',
             'contact_no' => 'required|string|min:7|max:30|regex:/^[0-9+() -]*$/',
             'second_contact_no' => 'nullable|string|min:7|max:30|regex:/^[0-9+() -]*$/',
             'alt_email' => 'nullable|email',

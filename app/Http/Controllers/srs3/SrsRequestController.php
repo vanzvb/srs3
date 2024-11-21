@@ -299,8 +299,7 @@ class SrsRequestController extends Controller
     {
 
         $data = $request->validated();
-        // dd($data);
-        // dd($data);
+
         // if ($data['category'] == 1) {
         //     $sub_cats = DB::table('spc_subcat')
         //     ->where('category_id', 1)
@@ -345,10 +344,10 @@ class SrsRequestController extends Controller
         // $srsRequest->hoa_type = $data['hoa_types'];
         // $srsRequest->hoa_id = $data['hoa_1'];
         $srsRequest->account_type = $data['account_type'];
-        $srsRequest->category_id = $data['toPass'][0]['category_id'];
-        $srsRequest->sub_category_id = $data['toPass'][0]['sub_category'];
-        $srsRequest->hoa_id = $data['toPass'][0]['hoa'] ?? null;
-        $srsRequest->hoa_type = $data['toPass'][0]['hoa_type']; // this is the membership type (member type)
+        $srsRequest->category_id = $data['category_id'];
+        $srsRequest->sub_category_id = $data['sub_category'];
+        $srsRequest->hoa_id = $data['hoa'] ?? null;
+        $srsRequest->hoa_type = $data['hoa_type']; // this is the membership type (member type)
         // $srsRequest->first_name = $data['first_name'];
         // $srsRequest->last_name = $data['last_name'];
         // $srsRequest->middle_name = $data['middle_name'];
