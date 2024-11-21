@@ -140,6 +140,7 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    <input type="hidden" id="hoa_type_hidden1" name="toPass[0][hoa_type]" value="">
                                                     <label class="form-label mb-2">Member Type : </label>
                                                 </div>
                                             </div>
@@ -958,10 +959,10 @@
             }
 
             if (counter == addressCount) {
-                $('#hoa_type' + addressCount).prop('disabled', false);
+                // $('#hoa_type' + addressCount).prop('disabled', false);
                 // $('#hoa' + addressCount).prop('disabled', false);
             } else {
-                $('#hoa_type' + counter).prop('disabled', false);
+                // $('#hoa_type' + counter).prop('disabled', false);
                 // $('#hoa' + counter).prop('disabled', false);
             }
             let getCat = $(`#category_id${counter == addressCount ? addressCount : counter}`).val();
@@ -1006,7 +1007,8 @@
                         .show();
                     if (id == 40 || id == 44 || id == 50) {
                         $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                            .prop('selected', true)
+                            .prop('selected', true);
+                        $(`#hoa_type_hidden${counter}`).val(data.id);
                     }
 
                 } else {
@@ -1015,7 +1017,8 @@
                 }
                 if (data.id == selectedHoaTypeId) {
                     $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .prop('selected', true)
+                        .prop('selected', true);
+                    $(`#hoa_type_hidden${counter}`).val(data.id);
                 }
             })
 
@@ -1030,9 +1033,9 @@
             }
 
             if (counter == addressCount) {
-                $('#hoa_type' + addressCount).prop('disabled', false);
+                // $('#hoa_type' + addressCount).prop('disabled', false);
             } else {
-                $('#hoa_type' + counter).prop('disabled', false);
+                // $('#hoa_type' + counter).prop('disabled', false);
             }
             // let getHoa = $(`#hoa${counter == addressCount ? addressCount : counter}`).val();
             let filHoa = hoas.filter(rec => {
@@ -1047,12 +1050,14 @@
                 }
                 if (id == -1) {
                     $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="2"]`)
-                        .prop('selected', true)
+                        .prop('selected', true);
+                    $(`#hoa_type_hidden${counter}`).val(data.id);
                     return
                 }
                 if (filHoa == data.id) {
                     $(`#hoa_type${counter == addressCount ? addressCount : counter} option[value="${data.id}"]`)
-                        .prop('selected', true)
+                        .prop('selected', true);
+                    $(`#hoa_type_hidden${counter}`).val(data.id);
                 }
 
 

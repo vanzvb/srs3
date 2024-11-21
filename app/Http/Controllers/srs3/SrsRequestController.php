@@ -297,7 +297,7 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        
+        dd($request);
         $data = $request->validated();
 
         // dd($data);
