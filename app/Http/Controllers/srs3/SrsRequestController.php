@@ -275,15 +275,15 @@ class SrsRequestController extends Controller
             ->get();
 
         $hoas2 = DB::table('crmxi3_hoas')
-        ->whereBetween('type', [3, 7])
-        ->where('name', '!=', 'Test Hoa')
-        ->get();
+            ->whereBetween('type', [3, 7])
+            ->where('name', '!=', 'Test Hoa')
+            ->get();
 
-        
+
         $hoas3 = DB::table('crmxi3_hoas')
-        ->whereBetween('type', [0, 1])
-        ->where('name', '!=', 'Test Hoa')
-        ->get();
+            ->whereBetween('type', [0, 1])
+            ->where('name', '!=', 'Test Hoa')
+            ->get();
 
         $currentYear = date('Y');
         $years = range($currentYear, 1975);
@@ -297,9 +297,9 @@ class SrsRequestController extends Controller
 
     public function store(SrsRequestRequest $request)
     {
-        dd($request);
-        $data = $request->validated();
 
+        $data = $request->validated();
+        // dd($data);
         // dd($data);
         // if ($data['category'] == 1) {
         //     $sub_cats = DB::table('spc_subcat')
@@ -340,9 +340,15 @@ class SrsRequestController extends Controller
 
         $srsRequest = new SrsRequest();
         $srsRequest->request_id = $this->getNextId($request->category, $request->sub_category_1);
-        $srsRequest->category_id = $data['category'];
-        $srsRequest->sub_category_id = $data['sub_category_1'];
-        $srsRequest->hoa_type = $data['hoa_types'];
+        // $srsRequest->category_id = $data['category'];
+        // $srsRequest->sub_category_id = $data['sub_category_1'];
+        // $srsRequest->hoa_type = $data['hoa_types'];
+        // $srsRequest->hoa_id = $data['hoa_1'];
+        $srsRequest->account_type = $data['account_type'];
+        $srsRequest->category_id = $data['toPass'][0]['category_id'];
+        $srsRequest->sub_category_id = $data['toPass'][0]['sub_category'];
+        $srsRequest->hoa_id = $data['toPass'][0]['hoa'] ?? null;
+        $srsRequest->hoa_type = $data['toPass'][0]['hoa_type']; // this is the membership type (member type)
         // $srsRequest->first_name = $data['first_name'];
         // $srsRequest->last_name = $data['last_name'];
         // $srsRequest->middle_name = $data['middle_name'];
@@ -360,15 +366,15 @@ class SrsRequestController extends Controller
         $srsRequest->city = $data['city'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['city'])))) : NULL;
         $srsRequest->zipcode = $data['zipcode'] ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $data['zipcode'])))) : NULL;
 
-        if (isset($data['hoa_1'])) {
-            if ($srsRequest->category_id == 1) {
-                $srsRequest->hoa_id = $data['hoa_1'];
-            } else if ($srsRequest->category_id == 2) {
-                $srsRequest->nr_hoa_id = $data['hoa_1'];
-            }
-        }
+        // if (isset($data['hoa_1'])) {
+        //     if ($srsRequest->category_id == 1) {
+        //         $srsRequest->hoa_id = $data['hoa_1'];
+        //     } else if ($srsRequest->category_id == 2) {
+        //         $srsRequest->nr_hoa_id = $data['hoa_1'];
+        //     }
+        // }
 
-        
+
         // $srsRequest->hoa_id = isset($data['hoa']) ? $data['hoa'] : NULL;
         $srsRequest->contact_no = $data['contact_no'];
         $srsRequest->secondary_contact = $data['second_contact_no'];
