@@ -955,7 +955,7 @@
             let getCat = $(`#category_id${effectiveCounter}`).val();
             let getSubCat = $(`#sub_category_id${effectiveCounter}`).val();
 
-            if (rec.id == 95) {
+            if (rec.id == 96) {
                 // Show HOA 95 only if category is 1 and sub-category is 3
                 if (getCat == 1 && getSubCat == 3) {
                     $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).show();
