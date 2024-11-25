@@ -80,7 +80,12 @@ class SrsRequestRenewalController extends Controller
                 function ($attribute, $value, $fail) use ($request) {
                     if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         // It's a valid email format
-                        $crm = CRMXIMain::where('email', $value)->first();
+                        // $crm = CRMXIMain::where('email', $value)->first();
+                        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+                            ->where('main_email', $value)
+                            ->orWhere('owner_email', $value)
+                            ->first();
+                        // dd($crm);
                         if (!$crm) {
                             $fail('The ' . $attribute . ' does not exist in our records as an email.');
                         }
@@ -101,10 +106,14 @@ class SrsRequestRenewalController extends Controller
                 },
             ],
         ]);
-
+        
         // Now, you can check the flag after validation
         if ($request->is_email) {
-            $crm = CRMXIMain::where('email', $request->email)->first();
+            // $crm = CRMXIMain::where('email', $request->email)->first();
+            $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+                ->where('main_email',  $request->email)
+                ->orWhere('owner_email',  $request->email)
+                ->first();
         } else {
             // if the input is account id, we will alter the request->email and change it to email instead of account id
             $crm = CRMXIMain::where('account_id', $request->email)->first();
@@ -126,27 +135,65 @@ class SrsRequestRenewalController extends Controller
             return response()->json(['errors' => ['email_not_found' => 'Invalid email address, please contact BFFHAI CLUBHOUSE']], 400);
         }
 
-        // category_id 2 = Resident
-        if ($crm->category_id == 2) {
+
+        // We need to check if the email matches per vehicle or main account
+        // if main account we need to count all vehicles else just the owner_email vehicles
+        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_email',  $request->email)
+            ->orWhere('owner_email',  $request->email)
+            ->get();
+
+        $countCategory2 = 0;
+        $totalRecords = $crm->count();
+
+        // category_id 2 = Resident 'Renewal is only available to Residents'
+        // just add inside if more conditions if neccessary
+        // (dont be confused with cat and subcat in vehicleowner table, it is not used in this case)
+        // We are using crmxi3_address table to check category, subcategory, hoa)
+
+        foreach ($crm as $record) {
+            if ($record->category_id == 2) {
+                $countCategory2++;
+            }
+        }
+
+        // Evaluate the conditions
+        // Validation on per address (if all vehicle address is non res)
+        if ($countCategory2 == $totalRecords) {
             return response()->json(['errors' => ['invalid_category' => 'Renewal is only available to Residents']], 400);
-        }
+        } 
+                    // 2.0 validation (per account)
+                    // category_id 2 = Resident
+                    // if ($crm->category_id == 2) {
+                    //     return response()->json(['errors' => ['invalid_category' => 'Renewal is only available to Residents']], 400);
+                    // }
 
-        // sub_category_id 45, 46, 47 = Commercial Tricycle BFTODA (TRIBF)/Tricycle DASATA (TRID)/Tricycle LTSODA (TRIL)
+                    // sub_category_id 45, 46, 47 = Commercial Tricycle BFTODA (TRIBF)/Tricycle DASATA (TRID)/Tricycle LTSODA (TRIL)
 
-        if ($crm->sub_category_id == 45 || $crm->sub_category_id == 46 || $crm->sub_category_id == 47) {
-            return response()->json(['errors' => ['invalid_sub_category' => 'Renewal is not available for this account']], 400);
-        }
+                    // if ($crm->sub_category_id == 45 || $crm->sub_category_id == 46 || $crm->sub_category_id == 47) {
+                    //     return response()->json(['errors' => ['invalid_sub_category' => 'Renewal is not available for this account']], 400);
+                    // }
 
         $token = uniqid();
+                    // 2.0 uses crm_id
+                    // $crmId = Crypt::encrypt($crm->crm_id);
+                    
+        // Get account_id
+        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_email',  $request->email)
+            ->orWhere('owner_email',  $request->email)
+            ->first();
 
-        $crmId = Crypt::encrypt($crm->crm_id);
+        $crmId = Crypt::encrypt($crm->crm_primary_key);
         $email = Crypt::encrypt($request->email);
         $refToken = Crypt::encrypt($token);
         $url = URL::temporarySignedRoute('request.v3.user-renewal', now()->addDays(3), ['key' => $crmId, 'ref' => $email, 'tkn' => $refToken]);
 
         $renewalRequest = new SrsRenewalRequest();
-        $renewalRequest->crm_main_id = $crm->crm_id;
-        $renewalRequest->email = $crm->email;
+        // $renewalRequest->crm_main_id = $crm->crm_id;
+        // $renewalRequest->email = $crm->email;
+        $renewalRequest->crm_main_id = $crm->crm_primary_key;
+        $renewalRequest->email = $request->email;
         $renewalRequest->token = $token;
         $renewalRequest->save();
 
@@ -165,7 +212,6 @@ class SrsRequestRenewalController extends Controller
     public function userRenewal(Request $request)
     {
 
-
         if (!$request->hasValidSignature()) {
             abort(404, 'Link is already expired');
         }
@@ -173,7 +219,7 @@ class SrsRequestRenewalController extends Controller
         if (!$request->key) {
             abort(404);
         }
-
+        
         try {
             $crmId = Crypt::decrypt($request->key);
             $email = Crypt::decrypt($request->ref);
@@ -183,13 +229,46 @@ class SrsRequestRenewalController extends Controller
         }
 
 
+        $crmGetEmailUsed = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+        ->where('main_email',  $email)
+        ->orWhere('owner_email',  $email)
+        ->first();
+        
+        $didWeUseMainEmail = false;
 
-        $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
-            ->where('crm_id', $crmId)
-            ->where('email', $email)
-            ->firstOrFail();
+        if ($crmGetEmailUsed) {
+            if ($crmGetEmailUsed->main_email === $email) {
+                
+                $personEmail = $crmGetEmailUsed->main_email;
 
-        // dd($crm);
+                $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
+                ->where('crm_id', $crmId)
+                ->where('email', $email)
+                ->firstOrFail();
+                
+                $didWeUseMainEmail = true;
+            } elseif ($crmGetEmailUsed->owner_email === $email) {
+                $personEmail = $crmGetEmailUsed->owner_email;
+                // dd($email);
+                $crm = CRMXIMain::with(['CRMXIvehicles' => function ($query) use ($email) {
+                    // Ensure we're checking the vehicleOwner relation properly
+                    $query->whereHas('vehicleOwner', function ($ownerQuery) use ($email) {
+                        $ownerQuery->where('email', $email);
+                    });
+                }, 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
+                ->where('crm_id', $crmId) // Ensure CRM record matches the given ID
+                ->firstOrFail();
+
+            }
+        } else {
+            abort(404);
+        }
+
+
+        // $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
+        //     ->where('crm_id', $crmId)
+        //     // ->where('email', $email)
+        //     ->firstOrFail();
 
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
@@ -217,9 +296,9 @@ class SrsRequestRenewalController extends Controller
         //     ->get();
 
         // dd($ExistingVehicleOnRequests);
-        // no changes in 3.0
+
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-            ->where('email', $crm->email)
+            ->where('email', $personEmail)
             ->where('token', $token)
             ->where('status', 0)
             ->firstOrFail();
@@ -246,7 +325,7 @@ class SrsRequestRenewalController extends Controller
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
         // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories', 'crmxiCategories', 'crmxiSubCategories'));   
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas'));
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail'));
         // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
@@ -408,6 +487,7 @@ class SrsRequestRenewalController extends Controller
 
             // Generate requests_id
             $srsRequest->account_id = $crm->account_id;
+            $srsRequest->customer_id = $crm->crm_id;
             $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
             $srsRequest->category_id = $crm->category_id;
             $srsRequest->sub_category_id = $crm->sub_category_id;
@@ -542,23 +622,24 @@ class SrsRequestRenewalController extends Controller
 
             if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
 
-                // if ($srsRequest->hoa->emailAdd1) {
-                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
+                if ($srsRequest->hoa->emailAdd1) {
+                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 
-                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
-                // }
+                    dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
+                }
 
-                // if ($srsRequest->hoa->emailAdd2) {
-                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+                if ($srsRequest->hoa->emailAdd2) {
+                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
 
-                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
-                // }
+                    dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
+                }
 
-                // if ($srsRequest->hoa->emailAdd3) {
-                //     $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+                if ($srsRequest->hoa->emailAdd3) {
+                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
 
-                //     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
-                // }
+                    dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
+                }
+                dd('i came here');
             }
 
             return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);

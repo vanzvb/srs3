@@ -191,7 +191,7 @@ class HoaApproverController extends Controller
     public function show($id)
     {
         // $this->authorize('accessHoaApproval', SrsRequest::class);
-
+        // dd('error on redtag');
         // check if url has archived parameter
         if (request()->segment(3) == 'archived') {
             $year = request()->segment(4);

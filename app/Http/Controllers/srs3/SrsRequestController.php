@@ -250,6 +250,23 @@ class SrsRequestController extends Controller
         // Account Info
         // $categories = CRMXICategory::select('id', 'name')->get();
 
+        // $currentDate = date('Y-m-d');
+        // // Compare the current date with December 31
+        // if ($currentDate > '2024-12-31') {
+        //     // Query if date is above Dec 31 (2024-12-31)
+        //     $categories = DB::select('SELECT * FROM crmxi3_categories');
+
+
+        //     $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
+        // } else {
+        //     // Query if date is on or before Dec 31
+        //     $categories = DB::select('SELECT * FROM crmxi3_categories WHERE id = 1');
+
+        //     $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')
+        //         ->where('id', '!=', 7)
+        //         ->get();
+        // }
+
         $categories = DB::select('SELECT * FROM crmxi3_categories');
 
         $hoas = DB::select('SELECT * FROM crmxi3_hoas');

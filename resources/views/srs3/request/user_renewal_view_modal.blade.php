@@ -168,12 +168,12 @@
                                 value="{{ $vehicle->vehicleOwner->secondary_contact ?? '' }}" placeholder="" disabled>
                         </div>
                         <div class="col-md-4 p-2">
-                            <label for="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact ?? '' }}"
+                            <label for="tertiary_contact_no_{{ $vehicle->vehicleOwner->email ?? '' }}"
                                 class="form-label"><b>Alternate Email</b></label>
                             <input type="text" class="form-control"
-                                id="tertiary_contact_no_{{ $vehicle->vehicleOwner->tertiary_contact ?? '' }}"
-                                name="tertiary_contact_no[{{ $vehicle->vehicleOwner->tertiary_contact ?? '' }}]"
-                                value="{{ $vehicle->vehicleOwner->tertiary_contact ?? '' }}" placeholder="" disabled>
+                                id="tertiary_contact_no_{{ $vehicle->vehicleOwner->email ?? '' }}"
+                                name="tertiary_contact_no[{{ $vehicle->vehicleOwner->email ?? '' }}]"
+                                value="{{ $vehicle->vehicleOwner->email ?? '' }}" placeholder="" disabled>
                         </div>
                     </div>
                 </div>

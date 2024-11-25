@@ -31,6 +31,7 @@
                         <form action="{{ route('request.v3.user-renewal.process') }}" id="renewal_request_form"
                             method="POST" enctype="multipart/form-data">
                             @csrf
+                            @if ($didWeUseMainEmail)
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-5">
                                     <h5>Account Information</h5>
@@ -40,7 +41,7 @@
                                 </div>
 
                                 <div class="row p-2 g-0">
-                                    <div class="col-md-2 me-2">
+                                    {{-- <div class="col-md-2 me-2">
                                         <label for="account_type" class="form-label"><b>Account Type</b></label>
                                         <select class="form-select form-select-md" name="account_type" id="account_type"
                                             disabled>
@@ -49,6 +50,11 @@
                                             <option value="1" {{ $crm->account_type == 1 ? 'selected' : '' }}>Company
                                             </option>
                                         </select>
+                                    </div> --}}
+                                    <div class="col-md-2 me-2">
+                                        <label for="account_type" class="form-label"><b>Account Type</b></label>
+                                        <input type="text" class="form-control form-control-md" name="account_type" id="account_type" 
+                                            value="{{ $crm->account_type == 0 ? 'Individual' : 'Company' }}" disabled>
                                     </div>
 
                                     <div class="col-md-4 me-2">
@@ -119,6 +125,8 @@
                                             disabled>
                                     </div>
                                 </div>
+                                <br>
+                                {{-- <h3>Email used to register {{ $personEmail }}</h3> --}}
 
                                 {{-- <div class="row p-2 g-0"> --}}
                                 {{-- <div class="col-md-6"> --}}
@@ -201,8 +209,8 @@
                                         </div> --}}
                                 {{-- </div> --}}
                                 {{-- </div> --}}
-                            </div>
-
+                            </div>  
+                            @endif
                             {{-- For Renewal (Table) --}}
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-4">
@@ -232,12 +240,12 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @if ($crm->CRMXIvehicles->isEmpty())
+                                                @if ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2)->isEmpty())
                                                     <tr>
                                                         <td colspan="6" class="text-center">No vehicles available</td>
                                                     </tr>
                                                 @else
-                                                    @foreach ($crm->CRMXIvehicles as $vehicle)
+                                                    @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2) as $vehicle)
                                                         <tr id="vehicle-row-{{ $vehicle->id }}">
                                                             <td>
                                                                 <input type="checkbox" name="renewalVehicles[]" value="{{ $vehicle->id }}" checked>
@@ -289,7 +297,7 @@
                                 </div>
                             </div>
                             {{-- Modal for View/Update Details --}}
-                            @foreach ($crm->CRMXIvehicles as $vehicle)
+                            @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2) as $vehicle)
                                 @include('srs3.request.user_renewal_view_modal', ['vehicle' => $vehicle])
                             @endforeach
                             {{-- Modals --}}

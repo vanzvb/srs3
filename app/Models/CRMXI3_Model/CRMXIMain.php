@@ -2,6 +2,7 @@
 
 namespace App\Models\CRMXI3_Model;
 
+use App\Models\CrmRedtag;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -70,5 +71,10 @@ class CRMXIMain extends Model
     public function CRMXIaddress()
     {
         return $this->hasMany(CRMXIaddress::class, 'account_id', 'account_id');
+    }
+
+    public function redTags()
+    {
+        return $this->hasOne(CRMXIRedTag::class, 'account_id', 'account_id');
     }
 }
