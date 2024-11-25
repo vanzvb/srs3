@@ -50,7 +50,7 @@ class CRMXIMain extends Model
         // All new created in crmxi3_mains will have null "customer_id"
         if ($this->customer_id == null) {
             // if new use this
-            return $this->hasMany(CRXMIVehicle::class, 'crm_id', 'account_id')->where('assoc_crm', 1);
+            return $this->hasMany(CRXMIVehicle::class, 'account_id', 'account_id')->where('assoc_crm', 1);
         } else {
             // if old use this
             // 3.0 update, new accounts does not use customer_id (they are now using acccount_id)

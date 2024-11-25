@@ -211,6 +211,7 @@ class SrsRequestRenewalController extends Controller
 
     public function userRenewal(Request $request)
     {
+        
 
         if (!$request->hasValidSignature()) {
             abort(404, 'Link is already expired');
@@ -228,7 +229,7 @@ class SrsRequestRenewalController extends Controller
             abort(404);
         }
 
-
+        
         $crmGetEmailUsed = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
         ->where('main_email',  $email)
         ->orWhere('owner_email',  $email)
@@ -236,9 +237,12 @@ class SrsRequestRenewalController extends Controller
         
         $didWeUseMainEmail = false;
 
+        
         if ($crmGetEmailUsed) {
             if ($crmGetEmailUsed->main_email === $email) {
                 
+                // dd($crmId);
+
                 $personEmail = $crmGetEmailUsed->main_email;
 
                 $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
@@ -263,7 +267,6 @@ class SrsRequestRenewalController extends Controller
         } else {
             abort(404);
         }
-
 
         // $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
         //     ->where('crm_id', $crmId)
@@ -320,7 +323,6 @@ class SrsRequestRenewalController extends Controller
             ->select('id', 'name', 'description', 'required')
             ->get();
 
-
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
@@ -338,10 +340,10 @@ class SrsRequestRenewalController extends Controller
 
         // Get the renewal vehicles directly from the request
         $renewalVehicles = $request->input('renewalVehicles', []);
-
+        
         // Merge only the renewal vehicles into the request
         $request->merge(['list_of_vehicles' => $renewalVehicles]);
-
+        // dd($request->list_of_vehicles);
         $request->validate([
             'list_of_vehicles' => 'required|array|min:1',
         ], [
@@ -368,13 +370,14 @@ class SrsRequestRenewalController extends Controller
             return back()->withErrors(['error' => 'Error L96']);
         }
 
+        
+
         $crmId = $request->session()->get('sr_rnw-cid');
         $crmEmail = $request->session()->get('sr_rnw-eml');
 
         if ($reqCrmId != $crmId || $reqEmail != $crmEmail) {
             return back()->withErrors(['error' => 'Error L103']);
         }
-
         // $request->validate([
         //     'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
         //         $response = $this->validateCaptcha($value);
@@ -461,12 +464,13 @@ class SrsRequestRenewalController extends Controller
 
         try {
 
-
+            dd($crmId, $crmEmail, $reqToken);
             $crm = CRMXIMain::with(['CRMXIvehicles'])
                 ->where('crm_id', $crmId)
                 ->where('email', $crmEmail)
                 ->firstOrFail();
 
+                
             // $crm = CrmMain::with(['vehicles'])
             //     ->where('crm_id', $crmId)
             //     ->where('email', $crmEmail)
