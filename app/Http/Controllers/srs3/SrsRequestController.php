@@ -1568,12 +1568,12 @@ class SrsRequestController extends Controller
 
     public function checkStatus(Request $request)
     {
+        
         $data = $request->validate([
-            'reqId' => 'required|string|exists:srs_requests,request_id'
+            'reqId' => 'required|string|exists:srs3_requests,request_id'
         ], [], [
             'reqId' => 'Request ID'
         ]);
-
 
         $srsRequest = SrsRequest::withTrashed()->with(['appointment', 'appointment.timeslot'])->where('request_id', $data['reqId'])->firstOrFail();
 

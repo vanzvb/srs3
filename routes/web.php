@@ -106,7 +106,21 @@ Route::prefix('v3')->group(function () {
     // Transmittal Report
 
     Route::post('/sticker_export_excel_2', [Srs3StickerController::class, 'sticker_export_excel_2']);
+
+    // Sticker Status
+    Route::post('/sticker/request/status', [Srs3RequestController::class, 'checkStatus'])->name('request.v3.checkStatus');
+
+    Route::get('/sticker/request/status', function () {
+        return view('srs3.request.status');
+    })->name('request.v3.status');
 });
+
+Route::get('/sticker/request/status', function () {
+    return view('srs.request.status');
+})->name('request.status');
+
+Route::post('/sticker/request/status', [SrsRequestController::class, 'checkStatus']);
+
 
 Route::prefix('sub-categories')->group(function () {
     Route::get('/', [SubCategoryController::class, 'index'])->name('sub-categories.index');
@@ -186,9 +200,7 @@ Route::post('/admin-login', [LoginController::class, 'login']);
 Route::get('/hoa/login', function () {
     return view('auth.login2');
 })->name('login.hoa'); // This name is already unique, so it's fine
-Route::get('/sticker/request/status', function () {
-    return view('srs.request.status');
-})->name('request.status');
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
