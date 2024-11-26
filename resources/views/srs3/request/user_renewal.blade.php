@@ -141,6 +141,7 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
+                                                            <input type="hidden" name="address_id" id="address_id" value="">
                             {{-- For Renewal (Table) --}}
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-4">
@@ -170,7 +171,7 @@
                                                     </tr>
                                                 @else
                                                     @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2) as $vehicle)
-                                                        <tr id="vehicle-row-{{ $vehicle->id }}" data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}">
+                                                        <tr id="vehicle-row-{{ $vehicle->id }}" data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}" data-address-id="{{ $vehicle->vehicleAddress->id }}">
                                                             <td>
                                                                 <input type="checkbox" name="renewalVehicles[]" value="{{ $vehicle->id }}" checked>
                                                             </td>
@@ -309,10 +310,12 @@
             document.addEventListener('DOMContentLoaded', function() {
                 var hoaFilter = document.getElementById('hoaFilter');
                 var rows = document.querySelectorAll('#vehicleTableBody tr');
+                var addressIdInput = document.getElementById('address_id');
 
                 function filterRows() {
                     var selectedHoaName = hoaFilter.value;
                     var hasVisibleRows = false;
+                    var addressId = null;
 
                     rows.forEach(function(row) {
                         var checkbox = row.querySelector('input[name="renewalVehicles[]"]');
@@ -320,6 +323,7 @@
                             row.style.display = '';
                             checkbox.checked = true; // Check the checkbox if the row is visible
                             hasVisibleRows = true;
+                            addressId = row.getAttribute('data-address-id'); // Get the address_id from the row
                         } else {
                             row.style.display = 'none';
                             checkbox.checked = false; // Uncheck the checkbox if the row is hidden
@@ -331,6 +335,9 @@
                     if (noVehiclesRow) {
                         noVehiclesRow.style.display = hasVisibleRows ? 'none' : '';
                     }
+
+                    // Update the hidden input field with the address_id
+                    addressIdInput.value = addressId;
                 }
 
                 // Apply filter on page load

@@ -250,26 +250,35 @@ class SrsRequestController extends Controller
         // Account Info
         // $categories = CRMXICategory::select('id', 'name')->get();
 
-        // $currentDate = date('Y-m-d');
-        // // Compare the current date with December 31
-        // if ($currentDate > '2024-12-31') {
-        //     // Query if date is above Dec 31 (2024-12-31)
-        //     $categories = DB::select('SELECT * FROM crmxi3_categories');
+        $currentDate = date('Y-m-d');
+        // Compare the current date with December 31
+        if ($currentDate >= '2025-01-06') {
+            // Query if date is after january 6
+            $categories = DB::select('SELECT * FROM crmxi3_categories');
 
+            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE id != 95');
 
-        //     $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
-        // } else {
-        //     // Query if date is on or before Dec 31
-        //     $categories = DB::select('SELECT * FROM crmxi3_categories WHERE id = 1');
+            $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
+        } else {
+            // Query if date is on or before january 6
+            $categories = DB::select('SELECT * FROM crmxi3_categories WHERE id = 1');
 
-        //     $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')
-        //         ->where('id', '!=', 7)
-        //         ->get();
-        // }
+            $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')
+                ->where('id', '!=', 7)
+                ->get();
 
-        $categories = DB::select('SELECT * FROM crmxi3_categories');
+            // Use this to exclude hoa test
+            // $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0 AND id != 95');
 
-        $hoas = DB::select('SELECT * FROM crmxi3_hoas');
+            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0');
+        }
+
+        // $categories = DB::select('SELECT * FROM crmxi3_categories');
+
+        // $hoas = DB::select('SELECT * FROM crmxi3_hoas');
+
+        // Exclude Test (for testing)
+        // $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0');
 
         $subcats = DB::select('SELECT * FROM get_subcat');
 
@@ -281,7 +290,7 @@ class SrsRequestController extends Controller
 
         $nationalities = DB::table('crmxi3_nationalities')->get();
 
-        $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
+        // $vehicleOwnershipTypes = DB::table('crmxi3_vehicle_ownership_status')->get();
 
         // Vehicle
         // ALL HOAS
@@ -1568,7 +1577,7 @@ class SrsRequestController extends Controller
 
     public function checkStatus(Request $request)
     {
-        
+
         $data = $request->validate([
             'reqId' => 'required|string|exists:srs3_requests,request_id'
         ], [], [

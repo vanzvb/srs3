@@ -333,6 +333,8 @@ class SrsRequestRenewalController extends Controller
 
     public function processRenewal(Request $request)
     {
+
+        // dd($request->all());
         // Decode JSON string to an array (get list of vehicle)
         // $listOfVehicles = json_decode($request->input('list_of_vehicles'), true);
 
@@ -464,13 +466,54 @@ class SrsRequestRenewalController extends Controller
 
         try {
 
-            dd($crmId, $crmEmail, $reqToken);
-            $crm = CRMXIMain::with(['CRMXIvehicles'])
-                ->where('crm_id', $crmId)
-                ->where('email', $crmEmail)
-                ->firstOrFail();
+            
+            // $crm = CRMXIMain::with(['CRMXIvehicles'])
+            //     ->where('crm_id', $crmId)
+            //     ->where('email', $crmEmail)
+            //     ->firstOrFail();
 
-                
+            $crmGetEmailUsed = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where(function($query) use ($crmEmail) {
+                $query->where('main_email', $crmEmail)
+                      ->orWhere('owner_email', $crmEmail);
+            })
+            ->where('address_id', $request->input('address_id'))
+            ->first();
+            
+            $didWeUseMainEmail = false;
+    
+            
+            if ($crmGetEmailUsed) {
+                if ($crmGetEmailUsed->main_email === $crmEmail) {
+                    
+                    // dd($crmId);
+    
+                    $personEmail = $crmGetEmailUsed->main_email;
+    
+                    $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
+                    ->where('crm_id', $crmId)
+                    ->where('email', $crmEmail)
+                    ->firstOrFail();
+                    
+                    $didWeUseMainEmail = true;
+                } elseif ($crmGetEmailUsed->owner_email === $crmEmail) {
+                    $personEmail = $crmGetEmailUsed->owner_email;
+                    // dd($email);
+                    $crm = CRMXIMain::with(['CRMXIvehicles' => function ($query) use ($crmEmail) {
+                        // Ensure we're checking the vehicleOwner relation properly
+                        $query->whereHas('vehicleOwner', function ($ownerQuery) use ($crmEmail) {
+                            $ownerQuery->where('email', $crmEmail);
+                        });
+                    }, 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
+                    ->where('crm_id', $crmId) // Ensure CRM record matches the given ID
+                    ->firstOrFail();
+    
+                }
+            } else {
+                abort(404);
+            }
+
+            
             // $crm = CrmMain::with(['vehicles'])
             //     ->where('crm_id', $crmId)
             //     ->where('email', $crmEmail)
@@ -479,35 +522,57 @@ class SrsRequestRenewalController extends Controller
             // dd($crm);
 
             $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
-                ->where('email', $crm->email)
+                // ->where('email', $crm->email)
+                ->where('email', $personEmail)
                 ->where('token', $reqToken)
                 ->where('status', 0)
                 ->firstOrFail();
 
+            // dd($crmId, $crmEmail, $reqToken, $crm, $crmGetEmailUsed, $didWeUseMainEmail,$personEmail);
             // Changed namespace to srs 3
             $srsRequestController = new SrsRequestController();
 
             $srsRequest = new SrsRequest();
 
             // Generate requests_id
+            // account_type - (0 = Individual, 1 = Company)
+            $srsRequest->account_type = $crm->account_type;
             $srsRequest->account_id = $crm->account_id;
             $srsRequest->customer_id = $crm->crm_id;
-            $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
-            $srsRequest->category_id = $crm->category_id;
-            $srsRequest->sub_category_id = $crm->sub_category_id;
+
+            // Old 2.0 is getting hoa from mains (in 3.0 were getting in in crmxi3_address)
+            $srsRequest->request_id = $srsRequestController->getNextId($crmGetEmailUsed->category_id, $crmGetEmailUsed->sub_category_id);
+            // $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
+
             $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
             $srsRequest->last_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->lastname))));
             $srsRequest->middle_name =  strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->middlename))));
+            $srsRequest->civil_status = $crm->civil_status;
+            $srsRequest->nationality = $crm->nationality;
+            $srsRequest->tin_no = $crm->tin;
+            $srsRequest->email = $crm->email;
+            $srsRequest->contact_no = $crm->main_contact;
+            $srsRequest->secondary_contact = $crm->secondary_contact;  
+            $srsRequest->tertiary_contact = $crm->tertiary_contact;
 
-            // SRS3 New Address Format
-            $srsRequest->block_no = $crm->block ? strip_tags($crm->block) : null;
-            $srsRequest->lot_no = $crm->lot ? strip_tags($crm->lot) : null;
-            $srsRequest->house_no = $crm->house_number ? strip_tags($crm->house_number) : null;
-            $srsRequest->street = $crm->street ? strip_tags($crm->street) : null;
-            $srsRequest->building_name = $crm->building_name ? strip_tags($crm->building_name) : null;
-            $srsRequest->subdivision_village =  $crm->subdivision_village ? strip_tags($crm->subdivision_village) : null;
-            $srsRequest->city = $crm->city ? strip_tags($crm->city) : null;
-            $srsRequest->zipcode = $crm->zipcode ? strip_tags($crm->zipcode) : null;
+            // SRS3 New Address Format (should get in view $crmGetEmailUsed) since were not using cmrxi3_mains anymore for the address
+            // so basically all info  for address came from selected crmxi3_address
+            $srsRequest->category_id = $crmGetEmailUsed->category_id;
+            $srsRequest->sub_category_id = $crmGetEmailUsed->sub_category_id;
+            $srsRequest->hoa_id = $crmGetEmailUsed->hoa;
+
+            // can either use any of 2 columns
+            $srsRequest->membership_type = $crmGetEmailUsed->hoa_type;
+            $srsRequest->hoa_type = $crmGetEmailUsed->hoa_type;
+
+            $srsRequest->block_no = $crmGetEmailUsed->block ? strip_tags($crmGetEmailUsed->block) : null;
+            $srsRequest->lot_no = $crmGetEmailUsed->lot ? strip_tags($crmGetEmailUsed->lot) : null;
+            $srsRequest->house_no = $crmGetEmailUsed->house_number ? strip_tags($crmGetEmailUsed->house_number) : null;
+            $srsRequest->street = $crmGetEmailUsed->street ? strip_tags($crmGetEmailUsed->street) : null;
+            $srsRequest->building_name = $crmGetEmailUsed->building_name ? strip_tags($crmGetEmailUsed->building_name) : null;
+            $srsRequest->subdivision_village =  $crmGetEmailUsed->subdivision_village ? strip_tags($crmGetEmailUsed->subdivision_village) : null;
+            $srsRequest->city = $crmGetEmailUsed->city ? strip_tags($crmGetEmailUsed->city) : null;
+            $srsRequest->zipcode = $crmGetEmailUsed->zipcode ? strip_tags($crmGetEmailUsed->zipcode) : null;
 
             // $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
             // $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
@@ -515,12 +580,8 @@ class SrsRequestRenewalController extends Controller
             // $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
             // $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
             // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
-            $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
-
-            // Not saving 2nd, 3rd contact
-            $srsRequest->contact_no = $crm->main_contact;
-
-            $srsRequest->email = $crm->email;
+            // $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
+            
 
             $srsRequest->created_at = now();
             $srsRequest->updated_at = now();
@@ -532,28 +593,27 @@ class SrsRequestRenewalController extends Controller
             // Newly Added Columns in srs3
 
             // membership_type - HOA TYPE (migrated accounts is null) this is crmxi3_mains.hoa_type
-            $srsRequest->membership_type = $crm->hoa_type;
+            
 
             // block_no (migrated accounts is null) this is crmxi3_mains.block
-            $srsRequest->block_no = $crm->block;
+            // $srsRequest->block_no = $crm->block;
 
             // lot_no (migrated accounts is null) this is crmxi3_mains.lot
-            $srsRequest->lot_no = $crm->lot;
+            // $srsRequest->lot_no = $crm->lot;
 
             // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
             // $srsRequest->srs3_sub_category_id = $srsRequest->category_id;
 
-            // account_type - (0 = Individual, 1 = Company)
-            $srsRequest->account_type = $crm->account_type;
+
 
             // company_name - "if account_type = 0, then null ,else this should be stored in crmxi3_mains.firstname"
-            $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
+            // $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
 
             // company_representative - "if account_type = 0, then null, else this should be stored in crmxi3_mains.name"
-            $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
+            // $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
 
             // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
-            $srsRequest->srs3_hoa_id = $crm->hoa;
+            
 
             // OR / CR on vehicle is removed in renewal
             // Pending
@@ -643,7 +703,6 @@ class SrsRequestRenewalController extends Controller
 
                     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
                 }
-                dd('i came here');
             }
 
             return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
