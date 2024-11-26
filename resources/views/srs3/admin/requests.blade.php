@@ -860,7 +860,7 @@ $(document).ready(function () {
 				$('#request_load').show();
 
 				$.ajax({
-					url: '{{ route("requests.approve") }}',
+					url: '{{ route("requests.approve.v3") }}',
 					type: 'POST',
 					data: {
 						req_id: $(this).data('value'),
@@ -931,7 +931,7 @@ $(document).ready(function () {
 		
         $('#request_load').show();
         $.ajax({
-            url: '{{ route("request.delete", "") }}'+'/'+request_id,
+            url: '{{ route("request.delete.v3", "") }}'+'/'+request_id,
             type: 'DELETE',
             data: {
                 _token: '{{ csrf_token() }}',
@@ -1028,7 +1028,7 @@ $(document).ready(function () {
 		var street = $(this).attr('data-street');
 		var address = $('#details_address').text();
 		$.ajax({
-			url: '{{ route("srs.search_account") }}',
+			url: '{{ route("srs.v3.search_account") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',
@@ -1103,7 +1103,7 @@ $(document).ready(function () {
 					Linking Account`);
 		
 		$.ajax({
-			url: '{{ route("request.edit_accID") }}',
+			url: '{{ route("request.v3.edit_accID") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',
@@ -1183,7 +1183,7 @@ $(document).ready(function () {
 					<br>
 					Creating customer record`);
 		$.ajax({
-			url: '{{ route("crm.store") }}',
+			url: '{{ route("crm.v3.store") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',

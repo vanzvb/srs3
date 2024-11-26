@@ -17,6 +17,11 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TransmittalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CRMXI3_Controller\CRMXIController;
+use App\Http\Controllers\CRMXI3_Controller\CRXMIVehicleController;
+use App\Http\Controllers\CRMXI3_Controller\SPCV3Controller;
+use App\Http\Controllers\CRMXI3_Controller\SRS3HoaGroupController;
+use App\Http\Controllers\CRMXI3_Controller\CRMXIRedTagController;
 
 
 
@@ -86,8 +91,8 @@ Route::prefix('v3')->group(function () {
     // SRS Inbox
     Route::get('/requests', [Srs3RequestController::class, 'list'])->name('requests.v3');
     // Route::get('/requests/report', [Srs3RequestController::class, 'report'])->name('requests.report');
-    // Route::post('/requests/approve', [Srs3RequestController::class, 'approve'])->name('requests.approve');
-    // Route::delete('/request/{srsRequest}', [Srs3RequestController::class, 'adminDestroy'])->name('request.delete');
+    Route::post('/requests/approve', [Srs3RequestController::class, 'approve'])->name('requests.approve.v3');
+    Route::delete('/request/{srsRequest}', [Srs3RequestController::class, 'adminDestroy'])->name('request.delete.v3');
 
     // yajra get tables for inbox
     Route::get('/srs/i/requests/', [Srs3RequestController::class, 'getRequests'])->name('getRequests.v3');
@@ -113,6 +118,16 @@ Route::prefix('v3')->group(function () {
     Route::get('/sticker/request/status', function () {
         return view('srs3.request.status');
     })->name('request.v3.status');
+
+
+    // For Inbox (link Account)
+    // Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
+    Route::post('/srs/account', [Srs3RequestController::class, 'storeCrm'])->name('crm.v3.store');
+    Route::post('/srs/account/search', [Srs3RequestController::class, 'searchCRM'])->name('srs.v3.search_account');
+
+    // For Inbox (link account button)
+    Route::post('/srs/request/cid', [Srs3RequestController::class, 'updateCid'])->name('request.v3.edit_accID');
+
 });
 
 Route::get('/sticker/request/status', function () {
@@ -121,6 +136,91 @@ Route::get('/sticker/request/status', function () {
 
 Route::post('/sticker/request/status', [SrsRequestController::class, 'checkStatus']);
 
+// CRMXI ROUTES
+
+// CRMXI Index
+Route::get('crmxi', [CRMXIController::class, 'index']);
+
+// CRMXI Load Table Data
+Route::get('crmxi/crms', [CRMXIController::class, 'getCRMs'])->name('getcrmxi');
+Route::get('crmxi_getSubCat/{id}', [CRMXIController::class, 'getSubCategories']);
+Route::get('crmxi_getHoas/{id}', [CRMXIController::class, 'getHoaTypes']);
+Route::get('crmxi_getVehicleOwnershipStatus/{id}', [CRMXIController::class, 'getVehicleOwnershipStatus']);
+Route::get('crmxi_getZipcode/{id}', [CRMXIController::class, 'getZipcode']);
+Route::post('insert_crm_account', [CRMXIController::class, 'insertAccount']);
+Route::get('crmxi/crms_view_account/{account_id}', [CRMXIController::class, 'view_account'])->name('crms_view_account');
+Route::get('crmxi/vehicles/{account_id}', [CRXMIVehicleController::class, 'vehicleList'])->name('getVehicles');
+Route::post('insert_vehicle', [CRXMIVehicleController::class, 'insertVehicle']);
+Route::get('check_plate_no/{plate_no}', [CRXMIVehicleController::class, 'checkExistingPlateNo']);
+// Route::post('insert_vehicle', [CRXMIVehicleController::class, 'testInsert']);
+Route::post('insert_crm_account_address', [CRMXIController::class, 'insertAddress']);
+
+// CRMXi - JY 11/19/24
+Route::delete('crmxi/delete-vehicle', [CRXMIVehicleController::class, 'deleteVehicle'])
+    ->name('crms.delete-vehicle');
+Route::delete('crmxi/delete-address', [CRXMIVehicleController::class, 'deleteAddress'])
+    ->name('crms.delete-address');
+// End CRMXi - JY 11/19/24
+
+Route::get('/spc-V3', [SPCV3Controller::class, 'index'])->name('spc-V3');
+Route::post('/spc-insert', [SPCV3Controller::class, 'spc_insert']);
+Route::get('/get-price-spc/{id}', [SPCV3Controller::class, 'spc_show']);
+
+Route::get('/spc3-hoa-group', [SRS3HoaGroupController::class, 'index'])->name('spc3-hoa-group');
+Route::post('/hoa-group-insert', [SRS3HoaGroupController::class, 'hoa_group_insert']);
+
+Route::get('/crmxi_redtag_master', [CRMXIRedTagController::class, 'index'])->name('crmxi-redtag-master');
+Route::post('/insert_redtag_item', [CRMXIRedTagController::class, 'insert_redtag_item']);
+Route::get('/delete_redtag_item', [CRMXIRedTagController::class, 'delete_redtag_item'])->name('delete-redtag-item');
+Route::post('/insert_redtag', [CRMXIRedTagController::class, 'insert_redtag']);
+Route::get('/remove_redtag', [CRMXIRedTagController::class, 'remove_redtag'])->name('remove-redtag');
+
+Route::get('/crmMigration', [MigrationController::class, 'crm_migration']);
+
+
+// CRMXI END ROUTES
+
+
+// BILLING
+
+Route::get('/view-spc/{crm_id}/{customer_id}', [SCPV3Controller::class, 'view_details']);
+Route::post('/loadComputation', [SCPV3Controller::class, 'loadComputation']);
+Route::post('/loadVehicle', [SCPV3Controller::class, 'loadVehicles']);
+Route::post('/fetchVehicleDetails', [SCPV3Controller::class, 'fetchVehicleDetails']);
+Route::post('/scp/invoice-process', [SCPV3Controller::class, 'invoice_process'])->name('scp_invoice3');
+Route::get('/spc/invoice/{crm_id}/{invoice_no}', [SCPV3Controller::class, 'view_edit_invoice'])
+    ->name('scp_invoice3.edit');
+Route::post('/edit-billing', [SCPV3Controller::class, 'edit_billing'])->name('edit_billing.v3');
+
+Route::post('/spc/cancelOr', [SCPV3Controller::class, 'cancelOr'])->name('spccancelOr');
+
+Route::post('/spc/cancel_or_display', [SCPV3Controller::class, 'get_or']);
+
+// PARENT TO CHILD v3 - For Patch 11/15/24
+Route::get('/crm_p2c', [Crmxi2pcController::class, 'index'])->name('crmxi3_p2c');
+Route::get('/crm_p2c/list', [Crmxi2pcController::class, 'list'])->name('crmxi3_p2c.list');
+Route::get('/crm_p2c/{crm_id}', [Crmxi2pcController::class, 'edit'])->name('crmxi3_p2c.edit');
+Route::post('/crm_p2c/set_parent/{crm_id}', [Crmxi2pcController::class, 'set_parent'])->name('crmxi3_p2c.set_parent');
+Route::post('/crm_p2c/children_list', [Crmxi2pcController::class, 'children_list'])->name('crmxi3_p2c.children_list');
+Route::post('/crm_p2c/set_child', [Crmxi2pcController::class, 'set_child'])->name('crmxi3_p2c.set_child');
+Route::post('/crm_p2c/delete_child', [Crmxi2pcController::class, 'delete_child'])->name('crmxi3_p2c.delete_child');
+Route::post('/crm_p2c/get_plate_numbers', [Crmxi2pcController::class, 'get_plate_numbers'])->name('crmxi3_p2c.get_plate_numbers');
+// END PARENT TO CHILD
+
+// For Patch 11/18/24
+Route::post('/search/to-merge', [MergeCRMXiAccountController::class, 'searchMergeAccount'])
+    ->name('search.merge.account');
+Route::post('/merge-accounts', [MergeCRMXiAccountController::class, 'mergeAccounts'])
+    ->name('merge.accounts');
+
+// RED TAG
+
+Route::post('/deleteTag', [CRMController::class, 'deleteTag'])->name('deleteTag');
+Route::get('/edit-red-tags/{id}', [CRMController::class, 'editRedTag']);
+Route::post('/update-red-tag', [CRMController::class, 'update_red_tag'])->name('update-red-tag');
+
+
+// END BILLING
 
 Route::prefix('sub-categories')->group(function () {
     Route::get('/', [SubCategoryController::class, 'index'])->name('sub-categories.index');
@@ -224,11 +324,11 @@ Route::post('/srs/i/requests/', [SrsRequestController::class, 'getRequest'])->na
 Route::get('/srs/request/{srsRequest}', [SrsRequestController::class, 'show']);
 // Route::get('/srs/i/appointments/', [SrsAppointmentController::class, 'getAppointments'])->name('getAppointments');
 
-Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
-Route::post('/srs/account', [SrsRequestController::class, 'storeCrm'])->name('crm.store');
-Route::post('/srs/account/search', [SrsRequestController::class, 'searchCRM'])->name('srs.search_account');
+// Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
+// Route::post('/srs/account', [SrsRequestController::class, 'storeCrm'])->name('crm.store');
+// Route::post('/srs/account/search', [SrsRequestController::class, 'searchCRM'])->name('srs.search_account');
 
-Route::post('/srs/request/cid', [SrsRequestController::class, 'updateCid'])->name('request.edit_accID');
+// Route::post('/srs/request/cid', [SrsRequestController::class, 'updateCid'])->name('request.edit_accID');
 
 Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'])->name('request.close');
 
@@ -288,6 +388,10 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
     Route::get('/crm_access_report', [InvoiceController::class, 'crm_export']);
 
     Route::get('/invoice_report_filter', [InvoiceController::class, 'invoice_report_export']);
+
+    Route::get('/sticker_appointment', [SrsAppointmentController::class, 'create'])->name('request.appointment');
+
+    Route::post('/sticker_appointment', [SrsAppointmentController::class, 'store'])->name('appointment.store');
 
     // Route::post('/sticker_export_excel', [Srs3StickerController::class, 'sticker_export_excel']);
 

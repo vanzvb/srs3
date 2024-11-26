@@ -29,7 +29,7 @@
                     </div>
                     <div class="col-12 mt-2">
                         You can check the status of your request with your request ID <a
-                            href="{{ route('request.status', ['q' => session()->get('requestAddSuccess')]) }}"
+                            href="{{ route('request.v3.status', ['q' => session()->get('requestAddSuccess')]) }}"
                             target="_blank">here</a>.
                     </div>
                 </div>

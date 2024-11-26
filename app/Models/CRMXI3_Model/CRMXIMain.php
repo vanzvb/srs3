@@ -26,9 +26,10 @@ class CRMXIMain extends Model
 
     public function vehicles()
     {
-        return $this->hasMany(CRXMIVehicle::class, 'account_id', 'account_id');
+        return $this->hasMany(CRXMIVehicle::class, 'account_id', 'account_id')
+            ->where('assoc_crm', 1); // Active
     }
-
+    
     public function cities()
     {
         return $this->hasOne(CRMXICity::class, 'bl_id', 'city');

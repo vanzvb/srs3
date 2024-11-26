@@ -5,6 +5,7 @@ namespace App\Http\Controllers\srs3;
 use App\Exports\CrmRedTagExport;
 use App\Exports\SrsRequestsExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CRMXI3_Controller\CRMXIController;
 use App\Http\Requests\srs3\SrsRequestRequest;
 use App\Mail\RequestApproved;
 use App\Mail\RequestRejected;
@@ -14,8 +15,10 @@ use App\Models\CrmInvoice;
 use App\Models\CrmMain;
 use App\Models\CrmRedtag;
 use App\Models\CrmVehicle;
+use App\Models\CRMXI3_Model\CRMXIAddress;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXICivilStatus;
+use App\Models\CRMXI3_Model\CRMXIMain;
 use App\Models\CRMXI3_Model\CRMXITempAddress;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
 use App\Models\CRMXI3_Model\CRXMIVehicleOwner;
@@ -120,7 +123,7 @@ class SrsRequestController extends Controller
         $url = URL::temporarySignedRoute('request.appointment', now()->addDays(3), ['key' => $srn]);
 
         // Mail::to($srsRequest->email)->send(new RequestApproved($srsRequest, $url));
-        dispatch(new \App\Jobs\SendApprovedNotificationJob($srsRequest, $srsRequest->email, $url));
+        dispatch(new \App\Jobs\SRS_3\SendApprovedNotificationJob($srsRequest, $srsRequest->email, $url));
     }
 
     public function list()
@@ -929,13 +932,19 @@ class SrsRequestController extends Controller
 
         if ($srsRequest->trashed()) {
             $requestAction = '';
+            // $routeReject = '<tr style="color: red;font-weight: bold;">
+            //                     <td style="text-align: left;min-width: 150px !important;"><label>Rejected</label></td>
+            //                     <td style="min-width: 150px !important;text-align: left;">' . $srsRequest->rejected_by . '</td>
+            //                     <td style="max-width: 100px !important;">' . $srsRequest->deleted_at->format('m/d/Y h:i A') . '</td>
+            //                     <td style="max-width: 200px !important;text-align: left;">' . $srsRequest->reject_reason . '</td>
+            //                 </tr>
+            //                 ';
             $routeReject = '<tr style="color: red;font-weight: bold;">
-                                <td style="text-align: left;min-width: 150px !important;"><label>Rejected</label></td>
-                                <td style="min-width: 150px !important;text-align: left;">' . $srsRequest->rejected_by . '</td>
-                                <td style="max-width: 100px !important;">' . $srsRequest->deleted_at->format('m/d/Y h:i A') . '</td>
-                                <td style="max-width: 200px !important;text-align: left;">' . $srsRequest->reject_reason . '</td>
-                            </tr>
-                            ';
+            <td style="text-align: left;min-width: 150px !important;"><label>Rejected</label></td>
+            <td style="max-width: 100px !important;">' . $srsRequest->deleted_at->format('m/d/Y h:i A') . '</td>
+            <td style="max-width: 200px !important;text-align: left;">' . $srsRequest->reject_reason . '</td>
+                        </tr>
+                        ';
             $routes[] = $routeReject;
         }
 
@@ -1053,7 +1062,7 @@ class SrsRequestController extends Controller
             $this->sendRequestApprovedEmail($srsRequest);
             $status = 2;
         }
-
+        
         $srsRequest->admin_approved = 1;
         $srsRequest->status = $status;
         $srsRequest->save();
@@ -1120,7 +1129,7 @@ class SrsRequestController extends Controller
 
         $data = $request->validate([
             'reason' => 'required|string',
-            'reqId' => 'required|exists:srs_requests,request_id'
+            'reqId' => 'required|exists:srs3_requests,request_id'
         ]);
 
         $srsRequest = SrsRequest::with(['hoa' => function ($query) {
@@ -1128,7 +1137,7 @@ class SrsRequestController extends Controller
         }])
             ->where('request_id', $request->reqId)
             ->first();
-
+        
         if (!$srsRequest) {
             $rejected = SrsRequest::where('request_id', $request->reqId)
                 ->onlyTrashed()
@@ -1150,7 +1159,7 @@ class SrsRequestController extends Controller
         // Mail::to($srsRequest->email)
         //     ->queue(new RequestRejected($srsRequest->request_id, $data['reason']));
 
-        dispatch(new \App\Jobs\SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason']));
+        dispatch(new \App\Jobs\SRS_3\SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason']));
 
 
         return response()->json(['status' => 1, 'msg' => 'Request Rejected!']);
@@ -1844,105 +1853,114 @@ class SrsRequestController extends Controller
 
     public function updateCid(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
-            'req_id' => 'required|exists:srs_requests,request_id',
-            'acc' => 'required|string|exists:crm_mains,crm_id',
+            'req_id' => 'required|exists:srs3_requests,request_id',
+            'acc' => 'required|string|exists:crmxi3_mains,crm_id',
         ]);
 
-        // $srsRequest = SrsRequest::findOrFail($data['req_id']);
-        $srsRequest = SrsRequest::with(['vehicles' => function ($query) {
-            $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm');
-        }])
-            ->findOrFail($data['req_id']);
+        DB::beginTransaction();
 
-        $srsRequest->customer_id = $data['acc'];
-        if ($srsRequest->save()) {
-            // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
-            // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
-            $account = CrmMain::with(['vehicles' => function ($query) {
-                $query->select('id', 'crm_id', 'plate_no', 'created_at');
+        try {
+            // $srsRequest = SrsRequest::findOrFail($data['req_id']);
+            $srsRequest = SrsRequest::with(['vehicles' => function ($query) {
+                $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm');
             }])
-                ->where('crm_id', $srsRequest->customer_id)
-                ->first();
+                ->findOrFail($data['req_id']);
 
-            $vehicles = [];
+                // dd($srsRequest);
 
-            foreach ($srsRequest->vehicles as $reqVehicle) {
-                $crmVehicle = $account->vehicles->where('plate_no', $reqVehicle->plate_no)->sortBy('created_at')->first();
-                if ($crmVehicle) {
-                    $vehicles[] = $crmVehicle->id;
-                } else {
-                    $vehicles[] = $reqVehicle->id;
-                    $reqVehicle->assoc_crm = 1;
-                    $reqVehicle->save();
+            $srsRequest->customer_id = $data['acc'];
+            if ($srsRequest->save()) {
+                // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
+                // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
+                $account = CRMXIMain::with(['vehicles' => function ($query) {
+                    $query->select('id', 'crm_id', 'plate_no', 'created_at');
+                }])
+                    ->where('crm_id', $srsRequest->customer_id)
+                    ->first();
+    
+                $vehicles = [];
+
+                foreach ($srsRequest->vehicles as $reqVehicle) {
+                    $crmVehicle = $account->vehicles->where('plate_no', $reqVehicle->plate_no)->sortBy('created_at')->first();
+                    if ($crmVehicle) {
+                        $vehicles[] = $crmVehicle->id;
+                    } else {
+                        $vehicles[] = $reqVehicle->id;
+                        $reqVehicle->assoc_crm = 1;
+                        $reqVehicle->save();
+
+                        // Check if vehicle_id already exists in crmxi3_vehicle_owners
+                        $existingOwner = DB::table('crmxi3_vehicle_owners')
+                            ->where('vehicle_id', $reqVehicle->id)
+                            ->first();
+
+                        if (!$existingOwner) {
+
+                            // Prepare data for insertion
+                            $ownerData = [
+                                'vehicle_id' => $reqVehicle->id,
+                                'firstname' => $srsRequest->first_name,
+                                'middlename' => $srsRequest->middle_name,
+                                'lastname' => $srsRequest->last_name,
+                                'email' => $srsRequest->email,
+                                'main_contact' => $srsRequest->contact_no,
+                                'secondary_contact' => $srsRequest->secondary_contact,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+
+                            // Create crmxi3_vehicle_owners record
+                            DB::table('crmxi3_vehicle_owners')->insert($ownerData);
+                        }
+
+                    }
                 }
+    
+                $srsRequest->crmVehicles()->sync($vehicles);
+    
+                $srsRequest->vehicles()->update([
+                    'account_id' => $account->account_id,
+                    'crm_id' => $account->customer_id
+                ]);
+    
+                $this->insertLogSrs('SRS Linked to Account, SRS ID ' . $srsRequest->request_id . ', Linked to Customer ID ' . $account->customer_id);
+    
+                $account->save();
+    
+                DB::commit();
+    
+                return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
             }
-
-            $srsRequest->crmVehicles()->sync($vehicles);
-
-            $srsRequest->vehicles()->update([
-                'crm_id' => $account->customer_id
-            ]);
-
-            $this->insertLogSrs('SRS Linked to Account, SRS ID ' . $srsRequest->request_id . ', Linked to Customer ID ' . $account->customer_id);
-
-            // if (!$account->blk_lot) {
-            //     $account->blk_lot = $srsRequest->house_no;
-            // }
-
-            // if (!$account->street) {
-            //     $account->street = $srsRequest->street;
-            // }
-
-            // if ($srsRequest->hoa) {
-            //     if (!$account->hoa) {
-            //         $account->hoa = $srsRequest->hoa_id;
-            //     }
-            // }
-
-            // if (!$account->email) {
-            //     $account->email = $srsRequest->email;
-            // }
-
-            // if (!$account->main_contact) {
-            //     $account->main_contact = $srsRequest->contact_no;
-            // }
-
-            // if (!$account->category_id) {
-            //     $account->category_id = $srsRequest->category_id;
-            // }
-
-            // if (!$account->sub_category_id) {
-            //     $account->sub_category_id = $srsRequest->sub_category_id;
-            // }
-
-
-            $account->save();
-
-            return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
+    
+            DB::rollBack();
+            return response()->json(['status' => 0, 'error' => 'Failed to save SRS request.'], 500);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 0, 'error' => $e->getMessage()], 500);
         }
     }
 
     public function storeCrm(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
-            'req_id' => 'required|exists:srs_requests,request_id'
+            'req_id' => 'required|exists:srs3_requests,request_id'
         ]);
 
         $srsRequest = SrsRequest::with(['hoa' => function ($query) {
             $query->select('id', 'name');
         }, 'vehicles' => function ($query) {
             $query->select('id', 'srs_request_id');
-        }, 'nrHoa' => function ($query) {
-            $query->select('id', 'name');
+        // }, 'nrHoa' => function ($query) {
+        //     $query->select('id', 'name');
         }])
             ->withCount('vehicles')
             ->findOrFail($data['req_id']);
-
+        // dd($srsRequest);
         // $account = CrmMain::firstOrNew([
         //     'category_id' => $srsRequest->category_id,
         //     'sub_category_id' => $srsRequest->sub_category_id,
@@ -1957,7 +1975,7 @@ class SrsRequestController extends Controller
         // ], [
         //     'customer_id' => app('App\Http\Controllers\CRMController')->getNextId($srsRequest->category_id, $srsRequest->sub_category_id, $srsRequest->hoa_id, 'int')
         // ]);
-        $crm = CrmMain::with(['creator' => function ($query) {
+        $crm = CRMXIMain::with(['creator' => function ($query) {
             $query->select('id', 'name');
         }])
             ->where('category_id', $srsRequest->category_id)
@@ -1972,56 +1990,105 @@ class SrsRequestController extends Controller
             ->select('created_at', 'created_by')
             ->first();
 
+        
         if ($crm) {
 
             return response()->json(['status' => 0, 'srs' => $srsRequest->request_id, 'createdBy' => $crm->created_at->diffForHumans() . ' by ' . $crm->creator->name]);
         } else {
-            $account = new CrmMain();
-            $account->customer_id = app('App\Http\Controllers\CRMController')->getNextId($srsRequest->category_id, $srsRequest->sub_category_id, $srsRequest->hoa_id, 'int');
-            $account->category_id = $srsRequest->category_id;
-            $account->sub_category_id = $srsRequest->sub_category_id;
-            $account->firstname = $srsRequest->first_name;
-            $account->middlename = $srsRequest->middle_name;
-            $account->lastname = $srsRequest->last_name;
-            $account->blk_lot = $srsRequest->house_no;
-            $account->street = $srsRequest->street;
-            $account->building_name = $srsRequest->building_name;
-            $account->subdivision_village = $srsRequest->subdivision_village;
-            $account->city = $srsRequest->city;
-            $account->owned_vehicles = $srsRequest->vehicles_count;
-            // $account->hoa = $srsRequest->hoa ? $srsRequest->hoa->name : '';
-            if ($srsRequest->category_id == 1) {
-                $account->hoa = $srsRequest->hoa ? $srsRequest->hoa->name : NULL;
-            } else if ($srsRequest->category_id == 2) {
-                $account->hoa = $srsRequest->nrHoa ? $srsRequest->nrHoa->name : NULL;
+            DB::beginTransaction();
+
+            try {
+                $account = new CRMXIMain();
+                if ($srsRequest->srs3_sub_category_id) {
+                    $subcategoryGen = $srsRequest->srs3_sub_category_id;
+                } else {
+                    $subcategoryGen = $srsRequest->sub_category_id;
+                }
+                $account->account_id = (new CRMXIController())->generateAccountNum(0, $srsRequest->category_id, $subcategoryGen, $srsRequest->hoa_id, $srsRequest->hoa_type);
+                $account->account_type = 0;
+                $account->firstname = $srsRequest->first_name;
+                $account->middlename = $srsRequest->middle_name;
+                $account->lastname = $srsRequest->last_name;
+                $account->civil_status = $srsRequest->civil_status;
+                $account->tin_no = $srsRequest->house_no;
+                $account->email = $srsRequest->email;
+                $account->main_contact = $srsRequest->contact_no;
+                $account->secondary_contact = $srsRequest->secondary_contact;
+                $account->tertiary_contact = $srsRequest->tertiary_contact;
+                $account->owned_vehicles = $srsRequest->vehicles_count;
+                $account->status = 1;
+                $account->created_by = Auth::id();
+                $account->save();
+    
+                // Create crmxi3_address record
+                $address = new CRMXIAddress();
+                $address->account_id = $account->account_id;
+                $address->category_id = $srsRequest->category_id;
+                $address->sub_category_id = $subcategoryGen;
+                $address->hoa = $srsRequest->hoa_id;
+                $address->hoa_type = $srsRequest->hoa_type;
+                $address->block = $srsRequest->block_no;
+                $address->lot = $srsRequest->lot_no;
+                $address->house_number = $srsRequest->house_no;
+                $address->street = $srsRequest->street;
+                $address->building_name = $srsRequest->building_name;
+                $address->subdivision_village = $srsRequest->subdivision_village;
+                $address->city = $srsRequest->city;
+                $address->zipcode = $srsRequest->zipcode;
+                $address->created_by = Auth::id();
+                $address->save();
+
+                // Create crmxi3_vehicle_owners record for each vehicle
+                foreach ($srsRequest->vehicles as $vehicle) {
+                    DB::table('crmxi3_vehicle_owners')->insert([
+                        'vehicle_id' => $vehicle->id,
+                        'firstname' => $srsRequest->first_name,
+                        'middlename' => $srsRequest->middle_name,
+                        'lastname' => $srsRequest->last_name,
+                        'email' => $srsRequest->email,
+                        'main_contact' => $srsRequest->contact_no,
+                        'secondary_contact' => $srsRequest->secondary_contact,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+    
+                $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID ' . $srsRequest->request_id . ', Customer ID ' . $account->customer_id);
+    
+                // for checking if srs3_requests account_id is updating
+                $srsRequest->customer()->associate($account);
+                // $srsRequest->vehicles()->update(['address_id' => $address->id]);
+                // $srsRequest->vehicles()->update(['account_id' => $account->account_id, 'assoc_crm' => 1]);
+                // Update vehicles with account_id and address_id
+                $srsRequest->vehicles()->update([
+                    'account_id' => $account->account_id,
+                    'address_id' => $address->id,
+                    'assoc_crm' => 1
+                ]);
+                
+                $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
+                $srsRequest->save();
+    
+                DB::commit();
+    
+                return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status' => 0, 'error' => $e->getMessage()], 500);
             }
-
-            $account->email = $srsRequest->email;
-            $account->main_contact = $srsRequest->contact_no;
-            $account->status = 1;
-            $account->created_by = Auth::id();
-            $account->save();
-
-            $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID ' . $srsRequest->request_id . ', Customer ID ' . $account->customer_id);
-            $srsRequest->customer()->associate($account);
-            $srsRequest->vehicles()->update(['crm_id' => $account->customer_id, 'assoc_crm' => 1]);
-            $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
-            $srsRequest->save();
-
-            return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
         }
     }
 
     public function searchCRM(Request $request)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
             'fname' => 'required|string',
             'mname' => 'nullable|string',
             'lname' => 'required|string',
-            'blk_lot' => 'required|string',
-            'street' => 'required|string'
+            'blk_lot' => 'nullable|string',
+            'street' => 'nullable|string'
         ]);
 
         // $accounts = CrmMain::where('firstname', 'LIKE', $data['fname'].'%')
@@ -2061,10 +2128,10 @@ class SrsRequestController extends Controller
         // ->select('crm_mains.*', 'spc_categories.name as category_name', 'spc_subcat.name as sub_category_name')
         // ->get();
 
-        $accounts = CrmMain::query()
-            ->with(['spc_category' => function ($query) {
+        $accounts = CRMXIMain::query()
+            ->with(['CRMXIcategory' => function ($query) {
                 $query->select('id', 'name');
-            }, 'spc_subcat' => function ($query) {
+            }, 'CRMXIsubCategory' => function ($query) {
                 $query->select('id', 'name');
             }])
             ->where(function ($query) use ($data) {
@@ -2076,24 +2143,23 @@ class SrsRequestController extends Controller
                     ->where('middlename', $data['lname']);
             })
             ->orWhere(function ($query) use ($data) {
-                $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.lastname)  like ?";
+                $sql = "CONCAT(crmxi3_mains.firstname,' ',crmxi3_mains.lastname)  like ?";
                 $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
             })
             ->orWhere(function ($query) use ($data) {
-                $sql = "CONCAT(crm_mains.firstname,' ',crm_mains.middlename)  like ?";
+                $sql = "CONCAT(crmxi3_mains.firstname,' ',crmxi3_mains.middlename)  like ?";
                 $query->whereRaw($sql, ["%{$data['fname']} {$data['lname']}%"]);
             })
-            ->orWhere(function ($query) use ($data) {
-                $query->where('blk_lot', $data['blk_lot'])
-                    ->where('street', $data['street']);
-            })
+            // ->orWhere(function ($query) use ($data) {
+            //     $query->where('blk_lot', $data['blk_lot'])
+            //         ->where('street', $data['street']);
+            // })
             // ->select('crm_mains.*', 'spc_categories.name as category_name', 'spc_subcat.name as sub_category_name')
             ->get();
 
         // dd($accounts);
 
         $html = '';
-
         if ($accounts->isEmpty()) {
             $html .= '<div class="text-center">
                             <div>No Customer Record Found</div>
@@ -2142,13 +2208,13 @@ class SrsRequestController extends Controller
                                     <input class="form-check-input" type="radio" name="accountRadio" id="accountRadio' . $key . '" value="' . $account->crm_id . '">
                                 </div>
                             </td>
-                            <td>' . htmlspecialchars($account->customer_id) . '</td>
+                            <td>' . htmlspecialchars($account->account_id) . '</td>
                             <td>' . htmlspecialchars($account->lastname . ', ' . $account->firstname . ' ' . $account->middlename) . '</td>
                             <td>
                             ' . htmlspecialchars($account->blk_lot . ', ' . $account->street . ($account->building_name ? ', ' . $account->building_name : '') . ($account->subdivision_village ? ', ' . $account->subdivision_village : '') . ($account->city ? ', ' . $account->city : '')) . '
                             </td>
-                            <td>' . htmlspecialchars($account->spc_category ? $account->spc_category->name : 'Not Found (Might be outdated)') . '</td>
-                            <td>' . htmlspecialchars($account->spc_subcat ? $account->spc_subcat->name : 'Not Found (Might be outdated)') . '</td>
+                            <td>' . htmlspecialchars($account->CRMXIcategory ? $account->CRMXIcategory->name : 'Not Found (Might be outdated)') . '</td>
+                            <td>' . htmlspecialchars($account->CRMXIsubCategory ? $account->CRMXIsubCategory->name : 'Not Found (Might be outdated)') . '</td>
                             <td>' . ($account->red_tag ? 'Red Tag' : '') . '</td>
                       </tr>';
         }

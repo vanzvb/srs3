@@ -2,7 +2,7 @@
 
 namespace App\Jobs\SRS_3;
 
-use App\Models\SrsRequest;
+use App\Models\SRS3_Model\SrsRequest;
 use App\Mail\RequestRejected;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Mail;

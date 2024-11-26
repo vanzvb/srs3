@@ -111,7 +111,7 @@ class SrsRequest extends Model
     public function customer()
     {
         // return $this->belongsTo(CrmMain::class, 'customer_id', 'customer_id');
-        return $this->belongsTo(CrmMain::class, 'customer_id', 'crm_id');
+        return $this->belongsTo(CRMXIMain::class, 'account_id', 'account_id');
     }
 
     public function invoice()
@@ -121,7 +121,7 @@ class SrsRequest extends Model
 
     public function crmVehicles()
     {
-        return $this->belongsToMany(CrmVehicle::class, 'request_vehicle', 'request_id', 'vehicle_id')->withTimestamps();
+        return $this->belongsToMany(CRXMIVehicle::class, 'request3_vehicle', 'request_id', 'vehicle_id')->withTimestamps();
     }
 
     public function appointmentResets()

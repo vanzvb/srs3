@@ -705,7 +705,7 @@ class SrsRequestRenewalController extends Controller
                 }
             }
 
-            return redirect('/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
+            return redirect('/v3/sticker/new')->with('requestAddSuccess', $srsRequest->request_id);
         } catch (Exception $e) {
             // If there's an error, rollback the transaction
             DB::rollBack();
