@@ -233,7 +233,9 @@ class HoaApproverController extends Controller
                     'plate_no_remarks',
                     'color_remarks',
                     'req1',
-                    'type'
+                    'type',
+                    'hoa_pres_status',
+                    'hoa_pres_remarks'
                 );
             },
             'statuses',
@@ -292,7 +294,9 @@ class HoaApproverController extends Controller
                 'year_model' => $vehicle->year_model,
                 'color' => $vehicle->color . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : ''),
                 'or' => $vehicle->or_path ? '<a data-value="/hoa-approvers/srs/uploads/' . $vehicle->or_path . '" data-type="' . (isset($vehicle->req1) && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>' : '',
-                'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : ''
+                'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : '',
+                'hoa_pres_status' => $vehicle->hoa_pres_status,
+                'hoa_pres_remarks' => $vehicle->hoa_pres_remarks
             ];
         }
 
@@ -427,149 +431,80 @@ class HoaApproverController extends Controller
      */
     public function hoaApproved(Request $request)
     {
-        // $this->authorize('accessHoaApproval', SrsRequest::class);
-
-
-        // If validation passes, proceed with storing the rejection reasons
-        // $uncheckedVehicles = $request->uncheckedVehicles;
-        // $rejectionReasons = $request->rejection_reasons;
         $uncheckedVehicles = $request->input('uncheckedVehicles');
         $rejectionReasons = $request->input('rejection_reasons');
-
-        // if (!is_array($uncheckedVehicles)) {
-        //     return response()->json(['error' => 'Unchecked vehicles must be an array.'], 400);
-        // }
-
-        // Query SrsRequest with the request_id and does not have a status of 2
+    
         $srsRequest = SrsRequest::where('request_id', $request->request_id)
             ->whereDoesntHave('statuses', function ($query) {
                 $query->where('status_id', 2);
             })
             ->first();
-
-        // Check if the request is not part of the HOA's list of requests or if the request is a non-resident request
+    
         if (!in_array($srsRequest->hoa_id, auth()->user()->hoa->pluck('id')->toArray()) || $srsRequest->category_id == 2 || $srsRequest->hoa == null) {
             abort(404);
         }
-
-        // Check if there a no rejected vehicles
-        // if ($uncheckedVehicles == null) {
-
-        //     $CRMXIHoaApprovedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)->get();
-        // } else {
-
-        //     $CRMXIHoaRejectedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)
-        //         ->whereIn('vehicle_id', $uncheckedVehicles)->get();
-
-
-        //     // Get the vehicle_ids of rejected vehicles
-        //     $rejectedVehicleIds = $CRMXIHoaRejectedVehicles->pluck('vehicle_id')->toArray();
-
-        //     $CRMXIHoaApprovedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)
-        //         ->whereNotIn('vehicle_id', $rejectedVehicleIds)->get();
-        // }
-
-        if ($uncheckedVehicles <> null) {
-            // Get Rejected Vehicles
+    
+        if ($uncheckedVehicles !== null) {
             $CRMXIHoaRejectedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)
-                ->whereIn('vehicle_id', $uncheckedVehicles)->get();
-
-            // Update Rejected Vehicle
-            // hoa_pres_status = 1 rejected
-            // hoa_pres_remarks = rejectionReasons
-
-            // Loop through rejected vehicles and update rejection reason if it exists
+                ->whereIn('vehicle_id', $uncheckedVehicles)
+                ->get();
+    
             foreach ($CRMXIHoaRejectedVehicles as $vehicle) {
                 if (isset($rejectionReasons[$vehicle->vehicle_id])) {
-                    // Update the rejection reason if it exists in the rejectionReasons array
                     $vehicle->hoa_pres_remarks = $rejectionReasons[$vehicle->vehicle_id];
-                    $vehicle->hoa_pres_status = 1; // Assuming you want to mark it as rejected
+                    $vehicle->hoa_pres_status = 1; // Mark as rejected
                     $vehicle->save();
                 }
             }
-
-            // Get the vehicle_ids of rejected vehicles
+    
             $rejectedVehicleIds = $CRMXIHoaRejectedVehicles->pluck('vehicle_id')->toArray();
-
-            // Updated Approved Vehicles
+    
             $CRMXIHoaApprovedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)
-                ->whereNotIn('vehicle_id', $rejectedVehicleIds)->get();
-
+                ->whereNotIn('vehicle_id', $rejectedVehicleIds)
+                ->get();
+    
             if ($CRMXIHoaApprovedVehicles->count() > 0) {
-                // If not all vehicles are rejected
-                // status of the request should be approved
-                $status = 1;
-
+                $status = 1; // Approved
+    
                 foreach ($CRMXIHoaApprovedVehicles as $vehicle) {
-                    // Update the rejection reason if it exists in the rejectionReasons array
-                    $vehicle->hoa_pres_status = 0;
+                    $vehicle->hoa_pres_status = 0; // Mark as approved
                     $vehicle->save();
                 }
             } else {
-                // If all vehicles are rejected
-                // status of request is $status = 62; // Rejected by HOA
-                $status = 62;
+                $status = 62; // Rejected by HOA
             }
         } else {
-            // Will go here if theres no rejected vehicle
-            // status of the request should be approved
-            $status = 1;
-
+            $status = 1; // Approved
+    
             $CRMXIHoaApprovedVehicles = CRXMIVehicle::where('srs_request_id', $request->request_id)->get();
-
+    
             foreach ($CRMXIHoaApprovedVehicles as $vehicle) {
-                // Update the rejection reason if it exists in the rejectionReasons array
-                $vehicle->hoa_pres_status = 1; // Assuming you want to mark it as rejected
+                $vehicle->hoa_pres_status = 0; // Mark as approved
                 $vehicle->save();
             }
         }
-
-
-        // Return the response
+    
         if ($status == 1) {
-
             $actionBy = auth()->user()->email;
-
-            // SRS Request Statuses are as follows:
-            // Documentations:
-            // 0 - Pending Approval
-            // 1 - Approved by Enclave President
-            // 2 - Approved - Pending Appointment
-            // 3 - Appointment Set
-            // 4 - Closed
-            // 5 - Archived
-            // 62 - Rejected by HOA
-
-            // Check if the request has a status of 1 // Approved by Enclave President
+    
             if ($srsRequest->status == 1) {
                 $this->sendRequestApprovedEmail($srsRequest);
                 $status = 2;
             }
-
-            // Update the status of the request
+    
             $srsRequest->status = $status;
             $srsRequest->save();
-
-            // Attach the status of the request
+    
             $srsRequest->statuses()->attach(2, ['action_by' => $actionBy]);
-
-            // Get the statuses of the request
+    
             $statuses = SrsRequestStatus::with(['requests' => function ($q) use ($srsRequest) {
                 $q->withTrashed()
                     ->where('srs3_requests.request_id', $srsRequest->request_id);
             }])->get();
-
-            // Check if the request is trashed
+    
             $adminApproved = $statuses->firstWhere('name', 'Approval - Admin')->requests->isNotEmpty();
             $status = $srsRequest->trashed() ? 'Rejected' : $this->getStatus($srsRequest->status, $adminApproved);
-
-            // Log the action
-            // LogHoaHist::create([
-            //     'action_by' => auth()->user()->name,
-            //     'action' => 'HOA Approved Request ID: ' . $srsRequest->request_id,
-            //     'ip_address' => $request->ip()
-            // ]);
-
+    
             return response()->json([
                 'status' => 1,
                 'msg' => 'Request Approved!',
@@ -578,70 +513,45 @@ class HoaApproverController extends Controller
                 'updated_at' => $srsRequest->updated_at->format('m/d/Y h:i A'),
                 'redirect_url' => url('/hoa-approvers3')
             ]);
-
         } else {
-            // Rejected
-            // Get the email of the user
             $actionBy = auth()->user()->email;
-
-            // Get the email of the HOA
+    
             $srsRequest->load(['hoa']);
-
+    
             $requestId = $srsRequest->request_id;
             $email = $srsRequest->email;
-
+    
             $hoaEmails = [];
-
-            // Check if the HOA has an email
+    
             if ($srsRequest->hoa) {
-                // Check if emailAdd1 is not null
                 if ($srsRequest->hoa->emailAdd1) {
                     $hoaEmails[] = $srsRequest->hoa->emailAdd1;
                 }
-
-                // Check if emailAdd2 is not null
+    
                 if ($srsRequest->hoa->emailAdd2) {
                     $hoaEmails[] = $srsRequest->hoa->emailAdd2;
                 }
-
-                // Check if emailAdd3 is not null
+    
                 if ($srsRequest->hoa->emailAdd3) {
                     $hoaEmails[] = $srsRequest->hoa->emailAdd3;
                 }
             }
-
-            // Update the status of the request
+    
             $srsRequest->status = 62; // Rejected by HOA
             $srsRequest->reject_role = 10; // HOA
-            $srsRequest->rejected_by = $actionBy; // HOA
-            // $srsRequest->reject_reason = $data['reason'];
-
-            // Save the request
+            $srsRequest->rejected_by = $actionBy;
             $srsRequest->save();
-
-            // Delete the request
+    
             $srsRequest->delete();
-            $data['reason'] = '';
-            // Send the rejected email
-            // dispatch(new SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason'], $hoaEmails));
-
-            // Get the statuses of the request
+    
             $statuses = SrsRequestStatus::with(['requests' => function ($q) use ($srsRequest) {
                 $q->withTrashed()
                     ->where('srs3_requests.request_id', $srsRequest->request_id);
             }])->get();
-
-            // Check if the request is trashed
+    
             $adminApproved = $statuses->firstWhere('name', 'Approval - Admin')->requests->isNotEmpty();
             $status = $srsRequest->trashed() ? 'Rejected' : $this->getStatus($srsRequest->status, $adminApproved);
-
-            // Log the action
-            // LogHoaHist::create([
-            //     'action_by' => auth()->user()->name,
-            //     'action' => 'HOA Rejected Request ID: ' . $srsRequest->request_id . ' Reason: ' . $data['reason'],
-            //     'ip_address' => $request->ip()
-            // ]);
-
+    
             return response()->json([
                 'status' => 1,
                 'msg' => 'Request Rejected!',

@@ -172,6 +172,17 @@
                                 </p>
                             </div>
                         </div> --}}
+                        <div class="row" style="text-align: left;">
+                            <div class="col-md-3 col-sm-4 col-xs-5">
+                                <label>Account ID :</label>
+                            </div>
+                            <div class="col-md-9 col-sm-8 col-xs-7">
+                                <p>
+                                    <span id="account_id">
+                                        {{ $srsRequest->account_id ?? 'N/A' }}</span>
+                                </p>
+                            </div>
+                        </div>
 
                         <div class="row mt-2" style="text-align: left;">
                             <div class="col-md-3 col-sm-4 col-xs-5">
@@ -223,13 +234,18 @@
                             </div>
                         </div>
                         <br>
-                        <div
+                        @if ($srsRequest->status == 0)
+
+                                                    <div
                             style="border-left: 4px solid #007bff; background-color: #f1f7ff; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
                             <h6 style="font-weight: bold; color: #007bff; margin: 0;">Note:</h6>
                             <p style="margin: 4px 0 0;">Under the <strong>"Vehicles"</strong> tab on your right, <b
                                     style="color: green;">Check</b> if you want to renew the vehicle. <br><b
                                     style="color: red;">Uncheck</b> if you want to reject the vehicle.</p>
                         </div>
+                        @endif
+
+
                     </div>
                     <div class="col-md-6">
                         <div class="card">
@@ -330,8 +346,16 @@
                                                             </center>
                                                         </td>
                                                         <td>
-                                                            <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
-                                                                placeholder="Please provide a reason for rejection" disabled></textarea>
+                                                            {{-- <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                placeholder="Please provide a reason for rejection" disabled></textarea> --}}
+                                                                @if($vehicle['hoa_pres_status'] == 1 || !is_null($vehicle['hoa_pres_remarks']))
+                                                                    <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                        placeholder="Please provide a reason for rejection" disabled>{{ $vehicle['hoa_pres_remarks'] }}</textarea>
+                                                                @else
+                                                                    <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                        placeholder="Please provide a reason for rejection" disabled></textarea>
+                                                                @endif
+
                                                         </td>
                                                         <td>{{ $vehicle['plate_no'] }}</td>
                                                         <td>{{ $vehicle['key'] }}</td>

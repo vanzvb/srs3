@@ -687,19 +687,19 @@ class SrsRequestRenewalController extends Controller
             if ($srsRequest->hoa && $srsRequest->hoa->type == 0) {
 
                 if ($srsRequest->hoa->emailAdd1) {
-                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
+                    $url = URL::temporarySignedRoute('request.v3.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd1)]);
 
                     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd1, $url))->delay(now()->addSeconds(10));
                 }
 
                 if ($srsRequest->hoa->emailAdd2) {
-                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
+                    $url = URL::temporarySignedRoute('request.v3.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd2)]);
 
                     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd2, $url))->delay(now()->addSeconds(12));
                 }
 
                 if ($srsRequest->hoa->emailAdd3) {
-                    $url = URL::temporarySignedRoute('request.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
+                    $url = URL::temporarySignedRoute('request.v3.hoa.approval', now()->addDays(3), ['key' => $srn, 'ref' => Crypt::encrypt($srsRequest->hoa->emailAdd3)]);
 
                     dispatch(new SendHoaNotificationJob($srsRequest, $srsRequest->hoa->emailAdd3, $url))->delay(now()->addSeconds(14));
                 }

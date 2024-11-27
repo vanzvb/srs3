@@ -930,7 +930,7 @@ class SrsRequestController extends Controller
 
     public function hoaApproved(Request $request)
     {
-       
+       dd('here');
         // $urls = [
         //     'https://bffhai.znergee.com/sticker/request/hoa_approval',
         //     'https://bffhai2.znergee.com/sticker/request/hoa_approval'

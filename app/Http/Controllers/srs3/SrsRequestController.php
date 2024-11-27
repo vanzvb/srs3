@@ -124,7 +124,7 @@ class SrsRequestController extends Controller
 
         // Mail::to($srsRequest->email)->send(new RequestApproved($srsRequest, $url));
         dispatch(new \App\Jobs\SRS_3\SendApprovedNotificationJob($srsRequest, $srsRequest->email, $url));
-    }
+    }   
 
     public function list()
     {
@@ -1075,16 +1075,23 @@ class SrsRequestController extends Controller
 
     public function hoaApproved(Request $request)
     {
+        // Prod
+        // $urls = [
+        //     'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
+        //     'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
+        // ];
+
+        // Local
         $urls = [
-            'https://bffhai.znergee.com/sticker/request/hoa_approval',
-            'https://bffhai2.znergee.com/sticker/request/hoa_approval'
+            'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
+            ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
         ];
 
         $currentUrl = explode('?', url()->previous())[0];
         if (!in_array($currentUrl, $urls)) {
             abort(403);
         }
-
+        
         $parsedUrl = parse_url(url()->previous());
         parse_str($parsedUrl['query'], $prevUrlParam);
         $actionBy = '';
@@ -1167,11 +1174,17 @@ class SrsRequestController extends Controller
 
     public function destroy(Request $request, SrsRequest $srsRequest)
     {
-        $urls = [
-            'https://bffhai.znergee.com/sticker/request/hoa_approval',
-            'https://bffhai2.znergee.com/sticker/request/hoa_approval'
-        ];
+        // Prod
+        // $urls = [
+        //     'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
+        //     'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
+        // ];
 
+        // Local
+        $urls = [
+            'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
+            ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
+        ];
         $currentUrl = explode('?', url()->previous())[0];
         if (!in_array($currentUrl, $urls)) {
             abort(403);
@@ -1225,7 +1238,7 @@ class SrsRequestController extends Controller
         $srsRequest->delete();
 
 
-        dispatch(new \App\Jobs\SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason'], $hoaEmails));
+        dispatch(new \App\Jobs\SRS_3\SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason'], $hoaEmails));
 
 
         return response()->json(['status' => 1, 'msg' => 'Request Rejected!']);
@@ -1734,7 +1747,7 @@ class SrsRequestController extends Controller
             'expires' => 'required',
             'key' => 'required|string',
             'signature' => 'required|string',
-            'srn' => 'required|string|exists:srs_requests,request_id'
+            'srn' => 'required|string|exists:srs3_requests,request_id'
         ]);
 
         $srsRequest = SrsRequest::withTrashed()
@@ -1771,8 +1784,7 @@ class SrsRequestController extends Controller
             abort(404, '[CM404] Ticket is already approved');
         }
 
-
-        return view('srs.request.hoa_approval', compact('srsRequest'));
+        return view('srs3.request.hoa_approval', compact('srsRequest'));
     }
 
     public function storeRequirementFile($name, $reqId, $path)
@@ -1865,11 +1877,9 @@ class SrsRequestController extends Controller
         try {
             // $srsRequest = SrsRequest::findOrFail($data['req_id']);
             $srsRequest = SrsRequest::with(['vehicles' => function ($query) {
-                $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm');
+                $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm', 'hoa_pres_status');
             }])
                 ->findOrFail($data['req_id']);
-
-                // dd($srsRequest);
 
             $srsRequest->customer_id = $data['acc'];
             if ($srsRequest->save()) {
@@ -1884,6 +1894,11 @@ class SrsRequestController extends Controller
                 $vehicles = [];
 
                 foreach ($srsRequest->vehicles as $reqVehicle) {
+                    // Skip vehicles with hoa_pres_status equal to 1
+                    if ($reqVehicle->hoa_pres_status == 1) {
+                        continue;
+                    }   
+                
                     $crmVehicle = $account->vehicles->where('plate_no', $reqVehicle->plate_no)->sortBy('created_at')->first();
                     if ($crmVehicle) {
                         $vehicles[] = $crmVehicle->id;
@@ -1891,37 +1906,82 @@ class SrsRequestController extends Controller
                         $vehicles[] = $reqVehicle->id;
                         $reqVehicle->assoc_crm = 1;
                         $reqVehicle->save();
-
+                
                         // Check if vehicle_id already exists in crmxi3_vehicle_owners
                         $existingOwner = DB::table('crmxi3_vehicle_owners')
                             ->where('vehicle_id', $reqVehicle->id)
                             ->first();
-
+                
                         if (!$existingOwner) {
+                            // Get the original vehicle owner based on plate_no
+                            $originalVehicle = DB::table('crmxi3_vehicles')
+                                ->where('account_id', $srsRequest->account_id)
+                                ->where('assoc_crm', 1)
+                                ->where(DB::raw("REPLACE(plate_no, ' ', '')"), '=', str_replace(' ', '', $reqVehicle->plate_no))
+                                ->first();
+                            
+                            if ($originalVehicle) {
 
-                            // Prepare data for insertion
-                            $ownerData = [
-                                'vehicle_id' => $reqVehicle->id,
-                                'firstname' => $srsRequest->first_name,
-                                'middlename' => $srsRequest->middle_name,
-                                'lastname' => $srsRequest->last_name,
-                                'email' => $srsRequest->email,
-                                'main_contact' => $srsRequest->contact_no,
-                                'secondary_contact' => $srsRequest->secondary_contact,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ];
-
+                                $originalVehicleOwnerInfo = DB::table('crmxi3_vehicle_owners')
+                                    ->where('vehicle_id', $originalVehicle->id)
+                                    ->first();
+                
+                                if ($originalVehicleOwnerInfo) {
+                                    // Use original vehicle owner info
+                                    $ownerData = [
+                                        'vehicle_id' => $reqVehicle->id,
+                                        'firstname' => $originalVehicleOwnerInfo->firstname,
+                                        'middlename' => $originalVehicleOwnerInfo->middlename,
+                                        'lastname' => $originalVehicleOwnerInfo->lastname,
+                                        'email' => $originalVehicleOwnerInfo->email,
+                                        'main_contact' => $originalVehicleOwnerInfo->main_contact,
+                                        'secondary_contact' => $originalVehicleOwnerInfo->secondary_contact,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ];
+                                } else {
+                                    // Use srsRequest info if no original owner found
+                                    $ownerData = [
+                                        'vehicle_id' => $reqVehicle->id,
+                                        'firstname' => $srsRequest->first_name,
+                                        'middlename' => $srsRequest->middle_name,
+                                        'lastname' => $srsRequest->last_name,
+                                        'email' => $srsRequest->email,
+                                        'main_contact' => $srsRequest->contact_no,
+                                        'secondary_contact' => $srsRequest->secondary_contact,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ];
+                                }
+                            } else {
+                                // Use srsRequest info if no original vehicle found
+                                $ownerData = [
+                                    'vehicle_id' => $reqVehicle->id,
+                                    'firstname' => $srsRequest->first_name,
+                                    'middlename' => $srsRequest->middle_name,
+                                    'lastname' => $srsRequest->last_name,
+                                    'email' => $srsRequest->email,
+                                    'main_contact' => $srsRequest->contact_no,
+                                    'secondary_contact' => $srsRequest->secondary_contact,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
+                            }
+                
                             // Create crmxi3_vehicle_owners record
                             DB::table('crmxi3_vehicle_owners')->insert($ownerData);
                         }
-
                     }
                 }
-    
+
+                // DB::rollBack();
+                // dd($vehicles);
+
                 $srsRequest->crmVehicles()->sync($vehicles);
     
-                $srsRequest->vehicles()->update([
+                $srsRequest->vehicles()
+                ->where('hoa_pres_status', '!=', 1)
+                ->update([
                     'account_id' => $account->account_id,
                     'crm_id' => $account->customer_id
                 ]);
@@ -2059,8 +2119,10 @@ class SrsRequestController extends Controller
                 $srsRequest->customer()->associate($account);
                 // $srsRequest->vehicles()->update(['address_id' => $address->id]);
                 // $srsRequest->vehicles()->update(['account_id' => $account->account_id, 'assoc_crm' => 1]);
-                // Update vehicles with account_id and address_id
-                $srsRequest->vehicles()->update([
+                // Update vehicles with account_id and address_id (excludes rejected by hoa vehic)
+                $srsRequest->vehicles()
+                ->where('hoa_pres_status', '!=', 1)
+                ->update([
                     'account_id' => $account->account_id,
                     'address_id' => $address->id,
                     'assoc_crm' => 1

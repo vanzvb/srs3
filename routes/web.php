@@ -122,11 +122,19 @@ Route::prefix('v3')->group(function () {
 
     // For Inbox (link Account)
     // Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
+    // Create new Account
     Route::post('/srs/account', [Srs3RequestController::class, 'storeCrm'])->name('crm.v3.store');
+
+    // Search Account
     Route::post('/srs/account/search', [Srs3RequestController::class, 'searchCRM'])->name('srs.v3.search_account');
 
     // For Inbox (link account button)
     Route::post('/srs/request/cid', [Srs3RequestController::class, 'updateCid'])->name('request.v3.edit_accID');
+
+    // Hoa Approval (Email Link)
+    Route::get('sticker/request/hoa_approval', [Srs3RequestController::class, 'hoaApproval'])->name('request.v3.hoa.approval');
+    Route::post('sticker/request/hoa_approval', [Srs3RequestController::class, 'hoaApproved'])->name('requests.v3.hoa.approved');
+    Route::delete('srs/request/{srsRequest}', [Srs3RequestController::class, 'destroy'])->name('request.v3.destroy');
 
 });
 

@@ -61,12 +61,12 @@ class SrsRequest extends Model
 
     public function category()
     {
-        return $this->belongsTo(SPCCategory::class);
+        return $this->belongsTo(CRMXICategory::class);
     }
 
     public function subCategory()
     {
-        return $this->belongsTo(SPCSubCat::class);
+        return $this->belongsTo(CRMXISubcat::class);
     }
 
     public function appointment()
@@ -158,7 +158,14 @@ class SrsRequest extends Model
      */
     public function hoa3()
     {
-        return $this->belongsTo(CRMXIHoa::class, 'srs3_hoa_id');
+        
+
+        if($this->srs3_hoa_id == null) {
+            return $this->belongsTo(CRMXIHoa::class, 'hoa_id');
+        } else {
+            // This is only for migrated requests (so if this is null its not from migration)
+            return $this->belongsTo(CRMXIHoa::class, 'srs3_hoa_id');
+        }
     }
 
     /**
@@ -178,7 +185,13 @@ class SrsRequest extends Model
      */
     public function subCategory3()
     {
-        return $this->belongsTo(CRMXISubcat::class, 'srs3_sub_category_id');
+        if($this->srs3_sub_category_id == null) {
+            return $this->belongsTo(CRMXISubcat::class, 'sub_category_id');
+        } else {
+            // This is only for migrated requests (so if this is null its not from migration)
+            return $this->belongsTo(CRMXISubcat::class, 'srs3_sub_category_id');
+        }
+        
     }
 
     /**
