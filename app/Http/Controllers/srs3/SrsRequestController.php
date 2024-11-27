@@ -1076,16 +1076,16 @@ class SrsRequestController extends Controller
     public function hoaApproved(Request $request)
     {
         // Prod
-        // $urls = [
-        //     'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
-        //     'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
-        // ];
+        $urls = [
+            'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
+            'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
+        ];
 
         // Local
-        $urls = [
-            'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
-            ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
-        ];
+        // $urls = [
+        //     'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
+        //     ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
+        // ];
 
         $currentUrl = explode('?', url()->previous())[0];
         if (!in_array($currentUrl, $urls)) {
@@ -1120,6 +1120,10 @@ class SrsRequestController extends Controller
         $srsRequest->save();
 
         $srsRequest->statuses()->attach(2, ['action_by' => $actionBy]);
+
+        // Update hoa_pres_status to 0 for all vehicles associated with this request
+        CRXMIVehicle::where('srs_request_id', $srsRequest->request_id)
+        ->update(['hoa_pres_status' => 0]);
 
         return response()->json(['status' => 1, 'msg' => 'Request Approved!']);
     }
@@ -1175,16 +1179,16 @@ class SrsRequestController extends Controller
     public function destroy(Request $request, SrsRequest $srsRequest)
     {
         // Prod
-        // $urls = [
-        //     'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
-        //     'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
-        // ];
+        $urls = [
+            'https://bffhai.znergee.com/v3/sticker/request/hoa_approval',
+            'https://bffhai2.znergee.com/v3/sticker/request/hoa_approval'
+        ];
 
         // Local
-        $urls = [
-            'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
-            ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
-        ];
+        // $urls = [
+        //     'http://127.0.0.1:8000/v3/sticker/request/hoa_approval',
+        //     ' http://127.0.0.1:8000/v3/sticker/request/hoa_approval'
+        // ];
         $currentUrl = explode('?', url()->previous())[0];
         if (!in_array($currentUrl, $urls)) {
             abort(403);
@@ -1240,6 +1244,9 @@ class SrsRequestController extends Controller
 
         dispatch(new \App\Jobs\SRS_3\SendRejectedNotificationJob($srsRequest, $srsRequest->email, $data['reason'], $hoaEmails));
 
+        // Update hoa_pres_status to 0 for all vehicles associated with this request
+        CRXMIVehicle::where('srs_request_id', $srsRequest->request_id)
+        ->update(['hoa_pres_status' => 1]);
 
         return response()->json(['status' => 1, 'msg' => 'Request Rejected!']);
     }
