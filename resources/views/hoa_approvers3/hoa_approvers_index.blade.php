@@ -25,6 +25,7 @@
                @else
                   <h5 class="card-title text-danger">You are not assigned to any HOA. Please contact the administrator.</h5>
                @endif
+               {{-- srs users role_id --}}
                @if(auth()->user()->role_id != 7)
                <h6 class="mt-3">Filters:</h6>
                <div class="row gx-2">
