@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Mail\AppointmentSet;
-use App\Models\SrsRequest;
+use App\Models\SRS3_Model\SrsRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;

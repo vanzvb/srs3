@@ -19,14 +19,14 @@
             </div>
             <hr>
             
-            @can('create', \App\Models\SPCSubCat::class)
+            {{-- @can('create', \App\Models\SPCSubCat::class) --}}
             <div class="d-flex justify-content-end">
                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#add_subcat_modal">
                   <i class="fa-solid fa-plus"></i>
                   Add Sub Category
                </button>
             </div>
-            @endcan
+            {{-- @endcan --}}
             
             <div class="mt-4 table-responsive">
                <table id="sub_cat_table" class="table table-bordered border w-100">

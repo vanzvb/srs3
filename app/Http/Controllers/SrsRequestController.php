@@ -1172,7 +1172,7 @@ class SrsRequestController extends Controller
 
     public function showFile($id, $date, $name, $hoa, $category)
     {
-        $this->authorize('access', SrsRequest::class);
+        // $this->authorize('access', SrsRequest::class);
         $dateTime = Carbon::parse($date);
 
         $path = storage_path('app/bffhai/' . $dateTime->format('Y') . '/' . $hoa . '/' . $this->getCategoryName($category) . '/' . $dateTime->format('m') . '/' . $name . '/' . $id);

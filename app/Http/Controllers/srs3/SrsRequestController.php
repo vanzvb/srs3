@@ -431,13 +431,15 @@ class SrsRequestController extends Controller
         $count = 0;
         $vehicles = [];
 
+       
+
         foreach ($data['plate_no'] as $item1) {
             // $vehicle = new SrsVehicle();
             // $vehicle = new CrmVehicle();
             $vehicle = new CRXMIVehicle();
 
             // $vehicle->address_id = 
-
+            
             $vehicle->srs_request_id = $srsRequest->request_id;
             $vehicle->req_type = $data['req_type'][$count];
 
@@ -1693,15 +1695,14 @@ class SrsRequestController extends Controller
             'sub_category_1' => 'nullable|int'
         ]);
 
-        $requirements = SRS3Requirement::with(['subCategories' => function ($query) {
-            $query->select('spc3_subcat.id');
+        $requirements = SrsRequirement::with(['subCategories' => function ($query) {
+            $query->select('spc_subcat.id');
         }])
             ->whereHas('subCategories', function ($query) use ($data) {
-                $query->where('spc3_subcat.id', $data['sub_category_1']);
+                $query->where('spc_subcat.id', $data['sub_category_1']);
             })
             ->select('id', 'name', 'description', 'required')
             ->get();
-
 
         return $requirements;
     }
@@ -2027,7 +2028,7 @@ class SrsRequestController extends Controller
         }])
             ->withCount('vehicles')
             ->findOrFail($data['req_id']);
-        // dd($srsRequest);
+            
         // $account = CrmMain::firstOrNew([
         //     'category_id' => $srsRequest->category_id,
         //     'sub_category_id' => $srsRequest->sub_category_id,
@@ -2056,7 +2057,6 @@ class SrsRequestController extends Controller
             ->where('main_contact', $srsRequest->contact_no)
             ->select('created_at', 'created_by')
             ->first();
-
         
         if ($crm) {
 

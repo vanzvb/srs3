@@ -47,6 +47,7 @@
                   <thead>
                      <tr>
                         <th>SRS #</th>
+                        {{-- <th>Transaction Type</th> --}}
                         <th>Requestor</th>
                         <th>Request Date</th>
                         <th>Status</th>
@@ -69,7 +70,7 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="{{ asset('js/11hpi3.js') }}"></script>
-
+{{-- <script src="{{ asset('js/11hpi3_v3.js') }}"></script> --}}
 @if (session('success'))
    <script>
       Swal.fire({

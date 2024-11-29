@@ -3,12 +3,21 @@
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CRMXI3_Controller\CRMXIController;
+use App\Http\Controllers\CRMXI3_Controller\CRMXIRedTagController;
+use App\Http\Controllers\CRMXI3_Controller\CRXMIVehicleController;
+use App\Http\Controllers\CRMXI3_Controller\SPCV3Controller;
+use App\Http\Controllers\CRMXI3_Controller\SRS3HoaGroupController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\srs3\SrsAppointmentController as Srs3AppointmentController;
 use App\Http\Controllers\srs3\SrsRequestController as Srs3RequestController;
 use App\Http\Controllers\srs3\SrsRequestRenewalController as Srs3SrsRequestRenewalController;
 use App\Http\Controllers\srs3\StickerController as Srs3StickerController;
 use App\Http\Controllers\srs3\SubCategoryController as Srs3SubCategoryController;
 use App\Http\Controllers\SRS_3\HoaApproverController as HoaApprover3Controller;
+use App\Http\Controllers\srs3\SrsApptTimeSlotController as Srs3ApptTimeSlotController;
+use App\Http\Controllers\SrsAppointmentController;
+use App\Http\Controllers\SrsApptTimeSlotController;
 use App\Http\Controllers\SrsRequestController;
 use App\Http\Controllers\SrsRequestRenewal3Controller;
 use App\Http\Controllers\SrsRequestRenewalController;
@@ -17,11 +26,11 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TransmittalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CRMXI3_Controller\CRMXIController;
-use App\Http\Controllers\CRMXI3_Controller\CRXMIVehicleController;
-use App\Http\Controllers\CRMXI3_Controller\SPCV3Controller;
-use App\Http\Controllers\CRMXI3_Controller\SRS3HoaGroupController;
-use App\Http\Controllers\CRMXI3_Controller\CRMXIRedTagController;
+use App\Http\Controllers\SRS_3\HoaApproverController;
+
+
+
+
 
 
 
@@ -72,7 +81,7 @@ Route::prefix('v3')->group(function () {
     // For Generating an Email Link sent to renewal requestor (index for renewal link)
     Route::get('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'userRenewal'])->name('request.v3.user-renewal');
 
-    // when "Submit Renewal" is clicked
+    // when "Submit Renewal" is clicked (this is the email form)
     Route::post('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'processRenewal'])->name('request.v3.user-renewal.process');
 
     // index for new sticker application
@@ -136,7 +145,21 @@ Route::prefix('v3')->group(function () {
     Route::post('sticker/request/hoa_approval', [Srs3RequestController::class, 'hoaApproved'])->name('requests.v3.hoa.approved');
     Route::delete('srs/request/{srsRequest}', [Srs3RequestController::class, 'destroy'])->name('request.v3.destroy');
 
+    // Appointment
+
+    // When approved via Hoa Pres Email (will already send an email appointment to the requestor)
+    // Route::get('/sticker_appointment', [Srs3AppointmentController::class, 'create'])->name('request.v3.appointment');
+
+    // When Submit is hit in the Sticker Appointment Form
+    // Route::post('/sticker_appointment', [Srs3AppointmentController::class, 'store'])->name('appointment.v3.store');
+
+    // For generating available time slots in the appointment form (srs3.appointment.create)
+    // Route::get('/sticker/appt/appt_timeslots', [Srs3ApptTimeSlotController::class, 'getAvailable'])->name('getAvailableTimeSlotsV3');
+
 });
+
+ Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [SrsRequestController::class, 'showFile']);
+
 
 Route::get('/sticker/request/status', function () {
     return view('srs.request.status');
@@ -340,7 +363,7 @@ Route::get('/srs/request/{srsRequest}', [SrsRequestController::class, 'show']);
 
 Route::post('/srs/request/payment', [SrsRequestController::class, 'closeRequest'])->name('request.close');
 
-// Route::get('/appointments', [SrsAppointmentController::class, 'index'])->name('appointments');
+
 // Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
 // Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
 
@@ -350,16 +373,16 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
     Route::post('/admin/logout', [SrsUserController::class, 'logout'])->name('logout');
 
     // Approvers
-    // Route::prefix('/hoa-approvers')->group(function() {
+    Route::prefix('/hoa-approvers')->group(function() {
     //     Route::get('/', [HoaApproverController::class, 'index'])->name('hoa-approvers.index');
     //     Route::get('/list', [HoaApproverController::class, 'list'])->name('hoa-approvers.list');
     //     Route::get('/{request_id}/{type?}/{year?}', [HoaApproverController::class, 'show'])->name('hoa-approvers.show');
-        // Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
+        Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
 
     //     Route::post('sticker/request/hoa_approval', [HoaApproverController::class, 'hoaApproved'])->name('hoa-approvers.approval');
 
     //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
-    // });
+    });
 
 
 
@@ -397,9 +420,23 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
 
     Route::get('/invoice_report_filter', [InvoiceController::class, 'invoice_report_export']);
 
+ 
+    // When approved via Hoa Pres Email (will already send an email appointment to the requestor)
     Route::get('/sticker_appointment', [SrsAppointmentController::class, 'create'])->name('request.appointment');
 
+     // For generating available time slots in the appointment form (srs3.appointment.create)
     Route::post('/sticker_appointment', [SrsAppointmentController::class, 'store'])->name('appointment.store');
+
+
+    Route::get('/srs/appointments', [SrsAppointmentController::class, 'list']);
+
+    Route::get('/appointments', [SrsAppointmentController::class, 'index'])->name('appointments');
+
+    // Route::get('/sticker_appointment', [SrsAppointmentController::class, 'create'])->name('request.appointment');
+
+    // Route::post('/sticker_appointment', [SrsAppointmentController::class, 'store'])->name('appointment.store');
+
+    Route::get('/sticker/appt/appt_timeslots', [SrsApptTimeSlotController::class, 'getAvailable'])->name('getAvailableTimeSlots');
 
     // Route::post('/sticker_export_excel', [Srs3StickerController::class, 'sticker_export_excel']);
 

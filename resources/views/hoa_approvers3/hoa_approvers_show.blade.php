@@ -172,17 +172,43 @@
                                 </p>
                             </div>
                         </div> --}}
+                        @if ($srsRequest->account_id)
+                            <div class="row" style="text-align: left;">
+                                <div class="col-md-3 col-sm-4 col-xs-5">
+                                    <label>Application Type :</label>
+                                </div>
+                                <div class="col-md-9 col-sm-8 col-xs-7">
+                                    <p>
+                                        <span id="application_type">
+                                            Renewal</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row" style="text-align: left;">
+                                <div class="col-md-3 col-sm-4 col-xs-5">
+                                    <label>Account ID :</label>
+                                </div>
+                                <div class="col-md-9 col-sm-8 col-xs-7">
+                                    <p>
+                                        <span id="account_id">
+                                            {{ $srsRequest->account_id ?? 'N/A' }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        @else
                         <div class="row" style="text-align: left;">
                             <div class="col-md-3 col-sm-4 col-xs-5">
-                                <label>Account ID :</label>
+                                <label>Application Type :</label>
                             </div>
                             <div class="col-md-9 col-sm-8 col-xs-7">
                                 <p>
-                                    <span id="account_id">
-                                        {{ $srsRequest->account_id ?? 'N/A' }}</span>
+                                    <span id="application_type">
+                                        New</span>
                                 </p>
                             </div>
                         </div>
+                        @endif
+
 
                         <div class="row mt-2" style="text-align: left;">
                             <div class="col-md-3 col-sm-4 col-xs-5">
@@ -322,7 +348,7 @@
                                         <table class="table table-sm table-bordered ">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 5%;">Approve ?</th>
+                                                    <th style="width: 5%;">Endorsed ?</th>
                                                     <th style="width: 20%;">Rejection Remarks</th>
                                                     <th>Plate No.</th>
                                                     <th style="width: 5%;">#</th>
