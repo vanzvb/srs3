@@ -271,9 +271,9 @@ class SrsRequestController extends Controller
                 ->get();
 
             // Use this to exclude hoa test
-            // $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0 AND id != 95');
+            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE (type = 0 OR type = 1 OR Type = 2) AND id != 95');
 
-            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0');
+            // $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0');
         }
 
         // $categories = DB::select('SELECT * FROM crmxi3_categories');

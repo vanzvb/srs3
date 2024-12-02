@@ -150,7 +150,7 @@
                                         <!-- Company Fields (hidden by default) -->
                                         <div class="px-2 px-md-4" id="companyFields" style="display: none;">
                                             <div class="row mt-3">
-                                                <div class="col-md-6 col-12">
+                                                {{-- <div class="col-md-6 col-12">
                                                     <div class="form-floating">
                                                         <input type="text" class="form-control" id="company_name"
                                                             name="company_name" placeholder="Company Name"
@@ -158,7 +158,7 @@
                                                         <label for="company_name" class="form-label"
                                                             style="color: grey;">Company Name</label>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                                 {{-- <div class="col-md-6 col-12">
                                                                             <div class="form-floating">
                                                                                 <input type="text" class="form-control"
@@ -852,25 +852,25 @@
                 companyFields.style.display = "none";
 
                 // Add required attribute to individual fields
-                document.getElementById("first_name").setAttribute("required", "required");
-                document.getElementById("last_name").setAttribute("required", "required");
-                document.getElementById("middle_name").setAttribute("required", "required");
+                // document.getElementById("first_name").setAttribute("required", "required");
+                // document.getElementById("last_name").setAttribute("required", "required");
+                // document.getElementById("middle_name").setAttribute("required", "required");
 
                 // Remove required attribute from company fields
-                document.getElementById("company_name").removeAttribute("required");
+                // document.getElementById("company_name").removeAttribute("required");
                 // document.getElementById("company_representative").removeAttribute("required");
             } else if (accountType === "1") {
                 // individualFields.style.display = "none";
                 companyFields.style.display = "block";
 
                 // Add required attribute to company fields
-                document.getElementById("company_name").setAttribute("required", "required");
+                // document.getElementById("company_name").setAttribute("required", "required");
                 // document.getElementById("company_representative").setAttribute("required", "required");
 
                 // Remove required attribute from individual fields
-                document.getElementById("first_name").removeAttribute("required");
-                document.getElementById("last_name").removeAttribute("required");
-                document.getElementById("middle_name").removeAttribute("required");
+                // document.getElementById("first_name").removeAttribute("required");
+                // document.getElementById("last_name").removeAttribute("required");
+                // document.getElementById("middle_name").removeAttribute("required");
             }
         }
 
