@@ -358,7 +358,7 @@
                                                     <th>Brand</th>
                                                     <th>Series</th>
                                                     <th>Color</th>
-                                                    <th>OR/CR</th>
+                                                    <th>OR/CR/VOT</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -367,7 +367,7 @@
                                                         <td>
                                                             <center>
                                                                 <input type="checkbox" name="selectedVehicles[]"
-                                                                    value="{{ $vehicle['vehicle_id'] }}" checked
+                                                                    value="{{ $vehicle['id'] }}" checked
                                                                     class="approve-checkbox" checked>
                                                             </center>
                                                         </td>
@@ -375,15 +375,15 @@
                                                             {{-- <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
                                                                 placeholder="Please provide a reason for rejection" disabled></textarea> --}}
                                                                 @if($vehicle['hoa_pres_status'] == 1 || !is_null($vehicle['hoa_pres_remarks']))
-                                                                    <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                    <textarea name="rejection_remarks[{{ $vehicle['id'] }}]" class="form-control rejection-remarks comment-box"
                                                                         placeholder="Please provide a reason for rejection" disabled>{{ $vehicle['hoa_pres_remarks'] }}</textarea>
                                                                 @else
-                                                                    <textarea name="rejection_remarks[{{ $vehicle['vehicle_id'] }}]" class="form-control rejection-remarks comment-box"
+                                                                    <textarea name="rejection_remarks[{{ $vehicle['id'] }}]" class="form-control rejection-remarks comment-box"
                                                                         placeholder="Please provide a reason for rejection" disabled></textarea>
                                                                 @endif
 
                                                         </td>
-                                                        <td>{{ $vehicle['plate_no'] }}</td>
+                                                        <td>{!! $vehicle['plate_no'] !!}</td>
                                                         <td>{{ $vehicle['key'] }}</td>
                                                         <td>{{ $vehicle['req_type'] }}</td>
                                                         <td>{{ $vehicle['old_sticker_no'] }}</td>
@@ -391,7 +391,7 @@
                                                         <td>{{ $vehicle['brand'] }}</td>
                                                         <td>{{ $vehicle['series'] }}</td>
                                                         <td>{{ $vehicle['color'] }}</td>
-                                                        <td>{!! $vehicle['or'] !!} <br> {!! $vehicle['cr'] !!}</td>
+                                                        <td>{!! $vehicle['or'] !!} <br> {!! $vehicle['cr'] !!} <br> {!! $vehicle['vot'] !!}</td>
                                                     </tr>
                                                 @empty
                                                     <tr>
@@ -427,7 +427,7 @@
                         {{-- <button class="btn btn-success" id="approve_btn">APPROVE</button> --}}
                         {{-- <button class="btn btn-danger" id="reject_btn" data-bs-toggle="modal"
                             data-bs-target="#rejectRequestModal">REJECT</button> --}}
-                        <button type="submit" class="btn btn-primary" id="approve_btn">SUBMIT</button>
+                        <button type="submit" class="btn btn-primary" id="approve_btn">SUBMIT..</button>
                     </div>
                 @endif
             </div>

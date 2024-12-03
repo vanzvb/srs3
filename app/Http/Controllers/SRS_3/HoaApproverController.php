@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SRS_3;
 
 use App\Exports\TransmittalExport;
 use App\Http\Controllers\Controller;
-use App\Jobs\SendRejectedNotificationJob as JobsSendRejectedNotificationJob;
+use App\Jobs\SRS_3\SendRejectedNotificationJob as JobsSendRejectedNotificationJob;
 use App\Jobs\SRS_3\SendApprovedNotificationJob;
 use App\Jobs\SRS_3\SendRejectedNotificationJob;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
@@ -59,7 +59,7 @@ class HoaApproverController extends Controller
 
         $srsQuery = SrsRequest::query();
 
-        $requests = $srsQuery->with('stats')
+        $requests = $srsQuery->with('stats', 'vehicles3')
             ->when($request->type == 0, function ($query) {
                 return $query->withTrashed();
             })
@@ -85,7 +85,7 @@ class HoaApproverController extends Controller
             ->when($request->type == 4, function ($query) {
                 return $query->where('status', 4);
             })
-            ->select('request_id', 'first_name', 'last_name', 'status', 'created_at')
+            ->select('request_id', 'first_name', 'last_name', 'status', 'created_at', 'account_id')
             ->whereIn('hoa_id', auth()->user()->hoa->pluck('id')->toArray())
             // ->where('hoa_id', auth()->user()->hoa_id ?? 0)
             ->where('created_at', '>=', $december);
@@ -103,6 +103,29 @@ class HoaApproverController extends Controller
             })
             ->addColumn('request_id', function ($request) {
                 return '<a data-id="' . $request->request_id . '" class="view_request" href="/hoa-approvers3/' . $request->request_id . '">' . $request->request_id . '</a>';
+            })
+            ->filterColumn('type', function ($query, $keyword) {
+                // Apply the filter to only get the requests based on the filtered 'New' or 'Renewal' state
+                if ($keyword === 'New' || $keyword === 'Renewal') {
+                    $reqType = $keyword === 'Renewal' ? 1 : 0;
+
+                    // Filter the request_ids based on vehicles3 and req_type
+                    $query->whereHas('vehicles3', function ($q) use ($reqType) {
+                        $q->where('req_type', $reqType);
+                    });
+                }
+            })
+            ->addColumn('type', function ($request) {
+                // Check if any vehicle in vehicles3 has req_type = 1 (Renewal)
+                $hasRenewal = collect($request->vehicles3)->contains('req_type', 1);
+
+                // If there's at least one vehicle with req_type = 1, it's "Renewal"
+                // Otherwise, it's "New"
+                if ($hasRenewal) {
+                    return 'Renewal';
+                } else {
+                    return 'New';
+                }
             })
             ->addColumn('requestor', function ($request) {
                 return $request->first_name . ' ' . $request->last_name;
@@ -237,7 +260,9 @@ class HoaApproverController extends Controller
                     'req1',
                     'type',
                     'hoa_pres_status',
-                    'hoa_pres_remarks'
+                    'hoa_pres_remarks',
+                    'vot',
+                    'vot_path'
                 );
             },
             'statuses',
@@ -298,6 +323,7 @@ class HoaApproverController extends Controller
                 'color' => $vehicle->color . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : ''),
                 'or' => $vehicle->or_path ? '<a data-value="/hoa-approvers/srs/uploads/' . $vehicle->or_path . '" data-type="' . (isset($vehicle->req1) && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>' : '',
                 'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : '',
+                'vot' => $vehicle->vot_path ? '<a data-value="/hoa-approvers/srs/uploads/' . $vehicle->vot_path . '" data-type="' . (isset($vehicle->vot) && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">VOT</a>' : '',
                 'hoa_pres_status' => $vehicle->hoa_pres_status,
                 'hoa_pres_remarks' => $vehicle->hoa_pres_remarks
             ];
@@ -410,7 +436,7 @@ class HoaApproverController extends Controller
     public function showFile($id, $date, $name, $hoa, $category)
     {
         // $this->authorize('accessHoaApproval', SrsRequest::class);
-
+        // Pending Patch VB
         $dateTime = Carbon::parse($date);
 
         $path = storage_path('app/bffhai/' . $dateTime->format('Y') . '/' . $hoa . '/' . $this->getCategoryName($category) . '/' . $dateTime->format('m') . '/' . $name . '/' . $id);
@@ -569,6 +595,8 @@ class HoaApproverController extends Controller
         
                 $adminApproved = $statuses->firstWhere('name', 'Approval - Admin')->requests->isNotEmpty();
                 $status = $srsRequest->trashed() ? 'Rejected' : $this->getStatus($srsRequest->status, $adminApproved);
+
+                dispatch(new JobsSendRejectedNotificationJob($srsRequest, $srsRequest->email, 'All of your vehicles for new/renewal request was rejected!', $hoaEmails));
         
                 return response()->json([
                     'status' => 1,

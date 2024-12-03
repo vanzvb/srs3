@@ -268,7 +268,7 @@
 					<p><span id="details_service"></span></p>
 				</div>
 			</div>
-			<div class="row" style="text-align: left;">
+			<div class="row d-none" style="text-align: left;">
 				<div class="col-md-3 col-sm-4 col-xs-5">
 					<label>New Service :</label>
 				</div>
@@ -284,7 +284,7 @@
 					<p><span id="details_hoa"></span></p>
 				</div>
 			</div>
-			<div class="row" style="text-align: left;">
+			<div class="row d-none" style="text-align: left;">
 				<div class="col-md-3 col-sm-4 col-xs-5">
 					<label>NEW HOA :</label>
 				</div>
@@ -342,6 +342,9 @@
 					<li id="lisdfiles" class="nav-item">
 						<a class="nav-link" data-bs-toggle="tab" data-bs-target="#tabsfiles">Files</a>
 					</li>
+					<li id="lisreject" class="nav-item">
+						<a class="nav-link" data-bs-toggle="tab" data-bs-target="#tabsRejected">Rejected Vehicles</a>
+					</li>
 					{{-- <li id="lisdinvoice" class="nav-item">
 						<a class="nav-link" data-bs-toggle="tab" data-bs-target="#tabsinvoice">Invoice</a>
 					</li> --}}
@@ -384,7 +387,7 @@
 													<th style="text-align: center;background: #b1b7b9;color: white;">SERIES</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">YEAR/MODEL</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">COLOR</th>
-													<th style="text-align: center;background: #b1b7b9;color: white;">OR/CR</th>
+													<th style="text-align: center;background: #b1b7b9;color: white;">OR/CR/VOT</th>
 												</tr> 
 											</thead> 
 											<tbody id="vehicleslog_tbody" style="font-size: 12px;">
@@ -398,6 +401,37 @@
 					<div class="tab-pane" id="tabsfiles">
 						<div class="container">
 
+						</div>
+					</div>
+					<div class="tab-pane" id="tabsRejected">
+						<div class="container">
+							<div class="container">
+								<div class="row">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<div class="col-md-12 col-sm-12 col-xs-12 table-responsive" style="max-height: 300px;">
+											<table class="table table-striped table-bordered dt-responsive" cellspacing="0" width="100%" id="tbl_rejected_veh" style="overflow-y: scroll;">
+												<thead style=""> 
+													<tr style="font-size: 13px;">
+														<th style="text-align: center;background: #b1b7b9;color: white;">#</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">REQUEST TYPE</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">REJECTION REMARKS</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">STICKER NO.</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">TYPE</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">PLATE NO.</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">BRAND</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">SERIES</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">YEAR/MODEL</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">COLOR</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">OR/CR/VOT</th>
+													</tr> 
+												</thead> 
+												<tbody id="tbl_rejected_veh" style="font-size: 12px;">
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 					{{-- <div class="tab-pane" id="tabsinvoice">
@@ -731,6 +765,11 @@ $(document).ready(function () {
 					files += value;
 					files += '<br>';
 				});
+				var rejected_vehs = '';
+				$.each(data.srs.rejected_veh, function (index, value) {
+					rejected_vehs += value;
+				});
+
 				if (data.srs.adminApproved) {
 					$('#request_action').html('');
 				} else {
@@ -750,6 +789,7 @@ $(document).ready(function () {
 				// `);
 				// $('#tabsvehicles .container').html(vehicles);
 				$('#tabsvehicles table tbody').html(vehicles);
+				$('#tabsRejected table tbody').html(rejected_vehs);
 				$('#tabsfiles .container').html(files);
 				$('#invoice_action').html(data.srs.paymentAction);
 				$('#system_notes').val(data.srs.systemNotes);
@@ -1290,7 +1330,7 @@ $(document).ready(function () {
 					</strong>
 				</div>`);
 		$.ajax({
-			{{-- url: '{{ route("appointment.reset") }}', --}}
+			url: '{{ route("appointment.reset") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',
@@ -1363,7 +1403,7 @@ $(document).ready(function () {
 					</strong>
 				</div>`);
 		$.ajax({
-			{{-- url: '{{ route("appointment.resend") }}', --}}
+			url: '{{ route("appointment.resend") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',

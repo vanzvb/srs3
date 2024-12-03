@@ -129,6 +129,8 @@ Route::prefix('v3')->group(function () {
     })->name('request.v3.status');
 
 
+    Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
+        Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
     // For Inbox (link Account)
     // Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
     // Create new Account

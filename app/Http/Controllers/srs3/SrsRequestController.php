@@ -733,6 +733,11 @@ class SrsRequestController extends Controller
                         <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                         data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                         href="#" class="modal_img">CR</a>
+                        <br>
+                        <a data-value="' . ($vehicle->vot_path ? '/srs/uploads/' . $vehicle->vot_path : '#') . '" 
+                        data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
+                        href="' . ($vehicle->vot_path ? '#' : 'javascript:void(0);') . '" 
+                        class="modal_img">VOT</a>
                     </td>
               </tr>';
           }
@@ -760,7 +765,12 @@ class SrsRequestController extends Controller
                             <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                             data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                             href="#" class="modal_img">CR</a>
-                        </td>
+                            <br>
+                            <a data-value="' . ($vehicle->vot_path ? '/srs/uploads/' . $vehicle->vot_path : '#') . '" 
+                            data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
+                            href="' . ($vehicle->vot_path ? '#' : 'javascript:void(0);') . '" 
+                            class="modal_img">VOT</a>
+                            </td>
                   </tr>';
             }
         }

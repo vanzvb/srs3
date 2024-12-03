@@ -25,7 +25,6 @@
                @else
                   <h5 class="card-title text-danger">You are not assigned to any HOA. Please contact the administrator.</h5>
                @endif
-               {{-- srs users role_id --}}
                @if(auth()->user()->role_id != 7)
                <h6 class="mt-3">Filters:</h6>
                <div class="row gx-2">
@@ -40,6 +39,16 @@
                   </div>
                </div>
                @endif
+
+               <div class="row gx-2">
+                  <div class="col-3">
+                     <select class="form-select mt-3" aria-label="Default select example" id="srs_filter_inbox">
+                        <option value="" selected>All</option>
+                        <option value="New">New</option>
+                        <option value="Renewal">Renewal</option>
+                     </select>
+                  </div>
+               </div>
             </div>
 
             <div class="table-responsive">
@@ -47,7 +56,7 @@
                   <thead>
                      <tr>
                         <th>SRS #</th>
-                        {{-- <th>Transaction Type</th> --}}
+                        <th>Application Type</th>
                         <th>Requestor</th>
                         <th>Request Date</th>
                         <th>Status</th>
@@ -70,7 +79,23 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="{{ asset('js/11hpi3.js') }}"></script>
-{{-- <script src="{{ asset('js/11hpi3_v3.js') }}"></script> --}}
+
+<script>
+   // Event listener for change in the select dropdown
+   $('#srs_filter_inbox').on('change', function () {
+       var selectedValue = $(this).val(); // Get the selected value (New or Renewal)
+
+       // Filter the DataTable based on the selected value
+       if (selectedValue) {
+           // Filter rows where the 'type' column matches the selected value (New or Renewal)
+           $('#requests_table').DataTable().column(1).search(selectedValue).draw(); // Assuming 'type' is in the 5th column (index 4)
+       } else {
+           // If no value is selected (All), reset the filter
+           $('#requests_table').DataTable().column(1).search('').draw();
+       }
+   });
+</script>
+
 @if (session('success'))
    <script>
       Swal.fire({
