@@ -379,7 +379,7 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
     //     Route::get('/', [HoaApproverController::class, 'index'])->name('hoa-approvers.index');
     //     Route::get('/list', [HoaApproverController::class, 'list'])->name('hoa-approvers.list');
     //     Route::get('/{request_id}/{type?}/{year?}', [HoaApproverController::class, 'show'])->name('hoa-approvers.show');
-        Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
+        // Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
 
     //     Route::post('sticker/request/hoa_approval', [HoaApproverController::class, 'hoaApproved'])->name('hoa-approvers.approval');
 
@@ -404,6 +404,19 @@ Route::group(['middleware' => ['auth', 'isOnline']], function () {
         Route::delete('srs/request/{srsRequest}', [HoaApprover3Controller::class, 'hoaReject'])->name('hoa-approvers3.reject');
 
     });
+
+
+        // Approvers
+        Route::prefix('/hoa-approvers')->group(function() {
+            //     Route::get('/', [HoaApproverController::class, 'index'])->name('hoa-approvers.index');
+            //     Route::get('/list', [HoaApproverController::class, 'list'])->name('hoa-approvers.list');
+            //     Route::get('/{request_id}/{type?}/{year?}', [HoaApproverController::class, 'show'])->name('hoa-approvers.show');
+                // Route::get('/srs/uploads/{id}/{date}/{name}/{hoa}/{category}', [HoaApproverController::class, 'showFile']);
+        
+            //     Route::post('sticker/request/hoa_approval', [HoaApproverController::class, 'hoaApproved'])->name('hoa-approvers.approval');
+        
+            //     Route::delete('srs/request/{srsRequest}', [HoaApproverController::class, 'hoaReject'])->name('hoa-approvers.reject');
+            });
 
     //Invoice
     Route::post('/cancelOr', [InvoiceController::class, 'cancelOr'])->name('cancelOr');

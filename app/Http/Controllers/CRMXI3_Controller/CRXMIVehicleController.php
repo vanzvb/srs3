@@ -41,7 +41,7 @@ class CRXMIVehicleController extends Controller
             // ->with(['vehicleOwner.vos' => function ($query){
             //     $query->select('id', 'name');
             // }])
-            join('crmxi3_vehicle_owners as owner', 'owner.vehicle_id', '=', 'crmxi3_vehicles.id')
+            leftjoin('crmxi3_vehicle_owners as owner', 'owner.vehicle_id', '=', 'crmxi3_vehicles.id')
             ->leftJoin('crmxi3_address as acc_address', 'acc_address.id', '=', 'crmxi3_vehicles.address_id')
             ->leftJoin('crmxi3_categories as category', 'category.id', '=', 'acc_address.category_id')
             ->leftJoin('crmxi3_subcat as subcat', 'subcat.id', '=', 'acc_address.sub_category_id')
@@ -50,6 +50,7 @@ class CRXMIVehicleController extends Controller
             ->leftJoin('crmxi3_vehicle_ownership_status as vos', 'vos.id', '=', 'crmxi3_vehicles.vehicle_ownership_status_id')
             ->leftJoin('crmx_bl_city as city', 'acc_address.city', '=', 'city.bl_id')
             ->where('crmxi3_vehicles.account_id', $account_id)
+            ->where('crmxi3_vehicles.assoc_crm', 1)
             ->select(
                 'crmxi3_vehicles.id as vehicle_id',
                 'crmxi3_vehicles.address_id',

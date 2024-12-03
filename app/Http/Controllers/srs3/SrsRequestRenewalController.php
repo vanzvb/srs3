@@ -87,22 +87,22 @@ class SrsRequestRenewalController extends Controller
                 function ($attribute, $value, $fail) use ($request) {
                     if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         // It's a valid email format
-                        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+                        $crm1 = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
                             ->where('main_email', $value)
                             ->orWhere('owner_email', $value)
                             ->first();
                         // dd($crm);
-                        if (!$crm) {
+                        if (!$crm1) {
                             $fail('The ' . $attribute . ' does not exist in our records as an email.');
                         }
                         // Set a flag that the input is an email
                         $request->merge(['is_email' => true]);
                     } else {
                         // It's not an email, so check if it's an account_id
-                        $crm = CRMXIMain::where('account_id', $value)->first();
-                        if (!$crm) {
+                        $crm1 = CRMXIMain::where('account_id', $value)->first();
+                        if (!$crm1) {
                             $fail('The account ID does not exist in our records.');
-                        } elseif (empty($crm->email)) {
+                        } elseif (empty($crm1->email)) {
                             // If the account_id exists but has no associated email
                             $fail('This account ID has no email associated.');
                         }
@@ -142,6 +142,7 @@ class SrsRequestRenewalController extends Controller
             $request->merge(['email' => $crm->email]);
         }
 
+        
         // for logs
         if (!$crm) {
             $ip = $request->ip();
@@ -156,7 +157,7 @@ class SrsRequestRenewalController extends Controller
 
             return response()->json(['errors' => ['email_not_found' => 'Invalid email address, please contact BFFHAI CLUBHOUSE']], 400);
         }
-
+        
 
         $mainEmailExists = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
         ->where('main_email', $request->email)
@@ -192,22 +193,22 @@ class SrsRequestRenewalController extends Controller
         }
 
         $count_valid_vehicle = $crmVehicleCount->count();
-
         if ($count_valid_vehicle == 0) {
             return response()->json(['errors' =>
                 ['invalid_category' => 'You are not eligible to renew as of this period, please contact your enclave or bffhai clubhouse for assistance.']
             ], 400);
         } 
-
         $token = uniqid();
-                    // 2.0 uses crm_id
-                    // $crmId = Crypt::encrypt($crm->crm_id);
 
+        if (is_null($crm->crm_id) || is_null($request->email)) {
+            return response()->json(['errors' => ['message' => 'Something went wrong, Please refresh the page.']], 400);
+        }
+        
         $crmId = Crypt::encrypt($crm->crm_id);
         $email = Crypt::encrypt($request->email);
         $refToken = Crypt::encrypt($token);
         $url = URL::temporarySignedRoute('request.v3.user-renewal', now()->addDays(3), ['key' => $crmId, 'ref' => $email, 'tkn' => $refToken]);
-
+        
         $renewalRequest = new SrsRenewalRequest();
         // $renewalRequest->crm_main_id = $crm->crm_id;
         // $renewalRequest->email = $crm->email;
@@ -247,32 +248,27 @@ class SrsRequestRenewalController extends Controller
         } catch (DecryptException $e) {
             abort(404);
         }
-
-        
+       
         $crmGetEmailUsed = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
         ->where('main_email',  $email)
         ->orWhere('owner_email',  $email)
         ->first();
-        
         $didWeUseMainEmail = false;
-
         
         if ($crmGetEmailUsed) {
+            
             if ($crmGetEmailUsed->main_email === $email) {
                 
-                // dd($crmId);
-
                 $personEmail = $crmGetEmailUsed->main_email;
-
+                
                 $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
                 ->where('crm_id', $crmId)
                 ->where('email', $email)
                 ->firstOrFail();
-                
+
                 $didWeUseMainEmail = true;
             } elseif ($crmGetEmailUsed->owner_email === $email) {
                 $personEmail = $crmGetEmailUsed->owner_email;
-                // dd($email);
                 $crm = CRMXIMain::with(['CRMXIvehicles' => function ($query) use ($email) {
                     // Ensure we're checking the vehicleOwner relation properly
                     $query->whereHas('vehicleOwner', function ($ownerQuery) use ($email) {
@@ -282,7 +278,11 @@ class SrsRequestRenewalController extends Controller
                 ->where('crm_id', $crmId) // Ensure CRM record matches the given ID
                 ->firstOrFail();
 
+            } else {
+                abort(404);
             }
+
+            
         } else {
             abort(404);
         }

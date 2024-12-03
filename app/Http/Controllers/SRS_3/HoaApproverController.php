@@ -321,9 +321,9 @@ class HoaApproverController extends Controller
                 'series' => $vehicle->series,
                 'year_model' => $vehicle->year_model,
                 'color' => $vehicle->color . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : ''),
-                'or' => $vehicle->or_path ? '<a data-value="/hoa-approvers/srs/uploads/' . $vehicle->or_path . '" data-type="' . (isset($vehicle->req1) && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>' : '',
-                'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : '',
-                'vot' => $vehicle->vot_path ? '<a data-value="/hoa-approvers/srs/uploads/' . $vehicle->vot_path . '" data-type="' . (isset($vehicle->vot) && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">VOT</a>' : '',
+                'or' => $vehicle->or_path ? '<a data-value="/hoa-approvers3/srs/uploads/' . $vehicle->or_path . '" data-type="' . (isset($vehicle->req1) && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>' : '',
+                'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers3/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : '',
+                'vot' => $vehicle->vot_path ? '<a data-value="/hoa-approvers3/srs/uploads/' . $vehicle->vot_path . '" data-type="' . (isset($vehicle->vot) && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">VOT</a>' : '',
                 'hoa_pres_status' => $vehicle->hoa_pres_status,
                 'hoa_pres_remarks' => $vehicle->hoa_pres_remarks
             ];
@@ -334,7 +334,7 @@ class HoaApproverController extends Controller
         // Loop through the files and push the necessary data to the $files array
         foreach ($srsRequest->files as $key => $file) {
             $imgType = explode('.', $file->name)[1] == 'pdf' ? 'pdf' : 'img';
-            $files[] = '<a data-value="/hoa-approvers/srs/uploads/' . $file->req_path . '" data-type="' . $imgType . '" href="#" class="modal_img">' . $file->requirement->description . '</a>';
+            $files[] = '<a data-value="/hoa-approvers3/srs/uploads/' . $file->req_path . '" data-type="' . $imgType . '" href="#" class="modal_img">' . $file->requirement->description . '</a>';
         }
 
         // Get the statuses of the request

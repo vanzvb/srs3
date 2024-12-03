@@ -177,7 +177,7 @@
                                             @else
                                                 @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id))) as $vehicle)
                                                         <tr id="vehicle-row-{{ $vehicle->id }}"
-                                                            data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}"
+                                                            data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}"
                                                             data-address-id="{{ $vehicle->vehicleAddress->id }}">
                                                             <td>
                                                                 <input type="checkbox" name="renewalVehicles[]"
