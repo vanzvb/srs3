@@ -214,7 +214,7 @@
                         <label for="vehicle_ownership_status_{{ $loop->index }}" class="form-label"><b>Vehicle
                                 Ownership Status</b></label>
                         <input type="text" class="form-control"
-                            value="{{ $vehicle->vehicleOwnershipStatus->name }}" disabled>
+                            value="{{ $vehicle->vehicleOwnershipStatus->name ?? '' }}" disabled>
                     </div>
                 </div>
                 <div class="row">

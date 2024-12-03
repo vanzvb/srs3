@@ -250,7 +250,7 @@
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="building_name"
                                                         name="building_name" placeholder="Bulding / Apartment / Condo"
-                                                        value="{{ old('building_name') }}" required>
+                                                        value="{{ old('building_name') }}" >
                                                     <label for="building_name" class="form-label"
                                                         style="color: grey;">Bulding / Apartment / Condo</label>
                                                 </div>
@@ -288,7 +288,7 @@
                                                 <div class="form-floating">
                                                     <input type="number" class="form-control" id="zipcode"
                                                         name="zipcode" placeholder="Zipcode"
-                                                        value="{{ old('zipcode') }}" required>
+                                                        value="{{ old('zipcode') }}">
                                                     <label for="zipcode" class="form-label"
                                                         style="color: grey;">Zipcode</label>
                                                 </div>
@@ -783,7 +783,7 @@
                                                         <div class="row text-center p-1">
                                                             <p
                                                                 style="font-size: 11px; font-weight: 800; margin-bottom: 0;">
-                                                                P5,000 penalty. One-year ban. Criminal Case will be filed
+                                                                P10,000 penalty. One-year ban. Criminal Case will be filed
                                                             </p>
                                                         </div>
                                                         {{-- <div class="row justify-content-center px-md-3">
@@ -962,7 +962,7 @@
                 } else {
                     $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).hide();
                 }
-            } else if (rec.type == 0 || rec.type == 1) {
+            } else if (rec.type == 0) { // rec.type == 1
                 // For other HOAs with type 0 or 1, show only if category is 1
                 getCat == 1 ? $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).show() : $(`#hoa${effectiveCounter} option[value="${rec.id}"]`).hide();
             } else {
@@ -1001,6 +1001,8 @@
         }
 
         let filHoa = hoas.filter(rec => rec.id == id)[0]?.type;
+
+        console.log(filHoa);
 
         hoatypes.forEach(data => {
             let idx = hoatypes.indexOf(data);

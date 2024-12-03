@@ -92,6 +92,14 @@ class SrsRequestRequest extends FormRequest
             'sticker_no.*' => 'nullable|string',
             'v_color.*' => 'string',
             'v_type.*' => 'string',
+            'vot.*' => [
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value === "2") {
+                        $fail('For Deed of Sale, kindly secure application form with endorsement(HOA) and attach supporting documents. Visit Clubhouse for manual application.');
+                    }
+                },
+            ],
             'or.*' => 'file|mimes:jpg,png,jpeg|max:5120',
             'cr.*' => 'file|mimes:jpg,png,jpeg|max:5120',
             'other_req.*' => 'file|mimes:jpg,png,jpeg|max:5120',

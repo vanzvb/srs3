@@ -3,7 +3,9 @@
 @section('title', 'Sticker Application Request - Renewal')
 
 @section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <div class="container px-md-10">
         <div class=" px-md-5 mb-3">
@@ -32,16 +34,16 @@
                             method="POST" enctype="multipart/form-data">
                             @csrf
                             @if ($didWeUseMainEmail)
-                            <div class="p-2">
-                                <div class="px-2 px-md-0 mb-4 mt-5">
-                                    <h5>Account Information</h5>
-                                    {{-- <div class="row p-2">
+                                <div class="p-2">
+                                    <div class="px-2 px-md-0 mb-4 mt-5">
+                                        <h5>Account Information</h5>
+                                        {{-- <div class="row p-2">
                                         <b>{{ $crm->category->name . ' / ' . $crm->subCategory->name }}</b>
                                     </div> --}}
-                                </div>
+                                    </div>
 
-                                <div class="row p-2 g-0">
-                                    {{-- <div class="col-md-2 me-2">
+                                    <div class="row p-2 g-0">
+                                        {{-- <div class="col-md-2 me-2">
                                         <label for="account_type" class="form-label"><b>Account Type</b></label>
                                         <select class="form-select form-select-md" name="account_type" id="account_type"
                                             disabled>
@@ -51,97 +53,100 @@
                                             </option>
                                         </select>
                                     </div> --}}
-                                    <div class="col-md-2 me-2">
-                                        <label for="account_type" class="form-label"><b>Account Type</b></label>
-                                        <input type="text" class="form-control form-control-md" name="account_type" id="account_type" 
-                                            value="{{ $crm->account_type == 0 ? 'Individual' : 'Company' }}" disabled>
-                                    </div>
+                                        <div class="col-md-2 me-2">
+                                            <label for="account_type" class="form-label"><b>Account Type</b></label>
+                                            <input type="text" class="form-control form-control-md" name="account_type"
+                                                id="account_type"
+                                                value="{{ $crm->account_type == 0 ? 'Individual' : 'Company' }}" disabled>
+                                        </div>
 
-                                    <div class="col-md-4 me-2">
-                                        <div class="" id="individual-name-container" style="display: none;">
-                                            <div class="col-md-12">
-                                                <label for="individualName" class="form-label"><b>Name</b></label>
-                                                <input type="text" class="form-control" id="individualName"
-                                                    name="individualName" placeholder=""
-                                                    value="{{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}"
-                                                    disabled>
+                                        <div class="col-md-4 me-2">
+                                            <div class="" id="individual-name-container" style="display: none;">
+                                                <div class="col-md-12">
+                                                    <label for="individualName" class="form-label"><b>Name</b></label>
+                                                    <input type="text" class="form-control" id="individualName"
+                                                        name="individualName" placeholder=""
+                                                        value="{{ $crm->lastname . ', ' . $crm->firstname . ' ' . $crm->middlename }}"
+                                                        disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="" id="company-name-container" style="display: none;">
+                                                <div class="col-md-12">
+                                                    <label for="companyName" class="form-label"><b>Company Name</b></label>
+                                                    <input type="text" class="form-control" id="companyName"
+                                                        name="companyName" placeholder="" value="{{ $crm->firstname }}"
+                                                        disabled>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="" id="company-name-container" style="display: none;">
-                                            <div class="col-md-12">
-                                                <label for="companyName" class="form-label"><b>Company Name</b></label>
-                                                <input type="text" class="form-control" id="companyName"
-                                                    name="companyName" placeholder="" value="{{ $crm->firstname }}"
-                                                    disabled>
+                                        <div class="col-md-4">
+                                            <div class="" id="company-representative-container"
+                                                style="display: none;">
+                                                <div class="col-md-12">
+                                                    <label for="representativeName" class="form-label"><b>Company
+                                                            Representative</b></label>
+                                                    <input type="text" class="form-control" id="representativeName"
+                                                        name="representativeName" placeholder="" value="{{ $crm->name }}"
+                                                        disabled>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
 
-                                    <div class="col-md-4">
-                                        <div class="" id="company-representative-container" style="display: none;">
-                                            <div class="col-md-12">
-                                                <label for="representativeName" class="form-label"><b>Company
-                                                        Representative</b></label>
-                                                <input type="text" class="form-control" id="representativeName"
-                                                    name="representativeName" placeholder="" value="{{ $crm->name }}"
-                                                    disabled>
-                                            </div>
+                                    <div class="row p-2 g-0">
+                                        <div class="col-md-2 me-2">
+                                            <label class="form-label"><b>Account ID</b></label>
+                                            <input type="text" class="form-control" value="{{ $crm->account_id }}"
+                                                disabled>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label"><b>Email</b></label>
+                                            <input type="text" class="form-control" value="{{ $crm->email }}" disabled>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row p-2 g-0">
+
+                                        <div class="col-md-3 me-2">
+                                            <label class="form-label"><b>Main Contact</b></label>
+                                            <input type="text" class="form-control" value="{{ $crm->main_contact }}"
+                                                disabled>
+                                        </div>
+
+                                        <div class="col-md-3 me-2">
+                                            <label class="form-label"><b>Secondary Contact</b></label>
+                                            <input type="text" class="form-control" value="{{ $crm->secondary_contact }}"
+                                                disabled>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label"><b>Alternate Email</b></label>
+                                            <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}"
+                                                disabled>
                                         </div>
                                     </div>
+                                    <br>
+
 
                                 </div>
-
-                                <div class="row p-2 g-0">
-                                    <div class="col-md-2 me-2">
-                                        <label class="form-label"><b>Account ID</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->account_id }}" disabled>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label class="form-label"><b>Email</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->email }}" disabled>
-                                    </div>
-
-                                </div>
-
-                                <div class="row p-2 g-0">
-
-                                    <div class="col-md-3 me-2">
-                                        <label class="form-label"><b>Main Contact</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->main_contact }}"
-                                            disabled>
-                                    </div>
-
-                                    <div class="col-md-3 me-2">
-                                        <label class="form-label"><b>Secondary Contact</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->secondary_contact }}"
-                                            disabled>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label"><b>Alternate Email</b></label>
-                                        <input type="text" class="form-control" value="{{ $crm->tertiary_contact }}"
-                                            disabled>
-                                    </div>
-                                </div>
-                                <br>
-
-
-                            </div>  
                             @endif
-                                                            {{-- Dropdown filter for address_id --}}
-                                                            <div class="p-2">
-                                                                <div class="px-2 px-md-0 mb-4 mt-4">
-                                                                    <h5>Select Only 1 HOA</h5>
-                                                                    <select id="hoaFilter" class="form-select" required>
-                                                                        @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2)->pluck('vehicleAddress.CRMXIhoa.name')->unique() as $hoaName)
-                                                                            <option value="{{ $hoaName }}">{{ $hoaName }}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <input type="hidden" name="address_id" id="address_id" value="">
+                            {{-- Dropdown filter for address_id --}}
+                            <div class="p-2">
+                                <div class="px-2 px-md-0 mb-4 mt-4">
+                                    <h5>Select Only 1 HOA</h5>
+                                    <select id="hoaFilter" class="form-select" required>
+                                        @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]))->pluck('vehicleAddress.CRMXIhoa.name')->unique() as $hoaName)
+                                            <option value="{{ $hoaName }}">{{ $hoaName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" name="address_id" id="address_id" value="">
                             {{-- For Renewal (Table) --}}
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-4">
@@ -165,25 +170,35 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="vehicleTableBody">
-                                                @if ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2)->isEmpty())
-                                                    <tr id="no-vehicles-row">
-                                                        <td colspan="6" class="text-center">No vehicles available</td>
-                                                    </tr>
-                                                @else
-                                                    @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2) as $vehicle)
-                                                        <tr id="vehicle-row-{{ $vehicle->id }}" data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}" data-address-id="{{ $vehicle->vehicleAddress->id }}">
+                                                @if ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id)))->isEmpty())
+                                                <tr id="no-vehicles-row">
+                                                    <td colspan="6" class="text-center">No vehicles available</td>
+                                                </tr>
+                                            @else
+                                                @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id))) as $vehicle)
+                                                        <tr id="vehicle-row-{{ $vehicle->id }}"
+                                                            data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name }}"
+                                                            data-address-id="{{ $vehicle->vehicleAddress->id }}">
                                                             <td>
-                                                                <input type="checkbox" name="renewalVehicles[]" value="{{ $vehicle->id }}" checked>
+                                                                <input type="checkbox" name="renewalVehicles[]"
+                                                                    value="{{ $vehicle->id }}" checked>
                                                             </td>
                                                             <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
-                                                            <td>{{ $vehicle->brand ?? 'N/A' }}, {{ $vehicle->series ?? 'N/A' }}</td>
-                                                            <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}</td>
-                                                            <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->brand ?? 'N/A' }},
+                                                                {{ $vehicle->series ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}
+                                                            </td>
                                                             <td style="white-space: nowrap;">
-                                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
+                                                                <button type="button" class="btn btn-primary btn-sm"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#viewDetailsModal-{{ $vehicle->id }}">
                                                                     <i class="fa fa-eye"></i>
                                                                 </button>
-                                                                <button type="button" class="btn btn-danger btn-sm btn-remove" data-id="{{ $vehicle->id }}">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-sm btn-remove"
+                                                                    data-id="{{ $vehicle->id }}">
                                                                     Don't Renew
                                                                 </button>
                                                             </td>
@@ -229,7 +244,8 @@
                                         @foreach ($requirements as $requirement)
                                             <div class="mb-4">
                                                 <!-- Requirement description above the file input -->
-                                                <label class="form-label"><b>Upload Valid Goverment ID with Address</b></label>
+                                                <label class="form-label"><b>Upload Valid Goverment ID with
+                                                        Address</b></label>
                                                 {{-- <label class="form-label"><b>{{ $requirement->description }}</b></label> --}}
                                                 <input class="form-control form-control-sm" type="file"
                                                     accept="image/*" name="{{ $requirement->name }}"
@@ -359,4 +375,6 @@
         </script>
     @endsection
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js" integrity="sha512-6sSYJqDreZRZGkJ3b+YfdhB3MzmuP9R7X1QZ6g5aIXhRvR1Y/N/P47jmnkENm7YL3oqsmI6AK+V6AD99uWDnIw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"
+        integrity="sha512-6sSYJqDreZRZGkJ3b+YfdhB3MzmuP9R7X1QZ6g5aIXhRvR1Y/N/P47jmnkENm7YL3oqsmI6AK+V6AD99uWDnIw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>

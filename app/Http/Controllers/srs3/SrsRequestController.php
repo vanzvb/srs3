@@ -100,7 +100,7 @@ class SrsRequestController extends Controller
                 if ($adminApproved) {
                     return 'Approved by Admin';
                 }
-                return 'Approved by Enclave President';
+                return 'Endorsed by Enclave President';
                 break;
             case 2:
                 return 'Approved - Pending Appointment';
@@ -271,7 +271,7 @@ class SrsRequestController extends Controller
                 ->get();
 
             // Use this to exclude hoa test
-            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE (type = 0 OR type = 1 OR Type = 2) AND id != 95');
+            $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE (type = 0 OR type = 1) AND id != 95');
 
             // $hoas = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0');
         }
@@ -472,6 +472,11 @@ class SrsRequestController extends Controller
             if ($data['v_type'][$count]) {
                 $vehicle->type = strip_tags($data['v_type'][$count]);
             }
+
+            if ($data['vot'][$count]) {
+                $vehicle->vehicle_ownership_status_id = strip_tags($data['vot'][$count]);
+            }
+            
 
             if (isset($data['or'])) {
                 if (isset($data['or'][$count])) {
@@ -703,30 +708,63 @@ class SrsRequestController extends Controller
         //     $vehicles[] = $vehicle->plate_no.', '.$vehicle->type.', '.$vehicle->brand.', '.$vehicle->series.', '.$vehicle->year_model.', '.$vehicle->color;
         // }
         // dd($srsRequest->vehicles);
+
         $vehicles = [];
+        $rejected_veh = []; 
         foreach ($srsRequest->vehicles as $key => $vehicle) {
+
+            if($vehicle->hoa_pres_status == 0) {
             $vehicles[] = '<tr>
-                              <td>' . ($key + 1) . '</td>
-                              <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
-                              <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
-                              <td>' . htmlspecialchars($vehicle->type) . '</td>
-                              <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: ' . $vehicle->plate_no_remarks . ']</b>' : '') . '</td>
-                              <td>' . htmlspecialchars($vehicle->brand) . '</td>
-                              <td>' . htmlspecialchars($vehicle->series) . '</td>
-                              <td>' . htmlspecialchars($vehicle->year_model) . '</td>
-                              <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
-                                <td align="center">
-                                    <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
-                                    data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
-                                    href="' . ($vehicle->or_path ? '#' : 'javascript:void(0);') . '" 
-                                    class="modal_img">OR</a>
-                                    <br>
-                                    <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
-                                    data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
-                                    href="#" class="modal_img">CR</a>
-                                </td>
-                          </tr>';
+                  <td>' . ($key + 1) . '</td>
+                  <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
+                  <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
+                  <td>' . htmlspecialchars($vehicle->type) . '</td>
+                  <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: ' . $vehicle->plate_no_remarks . ']</b>' : '') . '</td>
+                  <td>' . htmlspecialchars($vehicle->brand) . '</td>
+                  <td>' . htmlspecialchars($vehicle->series) . '</td>
+                  <td>' . htmlspecialchars($vehicle->year_model) . '</td>
+                  <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
+                    <td align="center">
+                        <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
+                        data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
+                        href="' . ($vehicle->or_path ? '#' : 'javascript:void(0);') . '" 
+                        class="modal_img">OR</a>
+                        <br>
+                        <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
+                        data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
+                        href="#" class="modal_img">CR</a>
+                    </td>
+              </tr>';
+          }
         }
+
+        foreach ($srsRequest->vehicles as $key => $vehicle) {
+            if ($vehicle->hoa_pres_status == 1) {
+                $rejected_veh[] = '<tr>
+                      <td>' . ($key + 1) . '</td>
+                      <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
+                      <td>' . htmlspecialchars($vehicle->hoa_pres_remarks) .'</td>
+                      <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
+                      <td>' . htmlspecialchars($vehicle->type) . '</td>
+                      <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: ' . $vehicle->plate_no_remarks . ']</b>' : '') . '</td>
+                      <td>' . htmlspecialchars($vehicle->brand) . '</td>
+                      <td>' . htmlspecialchars($vehicle->series) . '</td>
+                      <td>' . htmlspecialchars($vehicle->year_model) . '</td>
+                      <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
+                        <td align="center">
+                            <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
+                            data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
+                            href="' . ($vehicle->or_path ? '#' : 'javascript:void(0);') . '" 
+                            class="modal_img">OR</a>
+                            <br>
+                            <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
+                            data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
+                            href="#" class="modal_img">CR</a>
+                        </td>
+                  </tr>';
+            }
+        }
+
         // Old OR Path
         //     <td align="center">
         //     <a data-value="/srs/uploads/' . $vehicle->or_path . '" data-type="' . (explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">OR</a>
@@ -990,6 +1028,7 @@ class SrsRequestController extends Controller
             'routes' => $routes,
             'vehicles' => $vehicles,
             'files' => $files,
+            'rejected_veh' => $rejected_veh,
             // 'hoaApproval' => $hoaApproval ? $hoaApproval->created_at->format('M d, Y h:i A') : '',
             // 'adminApproval' => $adminApproval ? $adminApproval->pivot->created_at->format('M d, Y h:i A') : ''
             'adminApproved' => $adminApproved,
@@ -1016,23 +1055,28 @@ class SrsRequestController extends Controller
     {
         $today = now();
         $series = $today->format('y') . '-' . $today->format('d') . $today->format('m') . '-';
-        // $series = $today->format('y') . $category . $subCategory . '-' . $today->format('d') . $today->format('m') . '-';
-
-        $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
-
-        if ($lastRequest) {
-            $lastSeriesNumber = (int)str_replace($series, '', $lastRequest->request_id);
-        } else {
-            $lastSeriesNumber = 0;
-        }
-
-        do {
-            $lastSeriesNumber++;
-            $srn = $series . str_pad((string)$lastSeriesNumber, 5, '0', STR_PAD_LEFT);
-            $srsRequest = SrsRequest::where('request_id', $srn)->withTrashed()->exists();
-        } while ($srsRequest);
-
-        return $srn;
+    
+        // Use a database transaction and lock
+        return DB::transaction(function () use ($series) {
+            // Acquire a lock on the table to prevent race conditions
+            DB::table('srs3_requests')->lockForUpdate()->get();
+    
+            $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
+    
+            if ($lastRequest) {
+                $lastSeriesNumber = (int)str_replace($series, '', $lastRequest->request_id);
+            } else {
+                $lastSeriesNumber = 0;
+            }
+    
+            do {
+                $lastSeriesNumber++;
+                $srn = $series . str_pad((string)$lastSeriesNumber, 5, '0', STR_PAD_LEFT);
+                $srsRequest = SrsRequest::where('request_id', $srn)->withTrashed()->exists();
+            } while ($srsRequest);
+    
+            return $srn;
+        });
     }
 
     public function approve(Request $request)

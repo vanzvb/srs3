@@ -18,9 +18,10 @@ class CRXMIVehicle extends Model
     protected $primaryKey = 'id';
 
     // protected $fillable = [
-    //     'srs_request_id', 'req_type', 'plate_no', 'brand', 'series', 'year_model', 'crm_id',
+    //     'srs_request_id', 'vehicle_id','crm_id', 'req_type', 'plate_no', 'brand', 'series', 'year_model',
     //     'old_sticker_no', 'color', 'type', 'cr_from_crm', 'plate_no_remarks',
-    //     'color_remarks', 'account_id', 'address_id', 'red_tag', 'vehicle_ownership_status_id',
+    //     'color_remarks', 'account_id', 'address_id', 'red_tag', 'vehicle_ownership_status_id','cr',
+    //     'req1', 'or_path', 'cr_path', 'vot', 'vot_path'
     // ];
 
     public function crmxiAccount()

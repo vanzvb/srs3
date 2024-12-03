@@ -8,12 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\srs3\SrsRequestController;
 use App\Mail\RequestRenewal;
 use App\Models\CrmMain;
-use App\Models\CrmVehicle;
 use App\Models\CRMXI3_Model\CRMXIAddress;
 use App\Models\CRMXI3_Model\CRMXICategory;
 use App\Models\CRMXI3_Model\CRMXIHoa;
 use App\Models\CRMXI3_Model\CRMXIMain;
 use App\Models\CRMXI3_Model\CRMXISubcat;
+use App\Models\CRMXI3_Model\CRMXIVehicleOwnershipStatus;
 use App\Models\CRMXI3_Model\CRXMIVehicle;
 use App\Models\SRS3_Model\SrsRequest;
 use App\Models\SrsCategories;
@@ -26,11 +26,12 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 // Changed in SRS3
 // use App\Models\SrsRequest;
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -44,21 +45,27 @@ class SrsRequestRenewalController extends Controller
         $today = now();
         $series = $today->format('y') . $category . $subCategory . '-' . $today->format('d') . $today->format('m') . '-';
 
-        $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
+        // Use a database transaction and lock
+        return DB::transaction(function () use ($series) {
+            // Acquire a lock on the table to prevent race conditions
+            DB::table('srs3_requests')->lockForUpdate()->get();
 
-        if ($lastRequest) {
-            $lastSeriesNumber = (int)str_replace($series, '', $lastRequest->request_id);
-        } else {
-            $lastSeriesNumber = 0;
-        }
+            $lastRequest = SrsRequest::where('request_id', 'like', $series . '%')->latest()->first();
 
-        do {
-            $lastSeriesNumber++;
-            $srn = $series . str_pad((string)$lastSeriesNumber, 5, '0', STR_PAD_LEFT);
-            $srsRequest = SrsRequest::where('request_id', $srn)->withTrashed()->exists();
-        } while ($srsRequest);
+            if ($lastRequest) {
+                $lastSeriesNumber = (int)str_replace($series, '', $lastRequest->request_id);
+            } else {
+                $lastSeriesNumber = 0;
+            }
 
-        return $srn;
+            do {
+                $lastSeriesNumber++;
+                $srn = $series . str_pad((string)$lastSeriesNumber, 5, '0', STR_PAD_LEFT);
+                $srsRequest = SrsRequest::where('request_id', $srn)->withTrashed()->exists();
+            } while ($srsRequest);
+
+            return $srn;
+        });
     }
 
     public function index()
@@ -80,7 +87,6 @@ class SrsRequestRenewalController extends Controller
                 function ($attribute, $value, $fail) use ($request) {
                     if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         // It's a valid email format
-                        // $crm = CRMXIMain::where('email', $value)->first();
                         $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
                             ->where('main_email', $value)
                             ->orWhere('owner_email', $value)
@@ -107,13 +113,29 @@ class SrsRequestRenewalController extends Controller
             ],
         ]);
         
+        
         // Now, you can check the flag after validation
         if ($request->is_email) {
-            // $crm = CRMXIMain::where('email', $request->email)->first();
-            $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
-                ->where('main_email',  $request->email)
-                ->orWhere('owner_email',  $request->email)
-                ->first();
+            $checkCRMMainEmail = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_email', $request->email)
+            ->first();
+            $crm = CRMXIMain::where('email', $request->email)->first();
+            if (!$checkCRMMainEmail) {
+                // If not found in main_email, check in owner_email
+                $checkCRMOwnerEmail = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+                    ->where('owner_email', $request->email)
+                    ->first();
+
+                $crm = CRMXIMain::where('account_id', $checkCRMOwnerEmail->main_account_id)->first();
+                
+                if (!$checkCRMOwnerEmail) {
+                    // If not found in either column, return an error
+                    return response()->json(['errors' => ['email_not_found' => 'Invalid email address, please contact BFFHAI CLUBHOUSE']], 400);
+                }
+
+            }
+
+           
         } else {
             // if the input is account id, we will alter the request->email and change it to email instead of account id
             $crm = CRMXIMain::where('account_id', $request->email)->first();
@@ -136,55 +158,52 @@ class SrsRequestRenewalController extends Controller
         }
 
 
-        // We need to check if the email matches per vehicle or main account
-        // if main account we need to count all vehicles else just the owner_email vehicles
-        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
-            ->where('main_email',  $request->email)
-            ->orWhere('owner_email',  $request->email)
+        $mainEmailExists = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+        ->where('main_email', $request->email)
+        ->exists();
+        if ($mainEmailExists) {
+
+            $crmVehicleCount = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_account_id',  $crm->account_id)
+            ->where('main_email',  $request->email) // Main Email 
+            ->where('category_id', 1) // RESIDENT - 1
+            ->whereIn('sub_category_id', [1, 4]) // HOMEOWNER - 1, PROPERTY OWNER - 4
+            ->where('hoa_type', 0) // HOA-MEMBER - 0
+            // ->where('vehicle_ownership_status_id', 1) // REGISTERED OWNER - 1
+            ->where(function ($query){
+                $query->where('vehicle_ownership_status', 1) 
+                    ->orWhereNull('vehicle_ownership_status');
+            })
             ->get();
 
-        $countCategory2 = 0;
-        $totalRecords = $crm->count();
-
-        // category_id 2 = Resident 'Renewal is only available to Residents'
-        // just add inside if more conditions if neccessary
-        // (dont be confused with cat and subcat in vehicleowner table, it is not used in this case)
-        // We are using crmxi3_address table to check category, subcategory, hoa)
-
-        foreach ($crm as $record) {
-            if ($record->category_id == 2) {
-                $countCategory2++;
-            }
+        }else{
+            $crmVehicleCount = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_account_id',  $crm->account_id)
+            ->where('owner_email',  $request->email) // Owner Email 
+            ->where('category_id', 1) // RESIDENT - 1
+            ->whereIn('sub_category_id', [1, 4]) // HOMEOWNER - 1, PROPERTY OWNER - 4
+            ->where('hoa_type', 0) // HOA-MEMBER - 0
+            // ->where('vehicle_ownership_status_id', 1) // REGISTERED OWNER - 1
+            ->where(function ($query){
+                $query->where('vehicle_ownership_status', 1) 
+                    ->orWhereNull('vehicle_ownership_status');
+            })
+            ->get();
         }
 
-        // Evaluate the conditions
-        // Validation on per address (if all vehicle address is non res)
-        if ($countCategory2 == $totalRecords) {
-            return response()->json(['errors' => ['invalid_category' => 'Renewal is only available to Residents']], 400);
+        $count_valid_vehicle = $crmVehicleCount->count();
+
+        if ($count_valid_vehicle == 0) {
+            return response()->json(['errors' =>
+                ['invalid_category' => 'You are not eligible to renew as of this period, please contact your enclave or bffhai clubhouse for assistance.']
+            ], 400);
         } 
-                    // 2.0 validation (per account)
-                    // category_id 2 = Resident
-                    // if ($crm->category_id == 2) {
-                    //     return response()->json(['errors' => ['invalid_category' => 'Renewal is only available to Residents']], 400);
-                    // }
-
-                    // sub_category_id 45, 46, 47 = Commercial Tricycle BFTODA (TRIBF)/Tricycle DASATA (TRID)/Tricycle LTSODA (TRIL)
-
-                    // if ($crm->sub_category_id == 45 || $crm->sub_category_id == 46 || $crm->sub_category_id == 47) {
-                    //     return response()->json(['errors' => ['invalid_sub_category' => 'Renewal is not available for this account']], 400);
-                    // }
 
         $token = uniqid();
                     // 2.0 uses crm_id
                     // $crmId = Crypt::encrypt($crm->crm_id);
-                    
-        // Get account_id
-        $crm = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
-            ->where('main_email',  $request->email)
-            ->orWhere('owner_email',  $request->email)
-            ->first();
 
-        $crmId = Crypt::encrypt($crm->crm_primary_key);
+        $crmId = Crypt::encrypt($crm->crm_id);
         $email = Crypt::encrypt($request->email);
         $refToken = Crypt::encrypt($token);
         $url = URL::temporarySignedRoute('request.v3.user-renewal', now()->addDays(3), ['key' => $crmId, 'ref' => $email, 'tkn' => $refToken]);
@@ -192,7 +211,7 @@ class SrsRequestRenewalController extends Controller
         $renewalRequest = new SrsRenewalRequest();
         // $renewalRequest->crm_main_id = $crm->crm_id;
         // $renewalRequest->email = $crm->email;
-        $renewalRequest->crm_main_id = $crm->crm_primary_key;
+        $renewalRequest->crm_main_id = $crm->crm_id;
         $renewalRequest->email = $request->email;
         $renewalRequest->token = $token;
         $renewalRequest->save();
@@ -268,37 +287,9 @@ class SrsRequestRenewalController extends Controller
             abort(404);
         }
 
-        // $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
-        //     ->where('crm_id', $crmId)
-        //     // ->where('email', $email)
-        //     ->firstOrFail();
-
         $crmxiCategories = CRMXICategory::all();
         $crmxiSubCategories = CRMXISubcat::all();
         $crmxiHoas = CRMXIHoa::all();
-
-        // CRMXI
-        // Get all vehicles on pending request
-        // 
-
-        // $pendingRequests = SrsRequest::where('account_id', '0140-00100-014192')
-        //         ->whereIn('status', [0, 1, 2, 3])->get();
-
-        // dd($pendingRequests);
-
-        // $pendingRequestVehicles = CRXMIVehicle::where('account_id', $crm->account_id)->get();
-        // dd($crm->account_id);
-
-
-        // ONGOING Checking if vehicle existed
-        // $ExistingVehicleOnRequests = DB::table('crmxi3_vehicles as a')
-        //     ->join('srs3_requests as b', 'b.request_id', '=', 'a.srs_request_id')
-        //     ->where('a.account_id', $crm->account_id)
-        //     ->where('a.assoc_crm', 0)
-        //     ->whereIn('b.status', [0, 1, 2, 3])
-        //     ->get();
-
-        // dd($ExistingVehicleOnRequests);
 
         $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
             ->where('email', $personEmail)
@@ -326,26 +317,18 @@ class SrsRequestRenewalController extends Controller
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        // return view('srs3.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories','srsSubCategories', 'crmxiCategories', 'crmxiSubCategories'));   
         return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail'));
-        // return view('srs3.request.user_renewal_backup', compact('crm', 'requirements', 'hoas', 'crmHoaId','srsCategories'));  
     }
 
     public function processRenewal(Request $request)
     {
 
-        // dd($request->all());
-        // Decode JSON string to an array (get list of vehicle)
-        // $listOfVehicles = json_decode($request->input('list_of_vehicles'), true);
-
-        // $request->merge(['list_of_vehicles' => $listOfVehicles]);
-
         // Get the renewal vehicles directly from the request
         $renewalVehicles = $request->input('renewalVehicles', []);
-        
+
         // Merge only the renewal vehicles into the request
         $request->merge(['list_of_vehicles' => $renewalVehicles]);
-        // dd($request->list_of_vehicles);
+
         $request->validate([
             'list_of_vehicles' => 'required|array|min:1',
         ], [
@@ -372,105 +355,16 @@ class SrsRequestRenewalController extends Controller
             return back()->withErrors(['error' => 'Error L96']);
         }
 
-        
-
         $crmId = $request->session()->get('sr_rnw-cid');
         $crmEmail = $request->session()->get('sr_rnw-eml');
 
         if ($reqCrmId != $crmId || $reqEmail != $crmEmail) {
             return back()->withErrors(['error' => 'Error L103']);
         }
-        // $request->validate([
-        //     'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
-        //         $response = $this->validateCaptcha($value);
-
-        //         if (!$response) {
-        //             $fail('We have detected unusual activity. Please try again.');
-        //         }
-        //     }],
-        //     'hoa'       => 'nullable|integer|exists:srs_hoas,id',
-        //     'vref'      => 'required|array',
-        //     'v_or'      => 'required|array',
-        //     'v_or.*'    => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'or.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'cr.*'      => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'new_plate_no.*' => 'string|nullable|max:100',
-        //     // 'hoa_endorsement' => 'file|mimes:jpg,png,jpeg,pdf',
-        //     'lease_contract' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'tct' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'business_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'deed_of_assignment' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'proof_of_ownership' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'proof_of_residency' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'bffhai_biz_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'valid_id_other_requirement' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'other_documents_2' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'other_documents_3' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'nbi_police_clearance' => 'file|mimes:jpg,png,jpeg|max:5120',
-        //     'general_information_sheet' => 'file|mimes:jpg,png,jpeg|max:5120',
-        // ], [
-        //     'g-recaptcha-response.required' => 'Please complete the reCAPTCHA',
-        //     'vref.required' => 'Vehicle for renewal is required',
-        //     'v_or.required' => 'Vehicle for renewal OR is required',
-        //     'v_or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
-        //     'v_or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
-        //     'or.*.mimes' => 'Vehicle for renewal OR must be an image file (jpg, png, jpeg)',
-        //     'or.*.max' => 'Vehicle for renewal OR must not exceed 5MB',
-        //     'cr.*.mimes' => 'Vehicle for renewal CR must be an image file (jpg, png, jpeg)',
-        //     'cr.*.max' => 'Vehicle for renewal CR must not exceed 5MB',
-        //     'lease_contract.mimes' => 'Lease Contract must be an image file (jpg, png, jpeg)',
-        //     'lease_contract.max' => 'Lease Contract must not exceed 5MB',
-        //     'tct.mimes' => 'TCT must be an image file (jpg, png, jpeg)',
-        //     'tct.max' => 'TCT must not exceed 5MB',
-        //     'business_clearance.mimes' => 'Business Clearance must be an image file (jpg, png, jpeg)',
-        //     'business_clearance.max' => 'Business Clearance must not exceed 5MB',
-        //     'deed_of_assignment.mimes' => 'Deed of Assignment must be an image file (jpg, png, jpeg)',
-        //     'deed_of_assignment.max' => 'Deed of Assignment must not exceed 5MB',
-        //     'proof_of_ownership.mimes' => 'Proof of Ownership must be an image file (jpg, png, jpeg)',
-        //     'proof_of_ownership.max' => 'Proof of Ownership must not exceed 5MB',
-        //     'proof_of_residency.mimes' => 'Proof of Residency must be an image file (jpg, png, jpeg)',
-        //     'proof_of_residency.max' => 'Proof of Residency must not exceed 5MB',
-        //     'bffhai_biz_clearance.mimes' => 'BFFHAI Business Clearance must be an image file (jpg, png, jpeg)',
-        //     'bffhai_biz_clearance.max' => 'BFFHAI Business Clearance must not exceed 5MB',
-        //     'valid_id_other_requirement.mimes' => 'Valid ID or Other Requirement must be an image file (jpg, png, jpeg)',
-        //     'valid_id_other_requirement.max' => 'Valid ID or Other Requirement must not exceed 5MB',
-        //     'other_documents_2.mimes' => 'Other Documents 2 must be an image file (jpg, png, jpeg)',
-        //     'other_documents_2.max' => 'Other Documents 2 must not exceed 5MB',
-        //     'other_documents_3.mimes' => 'Other Documents 3 must be an image file (jpg, png, jpeg)',
-        //     'other_documents_3.max' => 'Other Documents 3 must not exceed 5MB',
-        //     'nbi_police_clearance.mimes' => 'NBI/Police Clearance must be an image file (jpg, png, jpeg)',
-        //     'nbi_police_clearance.max' => 'NBI/Police Clearance must not exceed 5MB',
-        //     'general_information_sheet.mimes' => 'General Information Sheet must be an image file (jpg, png, jpeg)',
-        //     'general_information_sheet.max' => 'General Information Sheet must not exceed 5MB',
-        // ], [
-        //     'vref' => 'Renewal Vehicle',
-        //     'or' => 'OR',
-        //     'new_plate_no.*' => 'New Plate No.',
-        //     'v_or' => 'Vehicle OR',
-        //     'cr' => 'CR',
-        //     'lease_contract' => 'Lease Contract',
-        //     'tct' => 'TCT',
-        //     'business_clearance' => 'Business Clearance',
-        //     'deed_of_assignment' => 'Deed of Assignment',
-        //     'proof_of_ownership' => 'Proof of Ownership',
-        //     'proof_of_residency' => 'Proof of Residency',
-        //     'bffhai_biz_clearance' => 'BFFHAI Business Clearance',
-        //     'valid_id_other_requirement' => 'Valid ID or Other Requirement',
-        //     'other_documents_2' => 'Other Documents 2',
-        //     'other_documents_3' => 'Other Documents 3',
-        //     'nbi_police_clearance' => 'NBI/Police Clearance',
-        //     'general_information_sheet' => 'General Information Sheet',
-        // ]);
 
         DB::beginTransaction(); // Start the transaction
 
         try {
-
-            
-            // $crm = CRMXIMain::with(['CRMXIvehicles'])
-            //     ->where('crm_id', $crmId)
-            //     ->where('email', $crmEmail)
-            //     ->firstOrFail();
 
             $crmGetEmailUsed = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
             ->where(function($query) use ($crmEmail) {
@@ -480,22 +374,17 @@ class SrsRequestRenewalController extends Controller
             ->where('address_id', $request->input('address_id'))
             ->first();
             
-            $didWeUseMainEmail = false;
-    
-            
             if ($crmGetEmailUsed) {
                 if ($crmGetEmailUsed->main_email === $crmEmail) {
+                
                     
-                    // dd($crmId);
-    
                     $personEmail = $crmGetEmailUsed->main_email;
     
                     $crm = CRMXIMain::with(['CRMXIvehicles', 'CRMXIcategory', 'CRMXIsubCategory', 'CRMXIaddress'])
                     ->where('crm_id', $crmId)
                     ->where('email', $crmEmail)
                     ->firstOrFail();
-                    
-                    $didWeUseMainEmail = true;
+
                 } elseif ($crmGetEmailUsed->owner_email === $crmEmail) {
                     $personEmail = $crmGetEmailUsed->owner_email;
                     // dd($email);
@@ -514,12 +403,6 @@ class SrsRequestRenewalController extends Controller
             }
 
             
-            // $crm = CrmMain::with(['vehicles'])
-            //     ->where('crm_id', $crmId)
-            //     ->where('email', $crmEmail)
-            //     ->firstOrFail();
-
-            // dd($crm);
 
             $renewalRequest = SrsRenewalRequest::where('crm_main_id', $crm->crm_id)
                 // ->where('email', $crm->email)
@@ -528,11 +411,11 @@ class SrsRequestRenewalController extends Controller
                 ->where('status', 0)
                 ->firstOrFail();
 
-            // dd($crmId, $crmEmail, $reqToken, $crm, $crmGetEmailUsed, $didWeUseMainEmail,$personEmail);
             // Changed namespace to srs 3
             $srsRequestController = new SrsRequestController();
 
             $srsRequest = new SrsRequest();
+
 
             // Generate requests_id
             // account_type - (0 = Individual, 1 = Company)
@@ -540,8 +423,11 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->account_id = $crm->account_id;
             $srsRequest->customer_id = $crm->crm_id;
 
+            
+
             // Old 2.0 is getting hoa from mains (in 3.0 were getting in in crmxi3_address)
-            $srsRequest->request_id = $srsRequestController->getNextId($crmGetEmailUsed->category_id, $crmGetEmailUsed->sub_category_id);
+            $srsRequest->request_id = $this->getNextId($crmGetEmailUsed->category_id, $crmGetEmailUsed->sub_category_id);
+            // $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
             // $srsRequest->request_id = $srsRequestController->getNextId($crm->category_id, $crm->sub_category_id);
 
             $srsRequest->first_name = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->firstname))));
@@ -573,14 +459,6 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->subdivision_village =  $crmGetEmailUsed->subdivision_village ? strip_tags($crmGetEmailUsed->subdivision_village) : null;
             $srsRequest->city = $crmGetEmailUsed->city ? strip_tags($crmGetEmailUsed->city) : null;
             $srsRequest->zipcode = $crmGetEmailUsed->zipcode ? strip_tags($crmGetEmailUsed->zipcode) : null;
-
-            // $srsRequest->house_no = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->blk_lot))));
-            // $srsRequest->street = strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->street))));
-            // $srsRequest->building_name = $crm->building_name ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->building_name)))) : NULL;
-            // $srsRequest->subdivision_village = $crm->subdivision_village ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->subdivision_village)))) : NULL;
-            // $srsRequest->city = $crm->city ? strip_tags(Str::title(trim(preg_replace('/\s+/', ' ', $crm->city)))) : NULL;
-            // $srsRequest->hoa_id = ($crm->hoa && $hoa) ? $hoa->id : NULL;
-            // $srsRequest->hoa_id = $crm->hoa ? strip_tags($crm->hoa) : null;
             
 
             $srsRequest->created_at = now();
@@ -590,53 +468,32 @@ class SrsRequestRenewalController extends Controller
                 $query->select('id', 'name');
             }, 'hoa']);
 
-            // Newly Added Columns in srs3
-
-            // membership_type - HOA TYPE (migrated accounts is null) this is crmxi3_mains.hoa_type
-            
-
-            // block_no (migrated accounts is null) this is crmxi3_mains.block
-            // $srsRequest->block_no = $crm->block;
-
-            // lot_no (migrated accounts is null) this is crmxi3_mains.lot
-            // $srsRequest->lot_no = $crm->lot;
-
-            // srs3_sub_category_id - (added during migration so that we can store the old sub_cat) (can be nulled on new entry)
-            // $srsRequest->srs3_sub_category_id = $srsRequest->category_id;
-
-
-
-            // company_name - "if account_type = 0, then null ,else this should be stored in crmxi3_mains.firstname"
-            // $srsRequest->company_name = $crm->account_type == 0 ? null : $crm->firstname;
-
-            // company_representative - "if account_type = 0, then null, else this should be stored in crmxi3_mains.name"
-            // $srsRequest->company_representative = $crm->account_type == 0 ? null : $crm->name;
-
-            // srs3_hoa_id - (added during migration so that we can store the old sub_cat)(can be nulled on new entry)
-            
-
             // OR / CR on vehicle is removed in renewal
             // Pending
-            // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
-            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . strtolower($srsRequest->category->name) . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
+            // $path = 'bffhai/' . $srsRequest->created_at->format('Y') . '/' . ($srsRequest->hoa_id ?: '0') . '/' . 'NA' . '/' . $srsRequest->created_at->format('m') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name));
             $filePath = $srsRequest->created_at->format('Y-m-d') . '/' . stripslashes(str_replace('/', '', $srsRequest->first_name . '_' . $srsRequest->last_name)) . '/' . ($srsRequest->hoa_id ?: '0') . '/' . $srsRequest->category_id;
 
-            $renewVehicles = $crm->vehicles->whereIn('id', $request->list_of_vehicles);
+            // $renewVehicles = $crm->vehicles->whereIn('id', $request->list_of_vehicles);
+            // dd($request->list_of_vehicles);
+
+            $renewVehicles = CRXMIVehicle::whereIn('id', $request->list_of_vehicles)->get();
 
             // Prepare data for insertion
-            $vehiclesData = [];
-            // dd($renewVehicles);
+            $vehiclesDatas = [];
+            // $processedVehicleIds = [];
+
             foreach ($renewVehicles as $renewVehicle) {
                 // Only include vehicles that are in the renewal list
-                if (!in_array($renewVehicle->id, $request->renewalVehicles)) {
-                    continue; // Skip vehicles that should not be included
-                }
-
+                // if (!in_array($renewVehicle->id, $request->renewalVehicles)) {
+                //     continue; // Skip vehicles that should not be included
+                // }
+                // $processedVehicleIds[] = $renewVehicle->id;
                 // Build the data array
-                $vehiclesData[] = [
+                $vehiclesDatas[] = [
                     'srs_request_id' => $srsRequest->request_id,
                     'vehicle_id' => $renewVehicle->id,
-                    'crm_id' =>  $renewVehicle->account_id,
+                    'crm_id' =>  $crm->crm_id,
                     'req_type' => 1,
                     'plate_no' => strip_tags(Str::upper(trim(preg_replace('/\s+/', '', $renewVehicle->plate_no)))),
                     'brand' => strip_tags($renewVehicle->brand),
@@ -652,12 +509,27 @@ class SrsRequestRenewalController extends Controller
                     'address_id' => strip_tags($renewVehicle->address_id),
                     'red_tag' => $renewVehicle->red_tag,
                     'vehicle_ownership_status_id' => $renewVehicle->vehicle_ownership_status_id,
+                    'cr' => $renewVehicle->cr,
+                    'req1' => $renewVehicle->req1,
+                    'or_path' => $renewVehicle->or_path,
+                    'cr_path' => $renewVehicle->cr_path,
+                    'vot' => $renewVehicle->vot,
+                    'vot_path' => $renewVehicle->vot_path
                 ];
+                
             }
 
-            // Perform the bulk insert
-            CRXMIVehicle::insert($vehiclesData);
+            CRXMIVehicle::insert($vehiclesDatas);
 
+            // foreach ($vehiclesDatas as $vehicleData) {
+            //     CRXMIVehicle::create($vehicleData);
+            // }
+
+            // Debugging output to check the number of inserted records
+            // $test = CRXMIVehicle::where('srs_request_id', $srsRequest->request_id)->get();
+            // DB::rollBack();
+            // dd('Number of vehicles inserted:', $test->count(), $test);
+           
             $files = [];
 
             if ($request->has('valid_id_other_requirement')) {
@@ -666,10 +538,16 @@ class SrsRequestRenewalController extends Controller
 
             $srn = Crypt::encrypt($srsRequest->request_id);
 
+            $existingRequest = DB::table('srs3_requests')->where('request_id', $srsRequest->request_id)->exists();
+
+            if ($existingRequest) {
+                return response()->json(['errors' => ['request_id' => 'The request ID already exists.']], 400);
+            }
+
             $srsRequest->save();
 
             // $crm->hoa = $request->hoa ? $srsRequest->hoa->name : '';
-            $crm->save();
+            // $crm->save();
 
             if ($files) {
                 $srsRequest->files()->saveMany($files);
@@ -677,8 +555,7 @@ class SrsRequestRenewalController extends Controller
 
             $renewalRequest->status = 1;
             $renewalRequest->save();
-
-
+            
             DB::commit();
 
             // For Requestor
