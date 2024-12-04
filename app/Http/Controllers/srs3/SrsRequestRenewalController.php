@@ -309,6 +309,10 @@ class SrsRequestRenewalController extends Controller
         //                 ->select('id', 'name', 'description', 'required')
         //                 ->get();
 
+        // If all
+        // $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::all();
+        $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::where('id',1)->get();
+
         // Valid ID or Other Requirements no changes in 3.0
         $requirements = SrsRequirement::where('id', 10)
             ->select('id', 'name', 'description', 'required')
@@ -317,12 +321,11 @@ class SrsRequestRenewalController extends Controller
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail'));
+        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail','vehicleOwnershipTypes'));
     }
 
     public function processRenewal(Request $request)
     {
-
         // Get the renewal vehicles directly from the request
         $renewalVehicles = $request->input('renewalVehicles', []);
 
@@ -508,13 +511,14 @@ class SrsRequestRenewalController extends Controller
                     'account_id' => $renewVehicle->account_id,
                     'address_id' => strip_tags($renewVehicle->address_id),
                     'red_tag' => $renewVehicle->red_tag,
-                    'vehicle_ownership_status_id' => $renewVehicle->vehicle_ownership_status_id,
+                    // 'vehicle_ownership_status_id' => $renewVehicle->vehicle_ownership_status_id,
                     'cr' => $renewVehicle->cr,
                     'req1' => $renewVehicle->req1,
                     'or_path' => $renewVehicle->or_path,
                     'cr_path' => $renewVehicle->cr_path,
                     'vot' => $renewVehicle->vot,
-                    'vot_path' => $renewVehicle->vot_path
+                    'vot_path' => $renewVehicle->vot_path,
+                    'vehicle_ownership_status_id' => $request->vehicle_ownership_type[$renewVehicle->id]
                 ];
                 
             }

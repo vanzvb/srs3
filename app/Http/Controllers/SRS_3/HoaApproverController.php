@@ -262,7 +262,8 @@ class HoaApproverController extends Controller
                     'hoa_pres_status',
                     'hoa_pres_remarks',
                     'vot',
-                    'vot_path'
+                    'vot_path',
+                    'vehicle_ownership_status_id'
                 );
             },
             'statuses',
@@ -325,7 +326,9 @@ class HoaApproverController extends Controller
                 'cr' => $vehicle->cr || $vehicle->cr_path ? '<a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/hoa-approvers3/srs/uploads/' . $vehicle->cr_path) . '" data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" href="#" class="modal_img">CR</a>' : '',
                 'vot' => $vehicle->vot_path ? '<a data-value="/hoa-approvers3/srs/uploads/' . $vehicle->vot_path . '" data-type="' . (isset($vehicle->vot) && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" href="#" class="modal_img">VOT</a>' : '',
                 'hoa_pres_status' => $vehicle->hoa_pres_status,
-                'hoa_pres_remarks' => $vehicle->hoa_pres_remarks
+                'hoa_pres_remarks' => $vehicle->hoa_pres_remarks,
+                'vehicle_ownership_status' => $vehicle->vehicleOwnershipStatus->name ?? 'N/A',
+                'vehicle_ownership_status_id' => $vehicle->vehicle_ownership_status_id
             ];
         }
 

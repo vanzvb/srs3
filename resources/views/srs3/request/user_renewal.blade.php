@@ -163,6 +163,7 @@
                                                 <tr>
                                                     <th></th>
                                                     <th>Plate Number</th>
+                                                    <th>Vehicle Ownership Type</th> <!-- New column added -->
                                                     <th>Brand, Series</th>
                                                     <th>Category</th>
                                                     <th>Sub Category</th>
@@ -171,11 +172,11 @@
                                             </thead>
                                             <tbody id="vehicleTableBody">
                                                 @if ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id)))->isEmpty())
-                                                <tr id="no-vehicles-row">
-                                                    <td colspan="6" class="text-center">No vehicles available</td>
-                                                </tr>
-                                            @else
-                                                @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id))) as $vehicle)
+                                                    <tr id="no-vehicles-row">
+                                                        <td colspan="7" class="text-center">No vehicles available</td> <!-- Updated colspan to 7 -->
+                                                    </tr>
+                                                @else
+                                                    @foreach ($crm->CRMXIvehicles->filter(fn($vehicle) => $vehicle->vehicleAddress->category_id != 2 && in_array($vehicle->vehicleAddress->sub_category_id, [1, 4]) && ($vehicle->vehicle_ownership_status_id == 1 || is_null($vehicle->vehicle_ownership_status_id))) as $vehicle)
                                                         <tr id="vehicle-row-{{ $vehicle->id }}"
                                                             data-hoa-name="{{ $vehicle->vehicleAddress->CRMXIhoa->name ?? 'N/A' }}"
                                                             data-address-id="{{ $vehicle->vehicleAddress->id }}">
@@ -184,12 +185,19 @@
                                                                     value="{{ $vehicle->id }}" checked>
                                                             </td>
                                                             <td>{{ $vehicle->plate_no ?? 'N/A' }}</td>
+                                                            <td>
+                                                                <select class="form-select" name="vehicle_ownership_type[{{ $vehicle->id }}]">
+                                                                    @foreach ($vehicleOwnershipTypes as $type)
+                                                                        <option value="{{ $type->id }}" {{ ($vehicle->vehicleOwnershipStatus->id ?? $vehicleOwnershipTypes->first()->id) == $type->id ? 'selected' : '' }}>
+                                                                            {{ $type->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td> <!-- New column for Vehicle Ownership Type -->
                                                             <td>{{ $vehicle->brand ?? 'N/A' }},
                                                                 {{ $vehicle->series ?? 'N/A' }}</td>
-                                                            <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}
-                                                            </td>
-                                                            <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}
-                                                            </td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIcategory->name ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->vehicleAddress->CRMXIsubCategory->name ?? 'N/A' }}</td>
                                                             <td style="white-space: nowrap;">
                                                                 <button type="button" class="btn btn-primary btn-sm"
                                                                     data-bs-toggle="modal"

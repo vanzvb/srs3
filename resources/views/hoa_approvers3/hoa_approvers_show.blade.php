@@ -358,6 +358,7 @@
                                                     <th>Brand</th>
                                                     <th>Series</th>
                                                     <th>Color</th>
+                                                    <th>Vehicle Ownership Type</th>
                                                     <th>OR/CR/VOT</th>
                                                 </tr>
                                             </thead>
@@ -391,6 +392,7 @@
                                                         <td>{{ $vehicle['brand'] }}</td>
                                                         <td>{{ $vehicle['series'] }}</td>
                                                         <td>{{ $vehicle['color'] }}</td>
+                                                        <td>{{ $vehicle['vehicle_ownership_status'] }}</td>
                                                         <td>{!! $vehicle['or'] !!} <br> {!! $vehicle['cr'] !!} <br> {!! $vehicle['vot'] !!}</td>
                                                     </tr>
                                                 @empty
