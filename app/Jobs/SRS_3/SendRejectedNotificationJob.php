@@ -59,7 +59,7 @@ class SendRejectedNotificationJob implements ShouldQueue
 
             Mail::setSwiftMailer($mailer);
 
-            Mail::to($this->email)->send(new RequestRejected($this->srsRequest->request_id, $this->reason, $mailFrom));
+            Mail::to($this->email)->send(new RequestRejected($this->srsRequest, $this->reason, $mailFrom));
 
             Mail::setSwiftMailer($backup);
         }

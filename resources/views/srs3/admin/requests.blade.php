@@ -381,6 +381,7 @@
 													<th style="text-align: center;background: #b1b7b9;color: white;">#</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">REQUEST TYPE</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">STICKER NO.</th>
+													<th style="text-align: center;background: #b1b7b9;color: white;">VEHICLE OWNERSHIP TYPE</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">TYPE</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">PLATE NO.</th>
 													<th style="text-align: center;background: #b1b7b9;color: white;">BRAND</th>
@@ -414,6 +415,7 @@
 													<tr style="font-size: 13px;">
 														<th style="text-align: center;background: #b1b7b9;color: white;">#</th>
 														<th style="text-align: center;background: #b1b7b9;color: white;">REQUEST TYPE</th>
+														<th style="text-align: center;background: #b1b7b9;color: white;">VEHICLE OWNERSHIP TYPE</th>
 														<th style="text-align: center;background: #b1b7b9;color: white;">REJECTION REMARKS</th>
 														<th style="text-align: center;background: #b1b7b9;color: white;">STICKER NO.</th>
 														<th style="text-align: center;background: #b1b7b9;color: white;">TYPE</th>

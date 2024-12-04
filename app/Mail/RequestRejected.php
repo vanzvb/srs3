@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\SRS3_Model\SrsRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -11,7 +12,7 @@ class RequestRejected extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $requestId;
+    public $srsRequest;
     public $rejectMessage;
     public $mailFrom;
 
@@ -20,9 +21,9 @@ class RequestRejected extends Mailable
      *
      * @return void
      */
-    public function __construct($requestId, $rejectMessage, $mailFrom = 'bffhai@zn.donotreply.notification.znergee.com')
+    public function __construct(SrsRequest $srsRequest, $rejectMessage, $mailFrom = 'bffhai@zn.donotreply.notification.znergee.com')
     {
-        $this->requestId = $requestId;
+        $this->srsRequest = $srsRequest;
         $this->rejectMessage = $rejectMessage;
         $this->mailFrom = $mailFrom;
     }
@@ -34,7 +35,7 @@ class RequestRejected extends Mailable
      */
     public function build()
     {
-        return $this->subject('SRS #' . $this->requestId . ' - Rejected')
+        return $this->subject('SRS #' . $this->srsRequest->request_id . ' - Rejected')
             ->from($this->mailFrom, 'BFFHAI')
             ->markdown('emails.requests3.rejected');
     }

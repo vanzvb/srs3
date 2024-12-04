@@ -718,6 +718,7 @@ class SrsRequestController extends Controller
                   <td>' . ($key + 1) . '</td>
                   <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
                   <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
+                  <td>' . htmlspecialchars($vehicle->vehicleOwnershipStatus->name ?? '') . '</td>
                   <td>' . htmlspecialchars($vehicle->type) . '</td>
                   <td>' . htmlspecialchars($vehicle->plate_no) . ($vehicle->req_type == 1 && $vehicle->plate_no_remarks ? '<br> <b>[New: ' . $vehicle->plate_no_remarks . ']</b>' : '') . '</td>
                   <td>' . htmlspecialchars($vehicle->brand) . '</td>
@@ -733,12 +734,11 @@ class SrsRequestController extends Controller
                         <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                         data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                         href="#" class="modal_img">CR</a>
-                        <br>
-                        <a data-value="' . ($vehicle->vot_path ? '/srs/uploads/' . $vehicle->vot_path : '#') . '" 
+                        <br>'
+                        . ($vehicle->vot_path ? '<a data-value="/srs/uploads/' . $vehicle->vot_path . '" 
                         data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
-                        href="' . ($vehicle->vot_path ? '#' : 'javascript:void(0);') . '" 
-                        class="modal_img">VOT</a>
-                    </td>
+                        href="#" class="modal_img">VOT</a>' : '') .
+                    '</td>
               </tr>';
           }
         }
@@ -748,6 +748,7 @@ class SrsRequestController extends Controller
                 $rejected_veh[] = '<tr>
                       <td>' . ($key + 1) . '</td>
                       <td>' . ($vehicle->req_type ? 'Renewal' : 'New') . '</td>
+                      <td>' . htmlspecialchars($vehicle->vehicleOwnershipStatus->name ?? '') . '</td>
                       <td>' . htmlspecialchars($vehicle->hoa_pres_remarks) .'</td>
                       <td>' . htmlspecialchars($vehicle->old_sticker_no) . '</td>
                       <td>' . htmlspecialchars($vehicle->type) . '</td>
@@ -765,12 +766,11 @@ class SrsRequestController extends Controller
                             <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                             data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                             href="#" class="modal_img">CR</a>
-                            <br>
-                            <a data-value="' . ($vehicle->vot_path ? '/srs/uploads/' . $vehicle->vot_path : '#') . '" 
+                            <br>'
+                            . ($vehicle->vot_path ? '<a data-value="/srs/uploads/' . $vehicle->vot_path . '" 
                             data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
-                            href="' . ($vehicle->vot_path ? '#' : 'javascript:void(0);') . '" 
-                            class="modal_img">VOT</a>
-                            </td>
+                            href="#" class="modal_img">VOT</a>' : '') .
+                        '</td>
                   </tr>';
             }
         }
@@ -1027,7 +1027,14 @@ class SrsRequestController extends Controller
             'contact_no' => auth()->user()->can('access', CrmMain::class) ? $srsRequest->contact_no : '',
             'blk_lot' => $srsRequest->house_no,
             'street' => $srsRequest->street,
-            'address' => $srsRequest->house_no . ' ' . $srsRequest->street . ($srsRequest->building_name ? ', ' . $srsRequest->building_name : '') . ($srsRequest->subdivision_village ? ', ' . $srsRequest->subdivision_village : '') . ($srsRequest->city ? ', ' . $srsRequest->city : ''),
+            'address' => 
+            ($srsRequest->block_no ?? '') . 
+            ($srsRequest->lot_no ? ', ' . $srsRequest->lot_no : '') . 
+            ($srsRequest->house_no ? ', ' . $srsRequest->house_no : '') . 
+            ($srsRequest->street ? ', ' . $srsRequest->street : '') . 
+            ($srsRequest->building_name ? ', ' . $srsRequest->building_name : '') . 
+            ($srsRequest->subdivision_village ? ', ' . $srsRequest->subdivision_village : '') . 
+            ($srsRequest->city ? ', ' . $srsRequest->city : ''),
             'creationDate' => $srsRequest->created_at->format('F d, Y h:i A'),
             'status' => $srsRequest->trashed() ? 'Rejected' : $this->getStatus($srsRequest->status, $adminApproved),
             'service' => $srsRequest->category->name . ' / ' . $subCatName,
@@ -1927,8 +1934,7 @@ class SrsRequestController extends Controller
 
     public function updateCid(Request $request)
     {
-        // $this->authorize('access', SrsRequest::class);
-
+        // $this->authorize('access', SrsRequest::class)
         $data = $request->validate([
             'req_id' => 'required|exists:srs3_requests,request_id',
             'acc' => 'required|string|exists:crmxi3_mains,crm_id',

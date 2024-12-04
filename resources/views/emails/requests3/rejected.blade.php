@@ -1,6 +1,6 @@
 @component('mail::message')
 <div style="padding: 20px;">
-    <h1 style="color: navy; text-align: center;">SRS #{{ $requestId }}</h1>
+    <h1 style="color: navy; text-align: center;">SRS #{{ $srsRequest->request_id }}</h1>
 </div>
 
 Good day! <br>
@@ -12,6 +12,33 @@ Below is the reason of rejection.
 Thank you for your understanding.
 
 <br>
+@php
+    $rejectedVehicles = $srsRequest->vehicles3->where('hoa_pres_status', 1);
+@endphp
+
+@if ($rejectedVehicles->isNotEmpty())
+@component('mail::panel') 
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px;">Plate Number</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($rejectedVehicles as $vehicle)
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ $vehicle->plate_no ?? '' }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">{{ $vehicle->hoa_pres_remarks ?? '' }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <br>
+    <br>
+@endcomponent
+@endif
+
 
 @component('mail::panel')
 Reason of rejection
