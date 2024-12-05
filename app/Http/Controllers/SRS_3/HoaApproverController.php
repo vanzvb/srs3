@@ -495,13 +495,10 @@ class HoaApproverController extends Controller
                     ->get();
 
 
-        
                 foreach ($CRMXIHoaRejectedVehicles as $vehicle) {
-                    if (isset($rejectionReasons[$vehicle->id])) {
-                        $vehicle->hoa_pres_remarks = $rejectionReasons[$vehicle->id] . ' ' . auth()->user()->email; 
+                        $vehicle->hoa_pres_remarks = $rejectionReasons[$vehicle->id] ?? 'Denied';
                         $vehicle->hoa_pres_status = 1; // Mark as rejected
                         $vehicle->save();
-                    }
                 }
         
                 $rejectedVehicleIds = $CRMXIHoaRejectedVehicles->pluck('id')->toArray();

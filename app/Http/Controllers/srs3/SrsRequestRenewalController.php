@@ -334,11 +334,15 @@ class SrsRequestRenewalController extends Controller
 
         $request->validate([
             'list_of_vehicles' => 'required|array|min:1',
+            'valid_id_other_requirement' => 'file|mimes:jpg,png,jpeg|max:5120',
+            'new_plate_no.*' => 'string|nullable|max:100',
         ], [
             'list_of_vehicles.required' => 'There are no vehicles to renew.',
             'list_of_vehicles.min' => 'There must be at least one vehicle to renew.',
+            'valid_id_other_requirement.mimes' => 'Valid ID or Other Requirement must be an image file (jpg, png, jpeg)',
+            'valid_id_other_requirement.max' => 'Valid ID or Other Requirement must not exceed 5MB',
         ]);
-
+ 
         if (!$request->session()->has('sr_rnw-cid') || !$request->session()->get('sr_rnw-eml')) {
             return back()->withErrors(['error' => 'Please Refresh Page and Try Again']);
         }
@@ -364,6 +368,7 @@ class SrsRequestRenewalController extends Controller
         if ($reqCrmId != $crmId || $reqEmail != $crmEmail) {
             return back()->withErrors(['error' => 'Error L103']);
         }
+
 
         DB::beginTransaction(); // Start the transaction
 
@@ -537,6 +542,7 @@ class SrsRequestRenewalController extends Controller
             $files = [];
 
             if ($request->has('valid_id_other_requirement')) {
+
                 $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
             }
 
@@ -554,7 +560,18 @@ class SrsRequestRenewalController extends Controller
             // $crm->save();
 
             if ($files) {
-                $srsRequest->files()->saveMany($files);
+                // if (count($files) > 1) {
+                //     throw new Exception('More than one file detected. Only one file is allowed.');
+                // }
+                $savedFiles = $srsRequest->files()->saveMany($files);
+
+                // Convert the iterable to a collection
+                $savedCount = collect($savedFiles)->count();
+
+                if ($savedCount > 1) {
+                    throw new Exception('More than one file detected. Only one file is allowed.');
+                }
+
             }
 
             $renewalRequest->status = 1;

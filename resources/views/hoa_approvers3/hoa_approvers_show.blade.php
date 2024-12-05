@@ -509,7 +509,7 @@
                     rejectionInput.value = ''; // Clear input when checkbox is checked
                 } else {
                     rejectionInput.disabled = false;
-                    rejectionInput.required = true;
+                    rejectionInput.required = false;
                 }
             });
         });
