@@ -71,7 +71,7 @@ Route::get('/sr-renewal', [SrsRequestRenewalController::class, 'userRenewal'])->
 
 Route::prefix('v3')->group(function () {
     // Test route
-    Route::get('/vanz', [Srs3SrsRequestRenewalController::class, 'vanz']);
+    Route::get('/vanz', [Srs3SrsRequestRenewalController::class, 'vanz'])->middleware('verify.access.code');
 
     // index for renewal
     Route::get('/sticker/renewal', [Srs3SrsRequestRenewalController::class, 'index']);
@@ -83,6 +83,8 @@ Route::prefix('v3')->group(function () {
 
     // when "Submit Renewal" is clicked (this is the email form)
     Route::post('/sr-renewal', [Srs3SrsRequestRenewalController::class, 'processRenewal'])->name('request.v3.user-renewal.process');
+
+    Route::post('/sr-renewal-update', [Srs3SrsRequestRenewalController::class, 'processRenewalUpdate'])->name('request.v3.user-renewal.Updateprocess');
 
     // index for new sticker application
     Route::get('/sticker/new', [Srs3RequestController::class, 'create']);

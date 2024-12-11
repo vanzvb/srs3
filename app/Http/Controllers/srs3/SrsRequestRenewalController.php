@@ -135,6 +135,18 @@ class SrsRequestRenewalController extends Controller
 
             }
 
+            $countDuplicateEmail = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            ->where('main_email', $request->email)
+            ->get();
+
+            \Log::info('Count duplicate main account email: ');
+            \Log::info($countDuplicateEmail->count());
+
+            // Iterate all emails with duplicate and log it
+            foreach($countDuplicateEmail as $record) {
+                \Log::info('Account ID: ' . $record->main_account_id . ', Email: ' . $record->main_email);
+            }
+
            
         } else {
             // if the input is account id, we will alter the request->email and change it to email instead of account id
@@ -155,17 +167,20 @@ class SrsRequestRenewalController extends Controller
                 'location'      => $ipLocation['city']
             ]);
 
-            return response()->json(['errors' => ['email_not_found' => 'Invalid email address, please contact BFFHAI CLUBHOUSE']], 400);
+            return response()->json(['errors' => ['email_not_found' => 'Invalid Account ID/Email Address, please contact BFFHAI CLUBHOUSE']], 400);
         }
         
 
         $mainEmailExists = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
         ->where('main_email', $request->email)
         ->exists();
+        // main email is existing
         if ($mainEmailExists) {
+            Log::info('Email is found in account!');
 
+            // using email as pivotal conditional
             $crmVehicleCount = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
-            ->where('main_account_id',  $crm->account_id)
+            // ->where('main_account_id',  $crm->account_id)
             ->where('main_email',  $request->email) // Main Email 
             ->where('category_id', 1) // RESIDENT - 1
             ->whereIn('sub_category_id', [1, 4]) // HOMEOWNER - 1, PROPERTY OWNER - 4
@@ -177,10 +192,32 @@ class SrsRequestRenewalController extends Controller
             })
             ->get();
 
-        }else{
+        }
+        // email is not in account but in vehicle info
+        elseif($request->is_email && !$mainEmailExists) {
+            Log::info('Email is found in vehicle!');
+
+            // using email as pivotal conditional
+            $crmVehicleCount = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
+            // ->where('main_account_id',  $crm->account_id)
+            ->where('owner_email',  $request->email) // Main Email 
+            ->where('category_id', 1) // RESIDENT - 1
+            ->whereIn('sub_category_id', [1, 4]) // HOMEOWNER - 1, PROPERTY OWNER - 4
+            ->where('hoa_type', 0) // HOA-MEMBER - 0
+            // ->where('vehicle_ownership_status_id', 1) // REGISTERED OWNER - 1
+            ->where(function ($query){
+                $query->where('vehicle_ownership_status', 1) 
+                    ->orWhereNull('vehicle_ownership_status');
+            })
+            ->get();
+        }
+        // using account id as pivotal condition
+        else{
+            Log::info("Skipping emails, but processing account id");
+
             $crmVehicleCount = DB::table('v_crmxi3_mains_consolidated_vehicle_info')
             ->where('main_account_id',  $crm->account_id)
-            ->where('owner_email',  $request->email) // Owner Email 
+            // ->where('owner_email',  $request->email) // Owner Email 
             ->where('category_id', 1) // RESIDENT - 1
             ->whereIn('sub_category_id', [1, 4]) // HOMEOWNER - 1, PROPERTY OWNER - 4
             ->where('hoa_type', 0) // HOA-MEMBER - 0
@@ -194,14 +231,19 @@ class SrsRequestRenewalController extends Controller
 
         $count_valid_vehicle = $crmVehicleCount->count();
         if ($count_valid_vehicle == 0) {
+            // return response()->json(['errors' =>
+            //     ['invalid_category' => 'You are not eligible to renew as of this period, please contact your enclave or bffhai clubhouse for assistance.']
+            // ], 400);
+
             return response()->json(['errors' =>
-                ['invalid_category' => 'You are not eligible to renew as of this period, please contact your enclave or bffhai clubhouse for assistance.']
+                ['invalid_category' => 'There are no vehicles eligible for this renewal period. Qualification is Resident & Must be Homeowner/Property Owner & Must be HOA Member & Must be a Registered Owner (Vehicle Ownership Type - VOT).']
             ], 400);
         } 
         $token = uniqid();
 
         if (is_null($crm->crm_id) || is_null($request->email)) {
-            return response()->json(['errors' => ['message' => 'Something went wrong, Please refresh the page.']], 400);
+            // return response()->json(['errors' => ['message' => 'Something went wrong, Please refresh the page.']], 400);
+            return response()->json(['errors' => ['message' => 'An error occurred, please share the screenshot to BFFHAI.']], 400);
         }
         
         $crmId = Crypt::encrypt($crm->crm_id);
@@ -216,13 +258,6 @@ class SrsRequestRenewalController extends Controller
         $renewalRequest->email = $request->email;
         $renewalRequest->token = $token;
         $renewalRequest->save();
-
-        // if($request->email == "ivan.deposoy@atomitsoln.com") {
-        // 	\Log::info('Entered here ivan email');
-        // 	dispatch(new \App\Jobs\SendRequestRenewalJob($request->email, $url));
-        // } else {
-        // 	Mail::to($request->email)->send(new RequestRenewal($request->email, $url));
-        // }
 
         dispatch(new \App\Jobs\srs3\SendRequestRenewalJob($request->email, $url));
 
@@ -309,9 +344,31 @@ class SrsRequestRenewalController extends Controller
         //                 ->select('id', 'name', 'description', 'required')
         //                 ->get();
 
+        // $filteredVehicles = $crm->CRMXIvehicles()
+        // ->whereHas('vehicleAddress', function ($query) {
+        //     $query->where('category_id', '!=', 2)
+        //           ->whereIn('sub_category_id', [1, 4]);
+        // })
+        // ->get();
+
         // If all
-        // $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::all();
-        $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::where('id',1)->get();
+        $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::all();
+        // $vehicleOwnershipTypes = CRMXIVehicleOwnershipStatus::where('id',1)->get();
+
+        // HOA list for updating
+        $hoaMembers = DB::select('SELECT * FROM crmxi3_hoas WHERE type = 0 AND id != 95');
+
+        
+        //Check if theres HOA
+        // Get all vehicle address IDs
+        $vehicleAddressIds = $crm->CRMXIaddress()
+        ->where('category_id', 1)
+        ->whereIn('sub_category_id', [1, 4])
+        ->whereNull('hoa')
+        ->get();
+
+        // Debugging
+        // dd($vehicleAddressIds);
 
         // Valid ID or Other Requirements no changes in 3.0
         $requirements = SrsRequirement::where('id', 10)
@@ -321,7 +378,37 @@ class SrsRequestRenewalController extends Controller
         session(['sr_rnw-cid' => $crmId, 'sr_rnw-eml' => $email]);
 
         // return view('srs.request.user_renewal', compact('crm', 'requirements', 'hoas', 'crmHoaId'));    
-        return view('srs3.request.user_renewal', compact('crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail','vehicleOwnershipTypes'));
+        return view('srs3.request.user_renewal', compact('crmId','hoaMembers','vehicleAddressIds','crm', 'requirements', 'crmxiCategories', 'crmxiSubCategories', 'crmxiHoas', 'personEmail', 'didWeUseMainEmail','vehicleOwnershipTypes'));
+    }
+
+    public function processRenewalUpdate(Request $request)
+    {
+        
+        try {
+            $crmxiMain = CRMXIMain::with(['CRMXIaddress' => function ($query) use ($request) {
+                $query->where('id', $request->addressToUpdate);
+            }])
+            ->where('crm_id', $request->crm_id_update)
+            ->firstOrFail();
+
+            $hoaUpdate = CRMXIHoa::find($request->hoaToUpdate);
+
+            $updateCrmAddress = $crmxiMain->CRMXIaddress->first();
+            if (!$updateCrmAddress) {
+                return redirect()->back()->with('error', 'Address not found.');
+            }
+
+            $updateCrmAddress->hoa = $hoaUpdate->id;
+            $updateCrmAddress->hoa_type = $hoaUpdate->type;
+            $updateCrmAddress->save();
+    
+            return redirect()->back()->with('success', 'Your changes have been saved.');
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            \Log::error('Error updating address: ' . $e->getMessage());
+    
+            return redirect()->back()->with('error', 'An error occurred while updating the address. Please try again.');
+        }
     }
 
     public function processRenewal(Request $request)
@@ -342,7 +429,7 @@ class SrsRequestRenewalController extends Controller
             'valid_id_other_requirement.mimes' => 'Valid ID or Other Requirement must be an image file (jpg, png, jpeg)',
             'valid_id_other_requirement.max' => 'Valid ID or Other Requirement must not exceed 5MB',
         ]);
- 
+
         if (!$request->session()->has('sr_rnw-cid') || !$request->session()->get('sr_rnw-eml')) {
             return back()->withErrors(['error' => 'Please Refresh Page and Try Again']);
         }
@@ -368,7 +455,6 @@ class SrsRequestRenewalController extends Controller
         if ($reqCrmId != $crmId || $reqEmail != $crmEmail) {
             return back()->withErrors(['error' => 'Error L103']);
         }
-
 
         DB::beginTransaction(); // Start the transaction
 
@@ -431,6 +517,28 @@ class SrsRequestRenewalController extends Controller
             $srsRequest->account_id = $crm->account_id;
             $srsRequest->customer_id = $crm->crm_id;
 
+            $countDuplicateEmails = CRMXIMain::where('email', $personEmail)
+                ->get();
+
+            Log::info($countDuplicateEmails->count());
+
+            $note = '';
+
+            // If found duplicate then iterate
+            if($countDuplicateEmails->count() > 1) {
+                // Iterate all emails with duplicate and log it
+                foreach($countDuplicateEmails as $record) {
+                    $note .=  $record->account_id . ', '; 
+                }
+            }
+
+            // Trim the note to 70 characters and add '...' if necessary
+            if (strlen($note) > 65) {
+                $note = substr($note, 0, 65) . '...';
+            }
+
+            // Save the System Notes in the Ticket for Remarks
+            $srsRequest->system_notes = $note;
             
 
             // Old 2.0 is getting hoa from mains (in 3.0 were getting in in crmxi3_address)
@@ -471,6 +579,8 @@ class SrsRequestRenewalController extends Controller
 
             $srsRequest->created_at = now();
             $srsRequest->updated_at = now();
+
+
 
             $srsRequest->load(['category' => function ($query) {
                 $query->select('id', 'name');
@@ -542,7 +652,6 @@ class SrsRequestRenewalController extends Controller
             $files = [];
 
             if ($request->has('valid_id_other_requirement')) {
-
                 $files[] = $srsRequestController->storeRequirementFile($srsRequestController->storeFile($path, $request['valid_id_other_requirement']), 10, $filePath);
             }
 
@@ -560,17 +669,8 @@ class SrsRequestRenewalController extends Controller
             // $crm->save();
 
             if ($files) {
-                // if (count($files) > 1) {
-                //     throw new Exception('More than one file detected. Only one file is allowed.');
-                // }
-                $savedFiles = $srsRequest->files()->saveMany($files);
+                $srsRequest->files()->saveMany($files);
 
-                // Convert the iterable to a collection
-                $savedCount = collect($savedFiles)->count();
-
-                if ($savedCount > 1) {
-                    throw new Exception('More than one file detected. Only one file is allowed.');
-                }
 
             }
 

@@ -393,7 +393,11 @@
                                                         <td>{{ $vehicle['series'] }}</td>
                                                         <td>{{ $vehicle['color'] }}</td>
                                                         <td>{{ $vehicle['vehicle_ownership_status'] }}</td>
-                                                        <td>{!! $vehicle['or'] !!} <br> {!! $vehicle['cr'] !!} <br> {!! $vehicle['vot'] !!}</td>
+                                                        <td>
+                                                            @if ($vehicle['req_type'] !== 'Renewal')
+                                                            {!! $vehicle['or'] !!} <br> {!! $vehicle['cr'] !!} <br> {!! $vehicle['vot'] !!}
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                 @empty
                                                     <tr>

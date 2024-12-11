@@ -725,6 +725,7 @@ class SrsRequestController extends Controller
                   <td>' . htmlspecialchars($vehicle->series) . '</td>
                   <td>' . htmlspecialchars($vehicle->year_model) . '</td>
                   <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
+                    ' . ($vehicle->req_type != 1 ? '
                     <td align="center">
                         <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
                         data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
@@ -734,11 +735,11 @@ class SrsRequestController extends Controller
                         <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                         data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                         href="#" class="modal_img">CR</a>
-                        <br>'
+                        <br>' 
                         . ($vehicle->vot_path ? '<a data-value="/srs/uploads/' . $vehicle->vot_path . '" 
                         data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
-                        href="#" class="modal_img">VOT</a>' : '') .
-                    '</td>
+                        href="#" class="modal_img">VOT</a>' : '') . 
+                    '</td>' : '') . '
               </tr>';
           }
         }
@@ -757,6 +758,7 @@ class SrsRequestController extends Controller
                       <td>' . htmlspecialchars($vehicle->series) . '</td>
                       <td>' . htmlspecialchars($vehicle->year_model) . '</td>
                       <td>' . htmlspecialchars($vehicle->color) . ($vehicle->req_type == 1 && $vehicle->color_remarks ? '<br> <b>[New: ' . $vehicle->color_remarks . ']</b>' : '') . '</td>
+                        ' . ($vehicle->req_type != 1 ? '
                         <td align="center">
                             <a data-value="' . ($vehicle->or_path ? '/srs/uploads/' . $vehicle->or_path : '#') . '" 
                             data-type="' . ($vehicle->req1 && explode('.', $vehicle->req1)[1] == 'pdf' ? 'pdf' : 'img') . '" 
@@ -766,11 +768,11 @@ class SrsRequestController extends Controller
                             <a data-value="' . ($vehicle->cr_from_crm ? 'crm_model/cr/' . $vehicle->cr : '/srs/uploads/' . $vehicle->cr_path) . '" 
                             data-type="' . ($vehicle->cr ? (explode('.', $vehicle->cr)[1] == 'pdf' ? 'pdf' : 'img') : 'img') . '" 
                             href="#" class="modal_img">CR</a>
-                            <br>'
+                            <br>' 
                             . ($vehicle->vot_path ? '<a data-value="/srs/uploads/' . $vehicle->vot_path . '" 
                             data-type="' . ($vehicle->vot && explode('.', $vehicle->vot)[1] == 'pdf' ? 'pdf' : 'img') . '" 
-                            href="#" class="modal_img">VOT</a>' : '') .
-                        '</td>
+                            href="#" class="modal_img">VOT</a>' : '') . 
+                        '</td>' : '') . '
                   </tr>';
             }
         }
@@ -865,6 +867,7 @@ class SrsRequestController extends Controller
         $adminApproved = $statuses->firstWhere('name', 'Approval - Admin')->requests->isNotEmpty();
         $paymentAction = '';
         $systemNotes = '';
+        $srsSystemNotes = ''; // New Field Introduce for System Notes
         $genInvoiceAction = '';
         $redTagAction = '';
         $redTagNotes = '';
@@ -885,6 +888,8 @@ class SrsRequestController extends Controller
         // } else {
         // $requestAction = false;
         // }
+
+        $srsSystemNotes = $srsRequest->system_notes;
 
         if ($srsRequest->status == 3 && $statuses->firstWhere('name', 'Closed')->requests->isEmpty() && $srsRequest->invoice && $srsRequest->customer) {
             $paymentAction = '<button type="button" data-value="' . $srsRequest->request_id . '" id="invoice_payment_btn" class="btn btn-sm btn-primary px-3" ' . ($srsRequest->trashed() ? 'disabled' : '') . '>Close Ticket</button>';
@@ -1046,6 +1051,7 @@ class SrsRequestController extends Controller
             'vehicles' => $vehicles,
             'files' => $files,
             'rejected_veh' => $rejected_veh,
+            'link_id' => $srsRequest->linked_account_id,
             // 'hoaApproval' => $hoaApproval ? $hoaApproval->created_at->format('M d, Y h:i A') : '',
             // 'adminApproval' => $adminApproval ? $adminApproval->pivot->created_at->format('M d, Y h:i A') : ''
             'adminApproved' => $adminApproved,
@@ -1053,6 +1059,7 @@ class SrsRequestController extends Controller
             'paymentAction' => $paymentAction,
             'genInvoiceAction' => $genInvoiceAction,
             'systemNotes' => $systemNotes,
+            'srsSystemNotes' => $srsSystemNotes,
             'adminNotes' => htmlspecialchars($srsRequest->admin_notes),
             'redTagged' => $redTagged,
             'redTagAction' => $redTagAction,
@@ -1945,11 +1952,46 @@ class SrsRequestController extends Controller
         try {
             // $srsRequest = SrsRequest::findOrFail($data['req_id']);
             $srsRequest = SrsRequest::with(['vehicles' => function ($query) {
-                $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm', 'hoa_pres_status');
+                $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm', 'hoa_pres_status','account_id', 'address_id', 'crm_id');
             }])
                 ->findOrFail($data['req_id']);
 
+            if (!is_null($srsRequest->linked_account_id)) {
+                // Stop the try-catch here
+                DB::rollback();
+                return redirect()->back()->with('error_msg', 'SRS Vi ew: Test');
+            }
+            
+            
             $srsRequest->customer_id = $data['acc'];
+
+            // Indentify where is the request is linked
+            $findCRMXI = CRMXIMain::where('crm_id', $data['acc'])->firstOrFail();
+
+            // Create address if new application
+            if(is_null($srsRequest->account_id)) {
+
+                $address = new CRMXIAddress();
+                $address->account_id = $findCRMXI->account_id;
+                $address->customer_id = $findCRMXI->crm_id;
+                $address->category_id = $srsRequest->category_id;
+                $address->sub_category_id = $srsRequest->sub_category_id;
+                $address->hoa = $srsRequest->hoa_id;
+                $address->hoa_type = $srsRequest->hoa_type;
+                $address->block = $srsRequest->block_no;
+                $address->lot = $srsRequest->lot_no;
+                $address->house_number = $srsRequest->house_no;
+                $address->street = $srsRequest->street;
+                $address->building_name = $srsRequest->building_name;
+                $address->subdivision_village = $srsRequest->subdivision_village;
+                $address->city = $srsRequest->city;
+                $address->zipcode = $srsRequest->zipcode;
+                $address->created_by = Auth::id();
+                $address->save();
+            }
+
+            $srsRequest->linked_account_id = $findCRMXI->account_id;
+            $srsRequest->account_id = $findCRMXI->account_id;
             if ($srsRequest->save()) {
                 // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
                 // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
@@ -1958,7 +2000,7 @@ class SrsRequestController extends Controller
                 }])
                     ->where('crm_id', $srsRequest->customer_id)
                     ->first();
-    
+                
                 $vehicles = [];
 
                 foreach ($srsRequest->vehicles as $reqVehicle) {
@@ -1966,12 +2008,22 @@ class SrsRequestController extends Controller
                     if ($reqVehicle->hoa_pres_status == 1) {
                         continue;
                     }   
-                
                     $crmVehicle = $account->vehicles->where('plate_no', $reqVehicle->plate_no)->sortBy('created_at')->first();
                     if ($crmVehicle) {
+                        
                         $vehicles[] = $crmVehicle->id;
                     } else {
                         $vehicles[] = $reqVehicle->id;
+
+                        // dd($reqVehicle->account_id, $reqVehicle->address_id, $reqVehicle->crm_id, $reqVehicle->id);
+                        // Insert Address ID (if new application)
+                        if(is_null($reqVehicle->account_id)) {
+                            
+                            $reqVehicle->account_id = $findCRMXI->account_id;
+                            $reqVehicle->address_id = $address->id;
+                            $reqVehicle->crm_id = $findCRMXI->crm_id;
+                        }
+                        
                         $reqVehicle->assoc_crm = 1;
                         $reqVehicle->save();
                 
@@ -1979,7 +2031,7 @@ class SrsRequestController extends Controller
                         $existingOwner = DB::table('crmxi3_vehicle_owners')
                             ->where('vehicle_id', $reqVehicle->id)
                             ->first();
-                
+
                         if (!$existingOwner) {
                             // Get the original vehicle owner based on plate_no
                             $originalVehicle = DB::table('crmxi3_vehicles')
@@ -2178,8 +2230,13 @@ class SrsRequestController extends Controller
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                    $vehicle->address_id = $address->id;
+                    $vehicle->crm_id = $account->crm_id;
+                    $vehicle->account_id = $account->account_id;
+                    $vehicle->assoc_crm = 1;
+                    $vehicle->save();
                 }
-    
+
                 $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID ' . $srsRequest->request_id . ', Customer ID ' . $account->customer_id);
     
                 // for checking if srs3_requests account_id is updating
@@ -2195,7 +2252,9 @@ class SrsRequestController extends Controller
                     'assoc_crm' => 1
                 ]);
                 
+                $srsRequest->linked_account_id = $account->account_id;
                 $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
+
                 $srsRequest->save();
     
                 DB::commit();
@@ -2285,8 +2344,6 @@ class SrsRequestController extends Controller
             // })
             // ->select('crm_mains.*', 'spc_categories.name as category_name', 'spc_subcat.name as sub_category_name')
             ->get();
-
-        // dd($accounts);
 
         $html = '';
         if ($accounts->isEmpty()) {

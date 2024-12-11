@@ -767,7 +767,24 @@
             $('#addVehicleBtn').hide();
             $('.formFileDiv').hide();
 
-            getAddress(data.address_id, 1, data.address_id);
+            // getAddress(data.address_id, 1, data.address_id);
+            if (!data.address_id) {
+            // Auto-select the first address in the list
+            Swal.fire({
+                title: 'Vehicle has no define address',
+                text: '',
+                icon: 'info',
+                showCancelButton: false,
+                confirmButtonColor: '#3085d6',
+                // cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            });
+
+            const firstAddressId = $('#owner_address1 option:eq(1)').val();
+            $('#owner_address1').val(firstAddressId).trigger('change').change();
+            }else{
+                getAddress(data.address_id, 1, data.address_id);
+            }
             const fields = {
                 '#current_vehicle_id1': data.vehicle_id,
                 '#current_owner_id1': data.owner_id,

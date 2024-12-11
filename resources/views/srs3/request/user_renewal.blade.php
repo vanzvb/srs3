@@ -28,6 +28,45 @@
                 </div>
                 <div id="request_renewal_msg" class="row justify-content-center">
                 </div>
+            @if ($vehicleAddressIds->count() > 0)
+                <div class="alert alert-warning text-center p-3" role="alert" style="font-size: 1.25rem;">
+                    <strong>This account has no Homeowners Association (HOA) in the system.</strong>
+                    <br>
+                    <strong>Update your HOA</strong>
+                </div>
+
+                {{-- Dropdown filter for address_id --}}
+                <form action="{{ route('request.v3.user-renewal.Updateprocess') }}" id="renewal_update_form"
+                method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="p-2">
+                    <div class="row px-2 px-md-0 mb-4 mt-4">
+                        <div class="col-md-6">
+                            <h5>Select your address to Update</h5>
+                            <select id="addressToUpdate" class="form-select" name="addressToUpdate" required>
+                                @foreach ($vehicleAddressIds as $addressId)
+                                    <option value="{{ $addressId->id }}">{{ $addressId->block }}, {{ $addressId->lot }}, {{ $addressId->house_number }}, {{ $addressId->street }}, {{ $addressId->subdivision_village }}, {{ $addressId->city }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Select your Homeowners Association (HOA)</h5>
+                            <select id="hoaToUpdate" class="form-select" name ="hoaToUpdate" required>
+                                @foreach ($hoaMembers as $dataHoa)
+                                    <option value="{{ $dataHoa->id }}">{{ $dataHoa->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="crm_id_update" id="crm_id_update" value="{{ $crmId }}">
+                    <center>
+                    <button type="submit" id="request_submit_btn"
+                    class="btn btn-primary mt-3">Update Account</button>
+                    </center>
+                </div>
+                
+                </form>
+            @else
                 <div class="container justify-content-center align-items-center">
                     <div class="px-md-4 mt-3 mb-3">
                         <form action="{{ route('request.v3.user-renewal.process') }}" id="renewal_request_form"
@@ -135,6 +174,9 @@
 
                                 </div>
                             @endif
+
+
+
                             {{-- Dropdown filter for address_id --}}
                             <div class="p-2">
                                 <div class="px-2 px-md-0 mb-4 mt-4">
@@ -278,6 +320,7 @@
                             </div>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -379,6 +422,20 @@
                         }
                     });
                 });
+            });
+        </script>
+
+        <script>
+            document.getElementById('renewal_update_form').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting immediately
+
+                // Display a confirmation dialog
+                var userConfirmed = confirm('Are you sure you want to update the account?');
+
+                // If the user clicked "Yes", submit the form
+                if (userConfirmed) {
+                    this.submit();
+                }
             });
         </script>
     @endsection

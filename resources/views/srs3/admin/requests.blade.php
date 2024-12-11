@@ -238,8 +238,12 @@
 				</div>
 				<div class="col-md-7 col-sm-6 col-xs-6">
 					{{-- <input type="text" name="" id=""> --}}
+					
 					<div class="input-group mb-3">
-						<input type="text" id="details_account_id" class="form-control" placeholder="Link account here" readonly>
+						<div style="display: none;">
+							<input type="text" id="details_account_id" class="form-control" placeholder="Link account here" readonly>
+						</div>
+						<input type="text" id="linked_account_id" class="form-control" placeholder="Link account here" readonly>
 						<button data-fname="" data-mname="" data-lname="" class="btn btn-outline-secondary" id="search_account_btn" type="button"><i class='bx bx-search-alt-2 icon'></i></button>
 					</div>
 				</div>
@@ -296,6 +300,12 @@
 				<label class="text-muted" style="font-size: 14px;">SRS SYSTEM Notification</label>				
 				<div class="col-md-12">
 					<textarea name="" class="form-control text-muted rounded-0" id="system_notes" style="font-size: 14px;" disabled></textarea>
+				</div>	
+			</div>
+			<div class="row mt-md-3" style="text-align: left;">
+				<label class="text-muted" style="font-size: 14px;">SRS 3.0 Notes (Merging Candidate)</label>				
+				<div class="col-md-12">
+					<textarea name="" class="form-control text-muted rounded-0" id="srs_system_notes" style="font-size: 14px;" disabled></textarea>
 				</div>	
 			</div>
 			<div class="row mt-md-2" style="text-align: left;">
@@ -754,6 +764,7 @@ $(document).ready(function () {
 				// New Fields SRS3 
 				$('#details_service3').text(data.srs.new_service);
 				$('#details_hoa3').text(data.srs.new_hoa_id);
+				$('#linked_account_id').val(data.srs.link_id);
 				var html = '';
 				$.each(data.srs.routes, function (index, value) {
 					html += value;
@@ -795,6 +806,7 @@ $(document).ready(function () {
 				$('#tabsfiles .container').html(files);
 				$('#invoice_action').html(data.srs.paymentAction);
 				$('#system_notes').val(data.srs.systemNotes);
+				$('#srs_system_notes').val(data.srs.srsSystemNotes);
 				$('#admin_notes').val(data.srs.adminNotes);
 				$('#current').text($('#admin_notes').val().length);
 				$('#requests_table_wrapper').hide();

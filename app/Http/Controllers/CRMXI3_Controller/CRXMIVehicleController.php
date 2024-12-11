@@ -25,6 +25,7 @@ class CRXMIVehicleController extends Controller
 
     public function vehicleList(Request $req, $account_id)
     {
+        // dd('test');
         $vehicles = CRXMIVehicle::
             // with(['vehicleOwner.categories' => function ($query){
             //     $query->select('id', 'name');
