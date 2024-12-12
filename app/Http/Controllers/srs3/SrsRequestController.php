@@ -879,15 +879,15 @@ class SrsRequestController extends Controller
         $resendApptBtn = '';
         $isOpen = (!$srsRequest->trashed() && $srsRequest->status != 4 && $srsRequest->status != 5);
         $resendHoaNotifBtn = '';
-        // VB
-        // if (auth()->user()->can('approve', SrsRequest::class)) {
+        
+        if (auth()->user()->can('approve', SrsRequest::class)) {
         $requestAction = '<div class="mx-auto">
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="approve_btn" class="btn btn-sm btn-primary mx-2 px-3">APPROVE SRS</a>
                                     <a data-value="' . $srsRequest->request_id . '" href="#" id="reject_btn" class="btn btn-sm btn-danger mx-2 px-3">REJECT SRS</a>
                                 </div>';
-        // } else {
-        // $requestAction = false;
-        // }
+        } else {
+        $requestAction = false;
+        }
 
         $srsSystemNotes = $srsRequest->system_notes;
 
@@ -1878,11 +1878,13 @@ class SrsRequestController extends Controller
         $this->authorize('access', SrsRequest::class);
 
         $data = $request->validate([
-            'req_id' => 'required|exists:srs_requests,request_id',
+            'req_id' => 'required|exists:srs3_requests,request_id',
             'notes' => 'nullable|string',
             'red_tag' => 'nullable|boolean',
             'red_tag_notes' => 'nullable|string',
-            'acc' => 'nullable|exists:crm_mains,customer_id'
+            // Commented Out 2.0 Red Tagging
+            // 'acc' => 'nullable|exists:crm_mains,customer_id'
+            'acc' => 'nullable'
         ]);
 
         $srsRequest = SrsRequest::findOrFail($data['req_id']);
@@ -1892,47 +1894,48 @@ class SrsRequestController extends Controller
 
         if ($srsRequest->save()) {
             if ($data['acc']) {
-                $srsRequest->load(['customer' => function ($query) {
-                    $query->select('crm_id', 'customer_id', 'red_tag');
-                }, 'customer.redTags' => function ($query) {
-                    $query->whereNull('status')
-                        ->orWhere('status', 0);
-                }]);
 
-                if ($srsRequest->customer->redTags->isNotEmpty()) {
-                    if ($data['red_tag'] != 1) {
-                        $srsRequest->customer()->update([
-                            'red_tag' => $data['red_tag'],
-                        ]);
+                // Comment Out 2.0 Red Tagging
+                // $srsRequest->load(['customer' => function ($query) {
+                //     $query->select('crm_id', 'customer_id', 'red_tag');
+                // }, 'customer.redTags' => function ($query) {
+                //     $query->whereNull('status')
+                //         ->orWhere('status', 0);
+                // }]);
 
-                        $srsRequest->customer->redTags()->update([
-                            'status' => 1,
-                            'deleted_by' => Auth::user()->name
-                        ]);
+                // if ($srsRequest->customer->redTags->isNotEmpty()) {
+                //     if ($data['red_tag'] != 1) {
+                //         $srsRequest->customer()->update([
+                //             'red_tag' => $data['red_tag'],
+                //         ]);
 
-                        $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
-                    }
-                } else {
-                    if ($data['red_tag'] == 1) {
-                        $srsRequest->customer()->update([
-                            'red_tag' => $data['red_tag'],
-                        ]);
+                //         $srsRequest->customer->redTags()->update([
+                //             'status' => 1,
+                //             'deleted_by' => Auth::user()->name
+                //         ]);
 
-                        $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
-                    }
-                }
+                //         $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
+                //     }
+                // } else {
+                //     if ($data['red_tag'] == 1) {
+                //         $srsRequest->customer()->update([
+                //             'red_tag' => $data['red_tag'],
+                //         ]);
+
+                //         $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', red_tag: ' . $data['red_tag']);
+                //     }
+                // }
 
 
+                // if ($data['red_tag_notes'] && $data['red_tag'] == 1) {
+                    // $redTag = new CrmRedtag();
+                //     $redTag->description = $data['red_tag_notes'];
+                //     $redTag->action_by = Auth::user()->name;
 
-                if ($data['red_tag_notes'] && $data['red_tag'] == 1) {
-                    $redTag = new CrmRedtag();
-                    $redTag->description = $data['red_tag_notes'];
-                    $redTag->action_by = Auth::user()->name;
+                //     $srsRequest->customer->redTags()->save($redTag);
 
-                    $srsRequest->customer->redTags()->save($redTag);
-
-                    $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', reason_of_tag: ' . $data['red_tag_notes']);
-                }
+                //     $this->insertLogSrs('Updated SRS Info, SRS ID ' . $srsRequest->request_id . ', reason_of_tag: ' . $data['red_tag_notes']);
+                // }
             }
 
             return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
@@ -1947,6 +1950,7 @@ class SrsRequestController extends Controller
             'acc' => 'required|string|exists:crmxi3_mains,crm_id',
         ]);
 
+        
         DB::beginTransaction();
 
         try {
@@ -1955,13 +1959,15 @@ class SrsRequestController extends Controller
                 $query->select('id', 'srs_request_id', 'plate_no', 'assoc_crm', 'hoa_pres_status','account_id', 'address_id', 'crm_id');
             }])
                 ->findOrFail($data['req_id']);
-
+                  
             if (!is_null($srsRequest->linked_account_id)) {
                 // Stop the try-catch here
+                Log::info('SRS Request already linked to account', ['linked_account_id' => $srsRequest->linked_account_id]);
+                Log::info('This is line 1966 SrsRequestController');
+
                 DB::rollback();
-                return redirect()->back()->with('error_msg', 'SRS Vi ew: Test');
+                return redirect()->back()->with('error_msg', 'SRS View: Account Already Linked');
             }
-            
             
             $srsRequest->customer_id = $data['acc'];
 
@@ -1969,8 +1975,8 @@ class SrsRequestController extends Controller
             $findCRMXI = CRMXIMain::where('crm_id', $data['acc'])->firstOrFail();
 
             // Create address if new application
+            // All new application has No Account ID (it would create a new address based on the srsRequest) 
             if(is_null($srsRequest->account_id)) {
-
                 $address = new CRMXIAddress();
                 $address->account_id = $findCRMXI->account_id;
                 $address->customer_id = $findCRMXI->crm_id;
@@ -1989,10 +1995,11 @@ class SrsRequestController extends Controller
                 $address->created_by = Auth::id();
                 $address->save();
             }
-
+            
             $srsRequest->linked_account_id = $findCRMXI->account_id;
             $srsRequest->account_id = $findCRMXI->account_id;
             if ($srsRequest->save()) {
+
                 // $account = CrmMain::where('customer_id', $srsRequest->customer_id)->first();
                 // $account = CrmMain::where('crm_id', $srsRequest->customer_id)->first();
                 $account = CRMXIMain::with(['vehicles' => function ($query) {
@@ -2000,11 +2007,12 @@ class SrsRequestController extends Controller
                 }])
                     ->where('crm_id', $srsRequest->customer_id)
                     ->first();
-                
+
                 $vehicles = [];
 
                 foreach ($srsRequest->vehicles as $reqVehicle) {
-                    // Skip vehicles with hoa_pres_status equal to 1
+                    // Skip vehicles with hoa_pres_status equal to 1 (Skips Rejected Vehicles )
+                    // It would allow 0(approved by hoa pres) and null values (why null ? because all application that didn't go thru hoa pres approval will have null when approved in admin inbox)
                     if ($reqVehicle->hoa_pres_status == 1) {
                         continue;
                     }   
@@ -2094,22 +2102,21 @@ class SrsRequestController extends Controller
                     }
                 }
 
-                // DB::rollBack();
-                // dd($vehicles);
 
-                $srsRequest->crmVehicles()->sync($vehicles);
+                // $srsRequest->crmVehicles()->sync($vehicles);
     
-                $srsRequest->vehicles()
-                ->where('hoa_pres_status', '!=', 1)
-                ->update([
-                    'account_id' => $account->account_id,
-                    'crm_id' => $account->customer_id
-                ]);
-    
+                // $srsRequest->vehicles()
+                // ->where('hoa_pres_status', '!=', 1)
+                // ->update([
+                //     'account_id' => $account->account_id,
+                //     'crm_id' => $account->customer_id
+                // ]);
+
                 $this->insertLogSrs('SRS Linked to Account, SRS ID ' . $srsRequest->request_id . ', Linked to Customer ID ' . $account->customer_id);
     
                 $account->save();
-    
+
+
                 DB::commit();
     
                 return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
@@ -2126,35 +2133,20 @@ class SrsRequestController extends Controller
     public function storeCrm(Request $request)
     {
         // $this->authorize('access', SrsRequest::class);
-
         $data = $request->validate([
             'req_id' => 'required|exists:srs3_requests,request_id'
         ]);
-
+        
         $srsRequest = SrsRequest::with(['hoa' => function ($query) {
             $query->select('id', 'name');
         }, 'vehicles' => function ($query) {
-            $query->select('id', 'srs_request_id');
+            $query->select('id', 'srs_request_id','hoa_pres_status');
         // }, 'nrHoa' => function ($query) {
         //     $query->select('id', 'name');
         }])
             ->withCount('vehicles')
             ->findOrFail($data['req_id']);
             
-        // $account = CrmMain::firstOrNew([
-        //     'category_id' => $srsRequest->category_id,
-        //     'sub_category_id' => $srsRequest->sub_category_id,
-        //     'firstname' => $srsRequest->first_name,
-        //     'middlename' => $srsRequest->middle_name,
-        //     'lastname' => $srsRequest->last_name,
-        //     'blk_lot' => $srsRequest->blk_lot,
-        //     'street' => $srsRequest->street,
-        //     'hoa' => $srsRequest->hoa ? $srsRequest->hoa->name : '',
-        //     'email' => $srsRequest->email,
-        //     'main_contact' => $srsRequest->contact_no,
-        // ], [
-        //     'customer_id' => app('App\Http\Controllers\CRMController')->getNextId($srsRequest->category_id, $srsRequest->sub_category_id, $srsRequest->hoa_id, 'int')
-        // ]);
         $crm = CRMXIMain::with(['creator' => function ($query) {
             $query->select('id', 'name');
         }])
@@ -2184,7 +2176,18 @@ class SrsRequestController extends Controller
                     $subcategoryGen = $srsRequest->sub_category_id;
                 }
                 $account->account_id = (new CRMXIController())->generateAccountNum(0, $srsRequest->category_id, $subcategoryGen, $srsRequest->hoa_id, $srsRequest->hoa_type);
-                $account->account_type = 0;
+
+                // Check if the generated account_id already exists
+                $existingAccount = CRMXIMain::where('account_id', $account->account_id)->exists();
+
+                if ($existingAccount) {
+                    // Handle the case where the account_id already exists
+                    Log::error('Generated account_id already exists in crmxi3_mains', ['account_id' => $account->account_id]);
+                    DB::rollBack(); // Add rollback here
+                    return response()->json(['status' => 0, 'error' => 'Generated account_id already exists. Please try again.'], 500);
+                }
+
+                $account->account_type = 0; // Individual 
                 $account->firstname = $srsRequest->first_name;
                 $account->middlename = $srsRequest->middle_name;
                 $account->lastname = $srsRequest->last_name;
@@ -2217,6 +2220,8 @@ class SrsRequestController extends Controller
                 $address->created_by = Auth::id();
                 $address->save();
 
+                $counter = 0;
+
                 // Create crmxi3_vehicle_owners record for each vehicle
                 foreach ($srsRequest->vehicles as $vehicle) {
                     DB::table('crmxi3_vehicle_owners')->insert([
@@ -2230,30 +2235,42 @@ class SrsRequestController extends Controller
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-                    $vehicle->address_id = $address->id;
-                    $vehicle->crm_id = $account->crm_id;
-                    $vehicle->account_id = $account->account_id;
-                    $vehicle->assoc_crm = 1;
-                    $vehicle->save();
+
+                    Log::info('hoa_pres_status:', ['hoa_pres_status' => $vehicle->hoa_pres_status]);
+
+                    if($vehicle->hoa_pres_status !== 1) {
+                        $vehicle->address_id = $address->id;
+                        $vehicle->crm_id = $account->crm_id;
+                        $vehicle->account_id = $account->account_id;
+                        $vehicle->assoc_crm = 1;
+                        $counter++;
+                        $vehicle->save();
+                    }
                 }
+                
+                Log::info('vehicle count added:', ['counter' => $counter]);
 
                 $this->insertLogSrs('Inserted to CRM via SRS Create Customer button, SRS ID ' . $srsRequest->request_id . ', Customer ID ' . $account->customer_id);
-    
-                // for checking if srs3_requests account_id is updating
-                $srsRequest->customer()->associate($account);
-                // $srsRequest->vehicles()->update(['address_id' => $address->id]);
-                // $srsRequest->vehicles()->update(['account_id' => $account->account_id, 'assoc_crm' => 1]);
-                // Update vehicles with account_id and address_id (excludes rejected by hoa vehic)
-                $srsRequest->vehicles()
-                ->where('hoa_pres_status', '!=', 1)
-                ->update([
-                    'account_id' => $account->account_id,
-                    'address_id' => $address->id,
-                    'assoc_crm' => 1
-                ]);
                 
+                // Bugged Code For Test
+                // $srsRequest->customer()->associate($account);
+                // $srsRequest->vehicles()
+                // ->where('hoa_pres_status', '!=', 1)
+                // ->update([
+                //     'account_id' => $account->account_id,
+                //     'address_id' => $address->id,
+                //     'assoc_crm' => 1
+                // ]);
+                 // Bugged Code For Test END
+            
+
                 $srsRequest->linked_account_id = $account->account_id;
-                $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
+                $srsRequest->customer_id = $account->crm_id;
+
+                // Bugged Code For Test
+                // $srsRequest->crmVehicles()->sync($srsRequest->vehicles->pluck('id'));
+                // Bugged Code For END
+
 
                 $srsRequest->save();
     
@@ -2261,6 +2278,8 @@ class SrsRequestController extends Controller
     
                 return response()->json(['status' => 1, 'srs' => $srsRequest->request_id]);
             } catch (\Exception $e) {
+                Log::error('Error in storeCrm method:', ['error' => $e->getMessage()]);
+
                 DB::rollBack();
                 return response()->json(['status' => 0, 'error' => $e->getMessage()], 500);
             }

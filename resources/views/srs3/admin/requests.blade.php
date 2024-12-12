@@ -1115,7 +1115,7 @@ $(document).ready(function () {
 		}
 
 		$.ajax({
-			url: '{{ route("request.edit_info") }}',
+			url: '{{ route("request.v3.edit_info") }}',
 			type: 'POST',
 			data: {
 				_token: '{{ csrf_token() }}',

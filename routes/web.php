@@ -133,8 +133,8 @@ Route::prefix('v3')->group(function () {
 
     Route::post('/appointments/reset', [SrsAppointmentController::class, 'reset'])->name('appointment.reset');
         Route::post('/appointments/resend', [SrsAppointmentController::class, 'resend'])->name('appointment.resend');
-    // For Inbox (link Account)
-    // Route::post('/srs/request/info', [SrsRequestController::class, 'updateInfo'])->name('request.edit_info');
+    // For Inbox (save admin remarks)
+    Route::post('/srs/request/info', [Srs3RequestController::class, 'updateInfo'])->name('request.v3.edit_info');
     // Create new Account
     Route::post('/srs/account', [Srs3RequestController::class, 'storeCrm'])->name('crm.v3.store');
 
